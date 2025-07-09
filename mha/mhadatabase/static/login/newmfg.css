@@ -1,0 +1,283 @@
+img.img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 20%;
+    margin-top: 55px;
+    margin-bottom: 30px;
+}
+
+a{
+    display: flex;
+}
+
+
+div.container{
+    display: flex;
+    flex: 1;
+}
+
+div.container1{
+    display: flex;
+    flex: 1;
+}
+
+div.container2{
+    display: flex;
+    flex: 6;
+    justify-content: center;
+
+}
+
+div.container2A{
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    display: flex;
+    margin-top: 86px;
+}
+
+div.container2B{
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    height: 366px;
+
+}
+
+div.container3{
+    display: flex;
+    flex: 1;
+}
+
+.form2{
+    background-color:#D3D3D3;
+    border-radius:10px;
+    border: 2px solid black;
+    height: 256px;
+    width: 460px;
+}
+
+
+label.label{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    font-weight:bold;
+    width: 320px;
+    justify-content: right;
+    display: flex;
+    margin-right: 10px;
+}
+
+div.form-row{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    margin-top: 17px;
+    justify-content: center;
+}
+
+#id_manufacturer{
+    font-size: calc(0.75vw + 0.75vh + .25vmin);
+}
+
+
+button.btn.btn1{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 170px;
+    height: 3vw;
+    font-size: calc(0.75vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 0.5%;
+    margin-left:0.0%;
+    margin-right:0.0%;
+    margin-bottom: 0.0%;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+
+}
+
+button.btn.btn2, button.btn.btn3{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 326px;
+    height: 3vw;
+    font-size: calc( 1vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 25px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 25px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+
+}
+button.btn.btn1:hover, button.btn.btn2:hover, button.btn.btn3:hover{
+    color: white;
+    background: #1e90ff;
+}
+
+.mfg-modal, .add-mfg{
+    width:100%;
+    height:100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    position: absolute;
+    top:0;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.modal-content{
+    width:500px;
+    height:300px;
+    margin-left:0px;
+    margin-right:0px;
+    background-color:#D3D3D3;
+    border-radius:10px;
+}
+
+#modaltitle, #add-mfg-title{
+    height:50px;
+    width:400px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    font-size: 24px;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    padding-top:10px;
+}
+
+.button1{
+    border: 2px solid #C0C0C0;
+    border-radius: 2px;
+    background: #007bff;
+    width: 120px;
+    height: 30px;
+    font-size: 18px;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    cursor: pointer;
+    float: left;
+    margin-right: 0px;
+    margin-left:0px;
+    transition: 0.6s;
+    text-align: center;
+    overflow: hidden;
+    padding:3px 5px;
+    display:inline-block;
+}
+.button1{
+    color: #000000;
+}
+
+.button1:hover{
+    color: #a9a9a9;
+    background: #003380;
+    text-decoration: underline;
+}
+
+.button2{
+    border: 2px solid #C0C0C0;
+    border-radius: 2px;
+    background: #007bff;
+    width: 120px;
+    height: 30px;
+    font-size: 18px;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    cursor: pointer;
+    float: right;
+    margin-right: 100px;
+    margin-left:0px;
+    transition: 0.6s;
+    text-align: center;
+    overflow: hidden;
+    padding:3px 5px;
+    display:inline-block;
+}
+.button2{
+    color: #000000;
+}
+
+.button2:hover{
+    color: #a9a9a9;
+    background: #003380;
+    text-decoration: underline;
+}
+
+.accept{
+    width: 120px;
+    height: 30px;
+    font-size: 18px;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    cursor: pointer;
+    float: left;
+    margin-top: 40px;
+    margin-right: 0px;
+    margin-left:63px;
+    transition: 0.6s;
+    text-align: center;
+    overflow: hidden;
+    padding:3px 5px;
+    display:inline-block;
+}
+.accept{
+    color: #000000;
+}
+
+.accept:hover{
+    color: #a9a9a9;
+    background: #003380;
+    text-decoration: underline;
+}
+
+.cancel{
+    border: 2px solid #C0C0C0;
+    border-radius: 2px;
+    background:#a9a9a9;
+    width: 120px;
+    height: 30px;
+    font-size: 18px;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    cursor: pointer;
+    float: right;
+    margin-top: 40px;
+    margin-right: 100px;
+    margin-left:0px;
+    transition: 0.6s;
+    text-align: center;
+    overflow: hidden;
+    padding:3px 5px;
+    display:inline-block;
+}
+.cancel{
+    color: #000000;
+}
+
+.cancel:hover{
+    color: #a9a9a9;
+    background: #003380;
+    text-decoration: underline;
+}

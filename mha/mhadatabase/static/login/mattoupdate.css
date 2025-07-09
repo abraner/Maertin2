@@ -1,0 +1,554 @@
+div.img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 20%;
+    margin-top:100px;
+}
+
+div.container{
+    display: flex;
+    justify-content: center;
+}
+
+
+div.container2{
+    height: 600px;
+    width: 1345px;
+    margin-top: 48px;
+    background: #008B8B;
+    border: black 4px solid;
+}
+
+.form2{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+
+}
+
+.form3{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+
+}
+
+.headermain{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    background: #008B8B;
+    border: black 2px solid;
+    justify-content: center;
+}
+
+.headermainA{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    background: #008B8B;
+}
+
+.headermainB{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    background: #008B8B;
+    justify-content: right;
+    padding-right: 30px;
+}
+
+.header1{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    background: #6aadad;
+    border: black 2px solid;
+}
+
+
+#A1{
+    width: 80px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+    color:white;
+    background: #008B8B;
+}
+
+#A{
+    width: 475px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+    color:white;
+    background: #008B8B;
+}
+
+#B{
+    width: 109px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+    color:white;
+    background: #008B8B;
+}
+
+#C{
+    width: 170px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+    color:white;
+    background: #008B8B;
+}
+
+#D{
+    width: 149px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+    color:white;
+    background: #008B8B;
+}
+
+#E{
+    width: 140px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+    color:white;
+    background: #008B8B;
+}
+
+#F{
+    width: 241px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+    color:white;
+    background: #008B8B;
+}
+#G{
+    width: 77px;
+    text-align: center;
+    font-weight:bold;
+    color:white;
+    background: #008B8B;
+}
+
+
+.equiprow{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    margin-top: 2px;
+    background: #6aadad;
+    border: black 2px solid;
+}
+
+#id{
+    width: 80px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+}
+
+
+#descrip{
+    width: 475px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+}
+
+#cost{
+    width: 110px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+}
+
+#mfg{
+    width: 170px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+}
+
+#vendor{
+    width: 150px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+}
+
+#vendornum{
+    width: 138px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+}
+
+#materialtype{
+    width: 240px;
+    text-align: center;
+    font-weight:bold;
+    border-right: black 2px solid;
+}
+
+
+.mat-modal, .mat2{
+    width:100%;
+    height:100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    position: absolute;
+    top:0;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.content{
+    width:500px;
+    height:300px;
+    margin-left:0px;
+    margin-right:0px;
+    background-color:#D3D3D3;
+    border-radius:10px;
+}
+
+.modal-cont{
+    width: 1573px;
+    height:90px;
+    margin-left:0px;
+    margin-right:0px;
+    background-color:#D3D3D3;
+    border-radius:10px;
+}
+
+.modaltitle{
+    height:50px;
+    width:400px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    font-size: 24px;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    padding-top:50px;
+}
+
+.button1, .button2{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: white;
+    width: 120px;
+    height: 30px;
+    font-size: 18px;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    cursor: pointer;
+    float: left;
+    margin-top: 122px;
+    margin-right: 0px;
+    margin-left: 84px;
+    transition: 0.6s;
+    text-align: center;
+    overflow: hidden;
+    display:inline-block;
+}
+
+.button1:hover, .button2:hover{
+    color: white;
+    background: #007bff;
+    text-decoration: underline;
+}
+
+
+div.form-row{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    margin-top: 17px;
+
+}
+
+label.labeldescrip{
+    font-weight:bold;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    color: black;
+}
+
+label.labelcost{
+    font-weight:bold;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    color: black;
+}
+
+label.labelmfg{
+    font-weight:bold;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    color: black;
+}
+
+label.labelven{
+    font-weight:bold;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    color: black;
+}
+
+label.labelvennum{
+    font-weight:bold;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    color: black;
+}
+
+label.labeltype{
+    font-weight:bold;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    color: black;
+}
+
+
+.form-row-vendor{
+    display: flex;
+    width: 150px;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+#id_vendor{
+    text-align: center;
+    font-weight:bold;
+    width: 150px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-row-vendornum{
+    display: flex;
+    width: 138px;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+#id_vendornum{
+    text-align: center;
+    font-weight:bold;
+    width: 138px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0px;
+}
+
+.form-row-descrip{
+    display: flex;
+    width: 562px;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+#id_descrip{
+    text-align: center;
+    font-weight:bold;
+    width: 562px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-row-cost{
+    display: flex;
+    width: 110px;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+#id_cost{
+    text-align: center;
+    font-weight:bold;
+    width: 110px;
+    margin-left: auto;
+    margin-right: auto;
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+}
+
+
+.form-row-mfg{
+    display: flex;
+    width: 170px;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+#id_mfg{
+    font-size: calc(.5vw + 0.75vh + .25vmin);
+    text-align: center;
+    font-weight:bold;
+    width: 170px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-row-materialtype{
+    display: flex;
+    width: 152px;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+#id_materialtype{
+    font-size: calc(.5vw + 0.75vh + .25vmin);
+    text-align: center;
+    font-weight:bold;
+    width: 152px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+div.container3{
+    display: flex;
+    flex: 1;
+}
+
+.buttonrow{
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+}
+
+a#accept, a#delete{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 100px;
+    margin-top: 34px;
+    margin-bottom: 2px;
+    font-size: calc( .45vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+
+}
+
+button.btn.btn1{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 100px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: calc( .45vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+
+}
+
+button.btn.btn1:hover{
+    color: white;
+    background: #1e90ff;
+}
+
+
+button.btn.btnmain{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 176px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: calc( .45vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-left: 10px;
+    margin-right: 0px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+
+}
+
+
+button.btn.btnmain:hover{
+    color: white;
+    background: #1e90ff;
+}
+
+button.btn.btnmatsearch{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 176px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: calc( .45vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-left: 10px;
+    margin-right: 0px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+
+}
+
+
+button.btn.btnmatsearch:hover{
+    color: white;
+    background: #1e90ff;
+}
+
+#deletemat{
+    background: #C0C0C0;
+    width: 75px;
+    font-size: calc( .45vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+

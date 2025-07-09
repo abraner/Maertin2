@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../static/login/editmat.css">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+
+<body style="background: #008B8B;
+             background-image: url('../../../img/inventory2.jpg');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: 70%;
+             background-position: center;">
+<div class="container">
+    <div class="container1">
+
+    </div>
+    <div class="container2">
+        <div class="img">
+            <a id="back"  href="/mhadatabase/mattoupdate">Back</a>
+            <img class="img" src='../../../../img/img.png'>
+        </div>
+        <div class="container2A">
+      <form class="form2" method="post"
+            costmat-url="{% url 'mhadatabase:costmat' instance.idA %}"
+            matcostload-url="{% url 'mhadatabase:matcostload' instance.idA %}"
+            matmfg-url="{% url 'mhadatabase:mfgmat' instance.idA %}"
+            matmfgload-url="{% url 'mhadatabase:matmfgload' instance.idA %}"
+            matvendor-url="{% url 'mhadatabase:mfgvendor' instance.idA %}"
+            matvendorload-url="{% url 'mhadatabase:matvendorload' instance.idA %}"
+            matvennum-url="{% url 'mhadatabase:mfgvennum' instance.idA %}"
+            matvennumload-url="{% url 'mhadatabase:matvennumload' instance.idA %}"
+            mattype-url="{% url 'mhadatabase:mfgtype' instance.idA %}"
+            mattypeload-url="{% url 'mhadatabase:mattypeload' instance.idA %}"
+      >
+          {% csrf_token %}
+          {{ form.name_of_field }}
+          <div class="form-row-descrip">
+              {{ form.descrip.errors }}
+              <label class="label">Description</label>
+                {{ form.descrip }}
+          </div>
+          <div class="form-row-cost">
+              <div id="cost">
+                  <div id="id_cost"></div>
+              </div>
+          </div>
+          <div class="form-row-mfg">
+              {{ form.matmfg.errors }}
+              <label class="label">Manufacturer</label>
+              {{ form.matmfg }}
+          </div>
+          <div class="form-row-vendor">
+              {{ form.vendor.errors }}
+              <label class="label">Vendor</label>
+              {{ form.vendor }}
+          </div>
+          <div class="form-row-vendornum">
+              <div id="vennum">
+                  <div id="id_vendornum"></div>
+              </div>
+          </div>
+          <div class="form-row-materialtype">
+              {{ form.materialtype.errors }}
+              <label class="label">Material Type</label>
+              {{ form.materialtype }}
+          </div>
+            <div class="buttonrow">
+                <a id="accept"  href="/mhadatabase/mattoupdate">Accept</a>
+            </div>
+      </form>
+        </div>
+
+  </div>
+    <div class="container3">
+
+    </div>
+
+
+
+</div>
+
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+////////////////// On Load //////////////////////////////////////
+
+$(document).ready(function() {
+$("#id_descrip").attr("disabled", true)
+
+
+setTimeout(function(){
+            var urlC = $(".form2").attr("matcostload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_cost").html(data);
+                     }
+                });
+        }, 0);
+
+
+
+setTimeout(function(){
+            var urlC = $(".form2").attr("matmfgload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_matmfg").html(data);
+                     }
+                });
+        }, 0);
+
+
+setTimeout(function(){
+            var urlC = $(".form2").attr("matvendorload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_matvendor").html(data);
+                     }
+                });
+        }, 0);
+
+
+setTimeout(function(){
+            var urlC = $(".form2").attr("matvennumload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_vendornum").html(data);
+                     }
+                });
+        }, 0);
+
+setTimeout(function(){
+            var urlC = $(".form2").attr("mattypeload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_materialtype").html(data);
+                     }
+                });
+        }, 0);
+
+
+});
+
+function myFunctionCost() {
+var userInput = document.getElementById("cost_id").value;
+                       console.log(userInput);
+                    var url = $(".form2").attr("costmat-url");
+                     $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            cost_id: $("#cost_id").val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+
+}
+////////////////// Material Manufacturer //////////////////////////////////////
+
+$(function(){
+   $('#id_matmfg').change(function(){
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_matmfg');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("matmfg-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_matmfg: $('#id_matmfg').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+//////////////// Vendor //////////////////////////////////////
+
+$(function(){
+   $('#id_vendor').change(function(){
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_vendor');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("matvendor-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_vendor: $('#id_vendor').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+//////////////////// Vendor Number //////////////////////////////////////
+
+
+function myFunctionVenNum() {
+var userInput = document.getElementById("vendornum_id").value;
+                       console.log(userInput);
+                    var url = $(".form2").attr("matvennum-url");
+                     $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            vendornum_id: $("#vendornum_id").val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+
+}
+
+//////////////////// Material Type //////////////////////////////////////
+
+$(function(){
+   $('#id_materialtype').change(function(){
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_materialtype');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("mattype-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_materialtype: $('#id_materialtype').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+
+
+</script>

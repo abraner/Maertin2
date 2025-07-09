@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../../static/login/addcust.css">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background-image: url('../../../../img/A.jpg');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: cover;" >
+<div class="img"><img class="img" src='../../../../img/img.png'></div>
+<div class="container">
+  <div class="container1">
+  </div>
+  <div class="container2">
+    <div class="container2A">
+        <div  class="custinfo">
+                  <h4>Contractor Information</h4>
+              </div>
+        <form id="form1">
+            {{ form2.name_of_field }}
+            <div class="form-row">
+                {{ form2.conid.errors }}
+                <label id="label_conid">Con ID:</label>
+                {{ form2.conid }}
+            </div>
+            <div class="form-rowcom">
+                {{ form2.concompanytname.errors }}
+                <label id="label_concompanytname">Company:</label>
+                {{ form2.concompanytname }}
+            </div>
+            <div class="form-row">
+                {{ form2.confirstname.errors }}
+                <label id="label_confirstname">First Name:</label>
+                {{ form2.confirstname }}
+            </div>
+            <div class="form-row">
+                {{ form2.conlastname.errors }}
+                <label id="label_conlastname">Last Name:</label>
+                {{ form2.conlastname }}
+            </div>
+            <div class="form-row">
+                {{ form2.conadd1.errors }}
+                <label id="label_conadd1">Address #1:</label>
+                {{ form2.conadd1 }}
+            </div>
+            <div class="form-row">
+                {{ form2.conadd2.errors }}
+                <label id="label_conadd2">Address #2:</label>
+                {{ form2.conadd2 }}
+            </div>
+            <div class="form-row">
+                {{ form2.concity.errors }}
+                <label id="label_concity">City:</label>
+                {{ form2.concity }}
+            </div>
+            <div class="form-rowst">
+                {{ form2.const.errors }}
+                <label class="label_const">State:</label>
+                {{ form2.const }}
+            </div>
+            <div class="form-row">
+                {{ form2.conzipcode.errors }}
+                <label class="label_conzipcode">Zip Code:</label>
+                {{ form2.conzipcode }}
+            </div>
+            <div class="form-rowphone">
+                {{ form2.conwork1.errors }}
+                <label class="label_conwork1">Work Phone 1:</label>
+                {{ form2.conwork1 }}
+            </div>
+            <div class="form-rowphone">
+                {{ form2.conwork2.errors }}
+                <label class="label_conwork2">Work Phone 2:</label>
+                {{ form2.conwork2 }}
+            </div>
+            <div class="form-rowphone">
+                {{ form2.concell1.errors }}
+                <label class="label_concell1">Cell Phone 1:</label>
+                {{ form2.concell1 }}
+            </div>
+            <div class="form-rowphone">
+                 {{ form2.concell2.errors }}
+                 <label class="label_concell2">Cell Phone 2:</label>
+                {{ form2.concell2 }}
+            </div>
+            <div class="form-rowphone">
+                {{ form2.conhome.errors }}
+                <label class="label_conhome">Home Phone:</label>
+                {{ form2.conhome }}
+            </div>
+            <div class="form-rowemail">
+                {{ form2.conemail1.errors }}
+                <label class="label_conemail1">Email #1:</label>
+                {{ form2.conemail1 }}
+            </div>
+            <div class="form-rowemail">
+                {{ form2.conemail2.errors }}
+                <label class="label_conemail2">Email #2:</label>
+                {{ form2.conemail2 }}
+            </div>
+
+        </form>
+
+    </div>
+      <div class="container2B">
+          <div  class="custinfo">
+                  <h4>Customer Information</h4>
+              </div>
+          <form class="form2" method="post">
+              {% csrf_token %}
+              {{ form.as_p }}
+          </form>
+          <button type="submit">Save</button>
+
+      </div>
+  </div>
+    <div class="container3">
+
+    </div>
+</div>
+<div class="mfg-modal"  style="display:show">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to duplicate the Contractors Information?</h3>
+            <div class="butrow">
+
+
+                    <a class="btn button1"  href="">Yes</a>
+
+
+                <button type="button" class="button2">No</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+$("#id_form2-conid").attr("disabled", true)
+$("#id_form2-concompanytname").attr("disabled", true)
+$("#id_form2-confirstname").attr("disabled", true)
+$("#id_form2-conlastname").attr("disabled", true)
+$("#id_form2-conadd1").attr("disabled", true)
+$("#id_form2-conadd2").attr("disabled", true)
+$("#id_form2-concity").attr("disabled", true)
+$("#id_form2-const").attr("disabled", true)
+$("#id_form2-conzipcode").attr("disabled", true)
+$("#id_form2-conwork1_0").attr("disabled", true)
+$("#id_form2-conwork2_0").attr("disabled", true)
+$("#id_form2-concell1_0").attr("disabled", true)
+$("#id_form2-concell2_0").attr("disabled", true)
+$("#id_form2-conhome_0").attr("disabled", true)
+$("#id_form2-conemail1").attr("disabled", true)
+$("#id_form2-conemail2").attr("disabled", true)
+
+
+});
+
+$(function(){
+    $('button.btn.btn2').click(function(){
+        $(".mfg-modal").show()
+    });
+});
+
+
+$(function(){
+    $('button.button2').click(function(){
+        $(".mfg-modal").hide()
+    });
+});
+
+////////////////// Customer Company Name //////////////////////////////////////
+
+
+
+function custCompany() {
+var userInput = document.getElementById("#id_form1-custcompanytname").value;
+                    console.log(userInput);
+                   // var url = $(".form2").attr("companyname-url");
+                   //  $.ajax({
+                   //     type:'POST',
+                   //    url: url,
+                   //    data:{
+                   //         input#form1-custcompanytname: $("input#form1-custcompanytname").val(),
+                   //         csrfmiddlewaretoken: '{{ csrf_token }}'
+                   //      },
+                    //});
+}
+
+
+
+</script>

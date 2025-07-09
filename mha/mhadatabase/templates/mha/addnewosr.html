@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../../static/login/bidpage.css">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background-image: url('../../../../img/bid.png');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: cover;" >
+<div class="container">
+    <div class="container1">
+
+    </div>
+    <div class="container2">
+        <form class="form2" method="post"
+              addosrdescrip-url="{% url 'mhadatabase:newvendordescript' instance.jobid %}"
+              addosrunitprice-url="{% url 'mhadatabase:newvendorprice' instance.jobid %}"
+              addosrvendor-url="{% url 'mhadatabase:newvendor' instance.jobid %}"
+
+        >
+            {% csrf_token %}
+            {{ form.name_of_field }}
+    <div class="mfg2" >
+        <div class="modal-content2">
+            <h3 class="add-mfg-title">Add New Vendor Information</h3>
+
+            <div class="input2osr">
+                <div id="descript">
+                    <div class="descript">Description</div>
+                    <div id="osrdescrip">
+                        <input id="id_osrdescrip" type="text"  onfocusout="addOsrdescrip()">
+
+                    </div>
+                </div>
+                <div id="cost">
+                    <div class="cost">Cost</div>
+                    <div id="osrunitprice">
+                        <input id="id_osrunitprice" type="text"  onfocusout="addOsrunitprice()">
+                    </div>
+                </div>
+                <div id="vendor">
+                    <div class="vendor">Vendor</div>
+                    <div id="osrvendor">
+                        <input id="id_osrvendor" type="text"  onfocusout="addOsrvendor()">
+                    </div>
+                </div>
+            </div>
+            <div class="butrowosv">
+
+                <a href="{% url 'mhadatabase:bidpage' instance.jobid %}">
+                    <button type="button" class="accept">Accept</button>
+                </a>
+
+                <a href="{% url 'mhadatabase:deletenewvendor' instance.jobid %}">
+                    <button type="button" class="cancel">Cancel</button>
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+        </form>
+    </div>
+    <div class="container3">
+
+    </div>
+</div>
+
+
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+
+function addOsrdescrip() {
+var userInput = document.getElementById("id_osrdescrip").value;
+                    console.log(userInput);
+                    var url = $(".form2").attr("addosrdescrip-url");
+                     $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_osrdescrip: $("#id_osrdescrip").val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+}
+
+function addOsrunitprice() {
+var userInput = document.getElementById("id_osrunitprice").value;
+                    console.log(userInput);
+                    var url = $(".form2").attr("addosrunitprice-url");
+                     $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_osrunitprice: $("#id_osrunitprice").val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+}
+
+function addOsrvendor() {
+var userInput = document.getElementById("id_osrvendor").value;
+                    console.log(userInput);
+                    var url = $(".form2").attr("addOsrvendor-url");
+                     $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_osrvendor: $("#id_osrvendor").val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+}
+
+
+
+
+
+
+</script>

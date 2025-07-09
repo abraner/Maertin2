@@ -1,0 +1,356 @@
+body{
+    font: 22px/1.5 Arial, Helvetica,sans-serif;
+    padding:0;
+    margin:0;
+}
+
+img.img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 20%;
+    margin-top: 25px;
+}
+
+div.container{
+    width:100%;
+    height: 600px;
+    margin-top:0px;
+    margin-left:auto;
+    margin-right:auto;
+    display: flex;
+}
+
+
+div.container1{
+    flex: 1;
+}
+
+div.container2{
+    flex: 6;
+    margin-top: 25px;
+    margin-left:auto;
+    margin-right:auto;
+    background:#4682B4;
+    position: relative;
+    border: 2px solid #C0C0C0;
+    border-color: black;
+    flex-direction: row;
+    display: flex;
+    height: fit-content;
+}
+
+
+div.container3{
+    flex: 1;
+}
+
+
+
+
+div.form-rowcustinfo{
+    width:100%;
+    margin-top:-54.6vh;
+}
+
+.column1{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.column2{
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+}
+.column3{
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+}
+.column4{
+    flex: 1;
+
+}
+
+.form-rowfirst{
+    width: 120px;
+    height: 31px;
+    margin-top: 5px;
+    margin-left: 30px;
+    padding-right: 5px;
+    text-align: right;
+    background: #a3c0d9;
+}
+
+.form-rowlast{
+    width: 135px;
+    height: 31px;
+    margin-top: 5px;
+    text-align: left;
+    background: #a3c0d9;
+}
+
+
+.form-rowid{
+    display:flex;
+    padding-top:1.5vh;
+    height: 3vh;
+
+}
+
+.row1{
+    display: flex;
+    margin-top: 21px;
+
+}
+
+.form-rowcustid, .form-rowjobid, .form-rowbidid{
+    padding-top: 5px;
+    display: flex;
+
+}
+
+#label_custid, #label_jobid, #label_bidid{
+    width: 92px;
+    display: block;
+    text-align: right;
+    padding-right: 5px;
+}
+
+
+input#id_custid{
+    width: 4.5vw;
+    margin-right:6%;
+    margin-top:0px;
+    font-size: calc(.65vw + .65vh + .25vmin);
+    font-family: "Times New Roman";
+    padding-left:5px;
+    text-align:center;
+}
+
+input#id_custid, #id_jobid, #id_bidid{
+    width: 4.5vw;
+    margin-right:2%;
+    margin-top:0px;
+    font-size: calc(.65vw + .65vh + .25vmin);
+    font-family: "Times New Roman";
+    padding-left:5px;
+    text-align:center;
+    -moz-appearance: textfield;
+}
+
+
+.input{
+    display: flex;
+    margin-left: 7px;
+}
+
+.input2{
+    display: flex;
+    margin-left: 7px;
+    flex-direction: column;
+}
+
+input#furnheight_id, input#furnwidth_id, input#coilheight_id, input#coilwidth_id{
+    width: 4.5vw;
+    margin-right:2%;
+    margin-top:0px;
+    font-size: calc(.65vw + .65vh + .25vmin);
+    padding-left:5px;
+    text-align:center;
+    -moz-appearance: textfield;
+}
+
+input#vendor1rebate_id, input#vendor2rebate_id, input#totalrebate_id{
+    width: 143px;
+    margin-right:2%;
+    margin-top:0px;
+    font-size: calc(.65vw + .65vh + .25vmin);
+    padding-left:5px;
+    text-align:center;
+    -moz-appearance: textfield;
+}
+
+
+.form-rowcom{
+    display:flex;
+    padding-top:1.5vh;
+    margin-bottom: 2px;
+}
+
+.form-row{
+    display:flex;
+    padding-top:0.5vh;
+    margin-bottom: 2px;
+}
+
+.row2{
+    display: flex;
+    margin-top: 21px;
+}
+
+.row2col1{
+
+}
+
+.form-rowjoblocation, .form-rowfurntype, .form-rowcondtype{
+    display: flex;
+}
+
+
+
+.form-rowtotaldim{
+    margin-left: 160px;
+
+}
+
+#furncoilheight_id{
+    width: 4.5vw;
+    margin-left:63px;
+    margin-right:63px;
+    margin-top:0px;
+    font-size: calc(.65vw + .65vh + .25vmin);
+    padding-left:5px;
+    text-align:center;
+    -moz-appearance: textfield;
+
+
+}
+
+.row2col2{
+    display: flex;
+}
+
+
+#id_joblocation, #id_furntype, #id_outsideunittype{
+    width: 250px;
+    font-size: calc(.65vw + .65vh + .25vmin);
+    margin-bottom: 12px;
+}
+
+.label_joblocation, .label_furntype, .label_condtype{
+    width: 200px;
+    display: block;
+    text-align: right;
+    padding-right: 5px;
+}
+
+.label_condcol, .label_furnheight, .label_furnwidth,
+.label_coilheight, .label_coilwidth{
+    width: 163px;
+    display: block;
+    text-align: right;
+    padding-right: 5px;
+}
+
+.row3{
+    display: flex;
+    margin-top: 25px;
+}
+
+#condheader, #ahheader, #thermheader, #rebateamount{
+    text-decoration: underline;
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+#coilheader{
+    text-decoration: underline;
+    text-align: right;
+    margin-bottom: 10px;
+    padding-right: 43px;
+}
+
+.form-condcol{
+    display: flex;
+    margin-bottom: 7px;
+}
+
+.form-condcolwidth{
+    display: flex;
+    margin-bottom: 25px;
+}
+
+#id_condeff, #id_condbtu, #id_conddescript, #id_condmodnum, #id_furneff, #id_furnbtu, #id_furnconfig, #id_furndescript,
+#id_furnmodnum, #id_coilbtu, #id_coilconfig, #id_coilmodnum, #id_thermostat, #id_thermostatmodnum, #id_coiltype{
+    width: 209px;
+    font-size: calc(.65vw + .65vh + .25vmin);
+}
+
+.row3col4{
+    margin-right: 49px;
+
+}
+
+.row3col4row2{
+    margin-right: 49px;
+    margin-top: 50px;
+
+}
+
+button.btn.btn2{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 206px;
+    font-size: calc( .75vw + 0.75vh + .25vmin);
+    color: black;
+    cursor: pointer;
+    margin-top: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    padding-bottom: 5px;
+
+}
+
+button.btn.btn3{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 206px;
+    font-size: calc( .75vw + 0.75vh + .25vmin);
+    color: black;
+    cursor: pointer;
+    margin-top: 25px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 5px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    padding-bottom: 5px;
+
+}
+
+button.btn.btn4{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 206px;
+    height: 58px;
+    font-size: calc( .75vw + 0.75vh + .25vmin);
+    color: black;
+    cursor: pointer;
+    margin-top: 1px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 5px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+
+}
+
+button.btn.btn1:hover, button.btn.btn2:hover, button.btn.btn3:hover, button.btn.btn4:hover{
+    color: white;
+    background: #1e90ff;
+}
+
+a{
+    display: flex;
+    text-decoration-line: none;
+}

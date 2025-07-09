@@ -1,0 +1,225 @@
+div.img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 20%;
+    margin-top:100px;
+}
+
+div.container{
+    display: flex;
+    justify-content: center;
+}
+
+
+div.container2{
+    width: 1140px;
+    height: 600px;
+    margin-top: 50px;
+    border: 4px solid black;
+    border-radius: 2px;
+    background: #008B8B;
+}
+
+div.container2add{
+    width: 750px;
+    height: 325px;
+    margin-top: 158px;
+    background: darkseagreen;
+    border: black 4px solid;
+}
+
+div.container2a{
+
+    background: #008B8B;
+    border: black 4px solid;
+}
+
+.form2{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+
+}
+.header1{
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-left: 38px;
+    display: flex;
+    flex-direction: row;
+    color:silver;
+    font-weight: bold;
+    font-size: calc(2vw + .65vh + .25vmin);
+    font-style: italic;
+     text-shadow: 2px 2px black;
+    justify-content: center;
+
+}
+
+.butrowback{
+    margin-left: 225px;
+}
+
+
+.headera{
+    display: flex;
+    justify-content: center;
+}
+
+.header3{
+    margin-top: 2px;
+    display: flex;
+    flex-direction: row;
+}
+
+
+
+#header2{
+    margin-top: 25px;
+    font-size: calc( 1vw + 0.75vh + .25vmin);
+    text-align: center;
+    color: black;
+    font-weight:bold;
+
+}
+
+
+.buttonrow{
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    margin-top: 25px;
+}
+
+.button1{
+    width: 420px;
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #ffcccb;
+    font-size: calc( 1vw + 0.75vh + .25vmin);
+    text-align: center;
+    color: black;
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 0px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 0px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    text-decoration-line: none;
+    height: fit-content;
+}
+
+.button1:hover{
+    color: black;
+    background: gold;
+}
+
+.button2{
+    width: 235px;
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #ffcccb;
+    font-size: calc( 1vw + 0.75vh + .25vmin);
+    text-align: center;
+    color: black;
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 0px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 0px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    text-decoration-line: none;
+    height: fit-content;
+}
+
+.button2:hover{
+    color: black;
+    background: gold;
+}
+
+a.package1{
+    width: 330px;
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #ffcccb;
+    font-size: calc( .75vw + 0.75vh + .25vmin);
+    text-align: center;
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 0px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 0px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    text-decoration-line: none;
+    height: fit-content;
+}
+
+a.package1:hover{
+    color: black;
+    background: gold;
+}
+
+a#back{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 83px;
+    font-size: calc(0.5vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 30px;
+    margin-left: 25px;
+    margin-right: 64px;
+    margin-bottom: 0.0%;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    justify-content: center;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    display: flex;
+}
+
+a#back:hover{
+    color: white;
+    background: #1e90ff;
+}
+
+.close-btn{
+    color: #dddddd;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    background-color: red; /* Make it red */
+    padding: 2px 5px; /* Adjust padding as needed */
+    padding-top: 1px;
+    padding-bottom: 3px;
+    padding-left: 3px;
+    padding-right: 3px;
+    border-bottom: black 2px solid;
+    border-left: black 2px solid;
+}
+
+.close-btn:hover{
+    color: grey; /* Optional: Change color on hover */
+}

@@ -1,0 +1,2104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../static/login/addnewequip.css">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background: #4682B4;
+             background-image: url('../../../../img/B.png');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: 70%;
+             background-position: center;">
+<div class="img"><img class="img" src='../../img/img.png'></div>
+<div class="container">
+  <div class="container1">
+  </div>
+  <div class="container2">
+      <div class="container2A">
+      <form class="form2" method="post"
+
+
+            modelnum-url="{% url 'mhadatabase:model2' %}"
+            modelload-url="{% url 'mhadatabase:load_model2' %}"
+            mfg-url="{% url 'mhadatabase:mfg2' %}"
+            mfg2-url="{% url 'mhadatabase:mfg22' %}"
+            mfgload-url="{% url 'mhadatabase:load_mfg2' %}"
+            mfgload2-url="{% url 'mhadatabase:load_mfg' %}"
+
+            type-url="{% url 'mhadatabase:type2' %}"
+            type2-url="{% url 'mhadatabase:type22' %}"
+            typeload-url="{% url 'mhadatabase:load_type2' %}"
+            typeload2-url="{% url 'mhadatabase:load_type' %}"
+
+            smart-url="{% url 'mhadatabase:smart' %}"
+
+            config-url="{% url 'mhadatabase:config' %}"
+            config2-url="{% url 'mhadatabase:config2' %}"
+            configload-url="{% url 'mhadatabase:load_config' %}"
+            config2load-url="{% url 'mhadatabase:load_config2' %}"
+
+            eff-url="{% url 'mhadatabase:eff' %}"
+            eff2-url="{% url 'mhadatabase:eff2' %}"
+            effload-url="{% url 'mhadatabase:load_eff' %}"
+            eff2load-url="{% url 'mhadatabase:load_eff2' %}"
+
+            mfgmodeldescrip-url="{% url 'mhadatabase:mfgmodeldescrip' %}"
+            mfgmodeldescrip2-url="{% url 'mhadatabase:mfgmodeldescrip2' %}"
+            mfgmodeldescripload-url="{% url 'mhadatabase:load_mfgmodeldescrip' %}"
+            mfgmodeldescrip2load-url="{% url 'mhadatabase:load_mfgmodeldescrip2' %}"
+
+            gasviv-url="{% url 'mhadatabase:gasviv' %}"
+            gasviv2-url="{% url 'mhadatabase:gasviv2' %}"
+            gasvivload-url="{% url 'mhadatabase:load_gasviv' %}"
+            gasviv2load-url="{% url 'mhadatabase:load_gasviv2' %}"
+
+            motortype-url="{% url 'mhadatabase:motortype' %}"
+            motortype2-url="{% url 'mhadatabase:motortype2' %}"
+            motortypeload-url="{% url 'mhadatabase:load_motortype' %}"
+            motortype2load-url="{% url 'mhadatabase:load_motortype2' %}"
+
+            description-url="{% url 'mhadatabase:description' %}"
+            description2-url="{% url 'mhadatabase:description2' %}"
+            descriptionload-url="{% url 'mhadatabase:load_description' %}"
+            description2load-url="{% url 'mhadatabase:load_description2' %}"
+
+            refrig-url="{% url 'mhadatabase:refrig' %}"
+            refrig2-url="{% url 'mhadatabase:refrig2' %}"
+            refrigload-url="{% url 'mhadatabase:load_refrig' %}"
+            refrig2load-url="{% url 'mhadatabase:load_refrig2' %}"
+
+            btu-url="{% url 'mhadatabase:btu' %}"
+            btu2-url="{% url 'mhadatabase:btu2' %}"
+            btuload-url="{% url 'mhadatabase:load_btu' %}"
+            btu2load-url="{% url 'mhadatabase:load_btu2' %}"
+
+            outputstg1-url="{% url 'mhadatabase:outputstg1' %}"
+            outputstg12-url="{% url 'mhadatabase:outputstg12' %}"
+            outputstg1load-url="{% url 'mhadatabase:load_outputstg1' %}"
+            outputstg12load-url="{% url 'mhadatabase:load_outputstg12' %}"
+
+            outputstg2-url="{% url 'mhadatabase:outputstg2' %}"
+            outputstg22-url="{% url 'mhadatabase:outputstg22' %}"
+            outputstg2load-url="{% url 'mhadatabase:load_outputstg2' %}"
+            outputstg22load-url="{% url 'mhadatabase:load_outputstg22' %}"
+
+            outputstg3-url="{% url 'mhadatabase:outputstg3' %}"
+            outputstg32-url="{% url 'mhadatabase:outputstg32' %}"
+            outputstg3load-url="{% url 'mhadatabase:load_outputstg3' %}"
+            outputstg32load-url="{% url 'mhadatabase:load_outputstg32' %}"
+
+
+
+
+            cost-url="{% url 'mhadatabase:cost' %}"
+            costload-url="{% url 'mhadatabase:load_cost' %}"
+
+            warr-url="{% url 'mhadatabase:warr' %}"
+            warr2-url="{% url 'mhadatabase:warr2' %}"
+            warrload-url="{% url 'mhadatabase:load_warr' %}"
+            warr2load-url="{% url 'mhadatabase:load_warr2' %}"
+
+            height-url="{% url 'mhadatabase:height' %}"
+            heightload-url="{% url 'mhadatabase:load_height' %}"
+            width-url="{% url 'mhadatabase:width' %}"
+            widthload-url="{% url 'mhadatabase:load_width' %}"
+            depth-url="{% url 'mhadatabase:depth' %}"
+            depthload-url="{% url 'mhadatabase:load_depth' %}"
+      >
+          {% csrf_token %}
+          {{ form.name_of_field }}
+          <div class="form-row1">
+              <div id="modelnum">
+                  <div id="id_modelnum"></div>
+                </div>
+          </div>
+          <div class="form-row">
+              <label class="label">Mfg :</label>
+              {{ form.mfg }}
+          </div>
+          <div class="form-row">
+              {{ form.type.errors }}
+              <label class="label">Type # :</label>
+              {{ form.type }}
+              {{ form.smart.errors }}
+              {{ form.smart }}
+          </div>
+          <div class="form-row">
+              <label class="label">Config :</label>
+              {{ form.config }}
+          </div>
+          <div class="form-roweff" >
+              <label class="label">Efficiency :</label>
+              {{ form.eff }}
+
+          </div>
+          <div class="form-row">
+              <label class="label">Mfg. Descrip. :</label>
+              {{ form.mfgmodeldescrip }}
+          </div>
+          <div class="form-row">
+              <label class="label">Gas VIv :</label>
+              {{ form.gasviv }}
+          </div>
+          <div class="form-row">
+              <label class="label">Motor Type :</label>
+              {{ form.motortype }}
+          </div>
+          <div class="form-row">
+              <label class="label">Description :</label>
+              {{ form.description }}
+          </div>
+            <div class="buttonrow">
+
+                    <a id="btn1"  href="/mhadatabase/addnewequip2">Save and Continue</a>
+                   <a id="back"  href="/mhadatabase/main">Save and Exit</a>
+                   <a id="delete"  href="/mhadatabase/deleteequip">Delete and Exit</a>
+               </div>
+      </form>
+      </div>
+      <div class="container2B">
+           <form class="form2" method="post">
+          {% csrf_token %}
+          {{ form.name_of_field }}
+          <div class="form-row">
+              <label class="label">Refrig :</label>
+              {{ form.refrig }}
+          </div>
+          <div class="form-row">
+              {{ form.btu.errors }}
+              <label class="label">BTUs :</label>
+              {{ form.btu }}
+          </div>
+          <div class="form-row">
+              {{ form.outputstg1.errors }}
+              <label class="label">Output Stage 1 :</label>
+              {{ form.outputstg1 }}
+          </div>
+          <div class="form-row">
+              {{ form.outputstg2.errors }}
+              <label class="label">Output Stage 2 :</label>
+              {{ form.outputstg2 }}
+          </div>
+          <div class="form-row">
+              {{ form.outputstg3.errors }}
+              <label class="label">Output Stage 3 :</label>
+              {{ form.outputstg3 }}
+          </div>
+          <div class="form-row">
+              <div id="cost">
+                  <div id="id_cost"></div>
+                </div>
+          </div>
+          <div class="form-row">
+              {{ form.warr.errors }}
+              <label class="label">Warranty :</label>
+              {{ form.warr }}
+          </div>
+          <div class="form-row">
+              <div id="height">
+                  <div id="id_height"></div>
+              </div>
+          </div>
+          <div class="form-row">
+              <div id="width">
+                  <div id="id_width"></div>
+              </div>
+          </div>
+          <div class="form-row">
+              <div id="depth">
+                  <div id="id_depth"></div>
+                </div>
+          </div>
+           </form>
+      </div>
+
+
+  </div>
+    <div class="container3">
+    </div>
+</div>
+<div class="mfg-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new Manufacturer to the master list?</h3>
+            <div class="butrow">
+                <button type="button" class="button1">Yes</button>
+                <button type="button" class="button2">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="mfg2" style="display:none">
+        <div class="modal-content">
+            <h3 class="add-mfg-title">Add New Manufacturer</h3>
+            <div class="input2">
+                {{ form.mfg2.errors }}
+                {{ form.mfg2 }}
+            </div>
+            <div class="butrow">
+                <button type="button" class="accept">Accept</button>
+                <button type="button" class="cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div class="type-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new Type?</h3>
+            <div class="butrow">
+            <button type="button" class="button1type">Yes</button>
+            <button type="button" class="button2type">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="type2" style="display:none">
+        <div class="modal-content">
+            <h3 class="add-mfg-title">Add New Type</h3>
+            <div class="input2">
+                {{ form.type2.errors }}
+                {{ form.type2 }}
+            </div>
+            <div class="butrow">
+                <button type="button" class="accepttype">Accept</button>
+                <button type="button" class="canceltype">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div class="config-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new Configuration?</h3>
+            <div class="butrow">
+            <button type="button" class="button1config">Yes</button>
+            <button type="button" class="button2config">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="config2" style="display:none">
+        <div class="modal-content">
+            <h3 class="add-mfg-title">Add New Configuration</h3>
+            <div class="input2">
+                {{ form.config2.errors }}
+                {{ form.config2 }}
+            </div>
+            <div class="butrow">
+                <button type="button" class="acceptconfig">Accept</button>
+                <button type="button" class="cancelconfig">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="eff-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new Efficiency list?</h3>
+            <div class="butrow">
+            <button type="button" class="button1eff">Yes</button>
+            <button type="button" class="button2eff">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="eff2" style="display:none">
+        <div class="modal-content">
+            <h3 class="add-mfg-title">Add New ace Efficiency</h3>
+            <div class="input2">
+                {{ form.eff2.errors }}
+                {{ form.eff2 }}
+            </div>
+            <div class="butrow">
+                <button type="button" class="accepteff2">Accept</button>
+                <button type="button" class="canceleff2">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="mfgmodeldescrip-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new Model Description to the master list?</h3>
+            <div class="butrow">
+            <button type="button" class="button1mfgmodeldescrip">Yes</button>
+            <button type="button" class="button2mfgmodeldescrip">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="mfgmodeldescrip2" style="display:none">
+        <div class="modal-content">
+            <h3 class="add-mfg-title">Add New Mfg Model Description</h3>
+            <div class="input2">
+                {{ form.mfgmodeldescrip2.errors }}
+                {{ form.mfgmodeldescrip2 }}
+            </div>
+            <div class="butrow">
+                <button type="button" class="acceptmfgmodeldescrip">Accept</button>
+                <button type="button" class="cancelmfgmodeldescrip">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="gasviv-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new Gas VIv to the master list?</h3>
+            <div class="butrow">
+            <button type="button" class="button1gasviv">Yes</button>
+            <button type="button" class="button2gasviv">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="gasviv2" style="display:none">
+        <div class="modal-content">
+            <h3 class="add-mfg-title">Add New ace Gas VIv Description</h3>
+            <div class="input2">
+                {{ form.gasviv2.errors }}
+                {{ form.gasviv2 }}
+            </div>
+            <div class="butrow">
+                <button type="button" class="acceptgasviv">Accept</button>
+                <button type="button" class="cancelgasviv">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div class="motortype-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new Motor Type to the master list?</h3>
+            <div class="butrow">
+            <button type="button" class="button1motortype">Yes</button>
+            <button type="button" class="button2motortype">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="motortype2" style="display:none">
+        <div class="modal-content">
+            <h3 class="add-mfg-title">Add New Motor Type Description</h3>
+            <div class="input2">
+                {{ form.motortype2.errors }}
+                {{ form.motortype2 }}
+            </div>
+            <div class="butrow">
+                <button type="button" class="acceptmotortype">Accept</button>
+                <button type="button" class="cancelmotortype">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div class="description-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new Description to the master list?</h3>
+            <div class="butrow">
+            <button type="button" class="button1description">Yes</button>
+            <button type="button" class="button2description">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="description2" style="display:none">
+        <div class="modal-contentdescip">
+            <h3 class="add-mfg-title">Add New Description</h3>
+            <div class="input2">
+                {{ form.description2.errors }}
+                {{ form.description2 }}
+            </div>
+            <div class="butrow">
+                <button type="button" class="acceptdescription">Accept</button>
+                <button type="button" class="canceldescription">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="refrig-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new Refrig. to the master list?</h3>
+            <div class="butrow">
+            <button type="button" class="button1refrig">Yes</button>
+            <button type="button" class="button2refrig">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="refrig2" style="display:none">
+        <div class="modal-content">
+            <h3 class="add-mfg-title">Add New Refrig</h3>
+            <div class="input2">
+                {{ form.refrig2.errors }}
+                {{ form.refrig2 }}
+            </div>
+            <div class="butrow">
+                <button type="button" class="acceptrefrig">Accept</button>
+                <button type="button" class="cancelrefrig">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div class="btu-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new BTU. to the master list?</h3>
+            <div class="butrow">
+            <button type="button" class="button1btu">Yes</button>
+            <button type="button" class="button2btu">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="btu2" style="display:none">
+        <div class="modal-content">
+            <h3 class="add-mfg-title">Add New BTU</h3>
+            <div class="input2">
+                {{ form.btu2.errors }}
+                {{ form.btu2 }}
+            </div>
+            <div class="butrow">
+                <button type="button" class="acceptbtu">Accept</button>
+                <button type="button" class="cancelbtu">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div class="outputstg1-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new Output Stage 1 to the master list?</h3>
+            <div class="butrow">
+            <button type="button" class="button1outputstg1">Yes</button>
+            <button type="button" class="button2outputstg1">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="outputstg12" style="display:none">
+        <div class="modal-content">
+            <h3 class="add-mfg-title">Add New Output Stage 1</h3>
+            <div class="input2">
+                {{ form.outputstg12.errors }}
+                {{ form.outputstg12 }}
+            </div>
+            <div class="butrow">
+                <button type="button" class="acceptoutputstg1">Accept</button>
+                <button type="button" class="canceloutputstg1">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div class="outputstg2-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new Output Stage 2 to the master list?</h3>
+            <div class="butrow">
+            <button type="button" class="button1outputstg2">Yes</button>
+            <button type="button" class="button2outputstg2">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="outputstg22" style="display:none">
+        <div class="modal-content">
+            <h3 class="add-mfg-title">Add New Output Stage 2</h3>
+            <div class="input2">
+                {{ form.outputstg22.errors }}
+                {{ form.outputstg22 }}
+            </div>
+            <div class="butrow">
+                <button type="button" class="acceptoutputstg2">Accept</button>
+                <button type="button" class="canceloutputstg2">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div class="outputstg3-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new Output Stage 3 to the master list?</h3>
+            <div class="butrow">
+            <button type="button" class="button1outputstg3">Yes</button>
+            <button type="button" class="button2outputstg3">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="outputstg32" style="display:none">
+        <div class="modal-content">
+            <h3 class="add-mfg-title">Add New Output Stage 3</h3>
+            <div class="input2">
+                {{ form.outputstg32.errors }}
+                {{ form.outputstg32 }}
+            </div>
+            <div class="butrow">
+                <button type="button" class="acceptoutputstg3">Accept</button>
+                <button type="button" class="canceloutputstg3">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div class="warr-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new Warranty to the master list?</h3>
+            <div class="butrow">
+            <button type="button" class="button1warr">Yes</button>
+            <button type="button" class="button2warr">No</button>
+            </div>
+        </div>
+    </div>
+    <div class="warr2" style="display:none">
+        <div class="modal-content">
+            <h3 class="add-mfg-title">Add New Warranty</h3>
+            <div class="input2">
+                {{ form.warr2.errors }}
+                {{ form.warr2 }}
+            </div>
+            <div class="butrow">
+                <button type="button" class="acceptwarr">Accept</button>
+                <button type="button" class="cancelwarr">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div class="therm-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Is this a Smart Thermostat?</h3>
+            <div class="butrow">
+            <button type="button" class="button1therm">Yes</button>
+            <button type="button" class="button2therm">No</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+
+
+
+
+$(document).ready(function() {
+$("#id_mfg").attr("disabled", true)
+$("#id_type").attr("disabled", true)
+$("#id_config").attr("disabled", true)
+$("#id_eff").attr("disabled", true)
+$("#id_mfgmodeldescrip").attr("disabled", true)
+$("#id_gasviv").attr("disabled", true)
+$("#id_motortype").attr("disabled", true)
+$("#id_description").attr("disabled", true)
+$("#id_refrig").attr("disabled", true)
+$("#id_btu").attr("disabled", true)
+$("#id_outputstg1").attr("disabled", true)
+$("#id_outputstg2").attr("disabled", true)
+$("#id_outputstg3").attr("disabled", true)
+$("#id_warr").attr("disabled", true)
+$("#id_height").attr("disabled", true)
+$("#id_width").attr("disabled", true)
+$("#id_depth").attr("disabled", true)
+
+setTimeout(function(){
+
+            var urlC = $(".form2").attr("modelload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_modelnum").html(data);
+                     }
+                });
+        }, 0);
+
+
+setTimeout(function(){
+            var urlC = $(".form2").attr("costload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_cost").html(data);
+                     }
+                });
+        }, 0);
+
+setTimeout(function(){
+            var urlC = $(".form2").attr("heightload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_height").html(data);
+                     }
+                });
+        }, 0);
+
+setTimeout(function(){
+            var urlC = $(".form2").attr("widthload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_width").html(data);
+                     }
+                });
+        }, 0);
+
+setTimeout(function(){
+            var urlC = $(".form2").attr("depthload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_depth").html(data);
+                     }
+                });
+        }, 0);
+
+
+
+});
+//
+//
+//$(function(){
+//    $('.btn1').click(function(){
+//        location.reload(true);
+//    });
+//});
+//
+
+////////////////// Manufacturer //////////////////////////////////////
+
+$(function(){
+    $('.button2mfg').click(function(){
+        $(".mfg-modal").hide()
+    });
+});
+
+
+$(function(){
+    $('.button1').click(function(){
+        $(".mfg2").show()
+        $(".mfg-modal").hide()
+    });
+});
+
+$(function(){
+    $('.button2').click(function(){
+        $(".mfg-modal").hide()
+    });
+});
+
+$(function(){
+    $('button.cancel').click(function(){
+        $(".mfg2").hide()
+    });
+});
+
+
+$(function(){
+   $('#id_mfg').change(function(){
+    if ($('#id_mfg').val() === 'Add New Manufacturer') $(".mfg-modal").show()
+    if ($('#id_mfg').val()) $("#id_mfg").attr("disabled", true)
+    if ($('#id_mfg').val()) $("#id_type").attr("disabled", false)
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_mfg');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("mfg-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_mfg: $('#id_mfg').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+//$(function(){
+//    $('#id_mfg').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("type2load-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_type").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+
+$(function(){
+    $('.accept').click(function(){
+        $(".mfg2").hide()
+        $("#id_mfg").attr("disabled", true)
+        setTimeout(function(){
+            var userInput = document.getElementById("id_mfg2").value;
+                console.log(userInput);
+                var url = $(".form2").attr("mfg2-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_mfg2: $('#id_mfg2').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.accept').click(function(){
+    $("#id_type").attr("disabled", false)
+        setTimeout(function(){
+            var urlC = $(".form2").attr("mfgload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_mfg").html(data);
+                     }
+                });
+        },600);
+    });
+});
+
+
+
+//////////////////// Type //////////////////////////////////////
+
+$(function(){
+    $('.button2type').click(function(){
+        $(".type-modal").hide()
+    });
+});
+
+
+$(function(){
+    $('.button1type').click(function(){
+        $(".type2").show()
+        $(".type-modal").hide()
+    });
+});
+
+$(function(){
+    $('button.canceltype').click(function(){
+        $(".type2").hide()
+    });
+});
+
+
+$(function(){
+    $('.button2therm').click(function(){
+        $(".therm-modal").hide()
+    });
+});
+
+
+
+
+$(function(){
+   $('#id_type').change(function(){
+       if ($('#id_type').val() === 'Thermostat') $(".therm-modal").show()
+       if ($('#id_type').val() === 'Add New Type') $(".type-modal").show()
+       if ($('#id_type').val()) $("#id_type").attr("disabled", true)
+       if ($('#id_type').val()) $("#id_config").attr("disabled", false)
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_type');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("type-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_type: $('#id_type').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+
+//$(function(){
+//    $('#id_type').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("config2load-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_config").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+
+
+$(function(){
+    $('.accepttype').click(function(){
+        $(".type2").hide()
+        $("#id_type").attr("disabled", true)
+        $("#id_config").attr("disabled", false)
+        setTimeout(function(){
+            var userInput = document.getElementById("id_type2").value;
+                console.log(userInput);
+                var url = $(".form2").attr("type2-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_type2: $('#id_type2').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+
+$(function(){
+    $('.accepttype').click(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("typeload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_type").html(data);
+                     }
+                });
+        },600);
+    });
+});
+
+
+//////////////////// Thermostat Modal //////////////////////////////////////
+
+$(function(){
+    $('.button1therm').click(function(){
+        $(".therm-modal").hide()
+        if ($('#id_type').val() === 'Thermostat') $("#id_mfgmodeldescrip").attr("disabled", false)
+        if ($('#id_type').val() === 'Thermostat') $("#modelnum_id").attr("disabled", true)
+        if ($('#id_type').val() === 'Thermostat') $("#id_config").attr("disabled", true)
+        setTimeout(function(){
+            var urlC = $(".form2").attr("smart-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+//                     success: function (data) {
+//                       $("#id_smart").html(data);
+//                     }
+                });
+        },100);
+    });
+});
+$(function(){
+    $('.button1therm').click(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("mfgmodeldescripload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_mfgmodeldescrip").html(data);
+                     }
+                });
+        },400);
+    });
+});
+
+
+
+
+   ////////////////// Config  //////////////////////////////////////
+
+$(function(){
+    $('.button2config').click(function(){
+        $(".config-modal").hide()
+    });
+});
+
+
+$(function(){
+    $('.button1config').click(function(){
+        $(".config2").show()
+        $(".config-modal").hide()
+    });
+});
+
+$(function(){
+    $('button.cancelconfig').click(function(){
+        $(".config2").hide()
+    });
+});
+
+
+$(function(){
+   $('#id_config').change(function(){
+    if ($('#id_config').val() === 'Add New Configuration') $(".config-modal").show()
+    if ($('#id_config').val() === 'Add New Configuration') $("#id_config").attr("disabled", false)
+    if ($('#id_config').val()) $("#id_config").attr("disabled", true)
+    if ($('#id_config').val()) $("#id_eff").attr("disabled", false)
+
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_config');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("config-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_config: $('#id_config').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+
+$(function(){
+    $('#id_config').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("eff2load-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_eff").html(data);
+                     }
+                });
+        },400);
+    });
+});
+
+
+$(function(){
+    $('.acceptconfig').click(function(){
+        $(".config2").hide()
+        $("#id_config").attr("disabled", true)
+        setTimeout(function(){
+            var userInput = document.getElementById("id_config2").value;
+                console.log(userInput);
+                var url = $(".form2").attr("config2-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_config2: $('#id_config2').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.acceptconfig').click(function(){
+    $("#id_eff").attr("disabled", false)
+        setTimeout(function(){
+            var urlC = $(".form2").attr("configload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_config").html(data);
+                     }
+                });
+        },600);
+    });
+});
+
+   ////////////////// Efficiency  //////////////////////////////////////
+
+$(function(){
+    $('.button2eff').click(function(){
+        $(".eff-modal").hide()
+    });
+});
+
+
+$(function(){
+    $('.button1eff').click(function(){
+        $(".eff2").show()
+        $(".eff-modal").hide()
+    });
+});
+
+$(function(){
+    $('button.canceleff2').click(function(){
+        $(".eff2").hide()
+    });
+});
+
+
+$(function(){
+   $('#id_eff').change(function(){
+    if ($('#id_eff').val() === 'Add New Efficiency') $(".eff-modal").show()
+    if ($('#id_eff').val() === 'Add New Efficiency') $("#id_eff").attr("disabled", false)
+    if ($('#id_eff').val()) $("#id_eff").attr("disabled", true)
+    if ($('#id_eff').val()) $("#id_mfgmodeldescrip").attr("disabled", false)
+
+
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_eff');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("eff-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_eff: $('#id_eff').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('#id_eff').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("mfgmodeldescrip2load-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_mfgmodeldescrip").html(data);
+                     }
+                });
+        },400);
+    });
+});
+
+$(function(){
+    $('.accepteff2').click(function(){
+    $(".eff2").hide()
+        setTimeout(function(){
+            var userInput = document.getElementById("id_eff2").value;
+                console.log(userInput);
+                var url = $(".form2").attr("eff2-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_eff2: $('#id_eff2').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.accepteff2').click(function(){
+    $("#id_mfgmodeldescrip").attr("disabled", false)
+        setTimeout(function(){
+            var urlC = $(".form2").attr("effload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_eff").html(data);
+                     }
+                });
+        },600);
+    });
+});
+
+
+   ////////////////// Mfg Model Description  //////////////////////////////////////
+
+
+$(function(){
+    $('.button2mfgmodeldescrip').click(function(){
+        $(".mfgmodeldescrip-modal").hide()
+    });
+});
+
+
+$(function(){
+    $('.button1mfgmodeldescrip').click(function(){
+        $(".mfgmodeldescrip2").show()
+        $(".mfgmodeldescrip-modal").hide()
+    });
+});
+
+$(function(){
+    $('button.cancelmfgmodeldescrip2').click(function(){
+        $(".mfgmodeldescrip2").hide()
+    });
+});
+
+
+$(function(){
+   $('#id_mfgmodeldescrip').change(function(){
+    if ($('#id_mfgmodeldescrip').val() === 'Add New Model Description') $(".mfgmodeldescrip-modal").show()
+    if ($('#id_mfgmodeldescrip').val() === 'Add New Model Description') $("#id_mfgmodeldescrip").attr("disabled", false)
+
+    if ($('#id_mfgmodeldescrip').val()) $("#id_mfgmodeldescrip").attr("disabled", true)
+    if ($('#id_mfgmodeldescrip').val()) $("#id_gasviv").attr("disabled", false)
+    if ($('#id_type').val() === 'Thermostat') $("#id_description").attr("disabled", false).focus()
+       if ($('#id_type').val() === 'Thermostat') $("#id_gasviv").attr("disabled", true)
+
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_mfgmodeldescrip');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("mfgmodeldescrip-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_mfgmodeldescrip: $('#id_mfgmodeldescrip').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('#id_mfgmodeldescrip').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("gasviv2load-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_gasviv").html(data);
+                     }
+                });
+        },400);
+    });
+});
+
+$(function(){
+    $('#id_mfgmodeldescrip').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("description2load-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_description").html(data);
+                     }
+                });
+        },600);
+    });
+});
+
+$(function(){
+    $('.acceptmfgmodeldescrip').click(function(){
+        $(".mfgmodeldescrip2").hide()
+        $("#id_mfgmodeldescrip").attr("disabled", true)
+        setTimeout(function(){
+            var userInput = document.getElementById("id_mfgmodeldescrip2").value;
+                console.log(userInput);
+                var url = $(".form2").attr("mfgmodeldescrip2-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_mfgmodeldescrip2: $('#id_mfgmodeldescrip2').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.acceptmfgmodeldescrip').click(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("mfgmodeldescripload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_mfgmodeldescrip").html(data);
+                     }
+                });
+        },600);
+    });
+});
+
+
+
+   ////////////////// Gas VIv //////////////////////////////////////
+
+$(function(){
+    $('.button2gasviv').click(function(){
+        $(".gasviv-modal").hide()
+    });
+});
+
+
+$(function(){
+    $('.button1gasviv').click(function(){
+        $(".gasviv2").show()
+        $(".gasviv-modal").hide()
+    });
+});
+
+$(function(){
+    $('button.cancelgasviv').click(function(){
+        $(".gasviv2").hide()
+    });
+});
+
+$(function(){
+   $('#id_gasviv').change(function(){
+    if ($('#id_gasviv').val() === 'Add New Gas VIv') $(".gasviv-modal").show()
+    if ($('#id_gasviv').val() === 'Add New Gas VIv') $(".gasviv-modal").attr("disabled", false)
+    if ($('#id_gasviv').val()) $("#id_gasviv").attr("disabled", true)
+    if ($('#id_gasviv').val()) $("#id_motortype").attr("disabled", false)
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_gasviv');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("gasviv-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_gasviv: $('#id_gasviv').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('#id_gasviv').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("motortype2load-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_motortype").html(data);
+                     }
+                });
+        },400);
+    });
+});
+
+$(function(){
+    $('.acceptgasviv').click(function(){
+        $(".gasviv2").hide()
+        $("#id_gasviv").attr("disabled", true)
+        setTimeout(function(){
+            var userInput = document.getElementById("id_gasviv2").value;
+                console.log(userInput);
+                var url = $(".form2").attr("gasviv2-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_gasviv2: $('#id_gasviv2').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.acceptgasviv').click(function(){
+    $("#id_motortype").attr("disabled", false)
+        setTimeout(function(){
+            var urlC = $(".form2").attr("gasvivload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_gasviv").html(data);
+                     }
+                });
+        },600);
+    });
+});
+
+       ////////////////// Motor Type  //////////////////////////////////////
+
+
+$(function(){
+    $('.button2motortype').click(function(){
+        $(".motortype-modal").hide()
+    });
+});
+
+
+$(function(){
+    $('.button1motortype').click(function(){
+        $(".motortype2").show()
+        $(".motortype-modal").hide()
+    });
+});
+
+$(function(){
+    $('button.cancelmotortype').click(function(){
+        $(".motortype2").hide()
+    });
+});
+
+$(function(){
+   $('#id_motortype').change(function(){
+    if ($('#id_motortype').val() === 'Add New Motor Type') $(".motortype-modal").show()
+    if ($('#id_motortype').val() === 'Add New Motor Type') $(".motortype-modal").attr("disabled", false)
+    if ($('#id_motortype').val()) $("#id_motortype").attr("disabled", true)
+    if ($('#id_motortype').val()) $("#id_description").attr("disabled", false)
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_motortype');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("motortype-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_motortype: $('#id_motortype').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('#id_motortype').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("description2load-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_description").html(data);
+                     }
+                });
+        },400);
+    });
+});
+$(function(){
+    $('.acceptmotortype').click(function(){
+        $(".motortype2").hide()
+        $("#id_motortype").attr("disabled", true)
+        setTimeout(function(){
+            var userInput = document.getElementById("id_motortype2").value;
+                console.log(userInput);
+                var url = $(".form2").attr("motortype2-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_motortype2: $('#id_motortype2').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.acceptmotortype').click(function(){
+    $("#id_description").attr("disabled", false)
+        setTimeout(function(){
+            var urlC = $(".form2").attr("motortypeload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_motortype").html(data);
+                     }
+                });
+        },600);
+    });
+});
+       ////////////////// Description //////////////////////////////////////
+
+$(function(){
+    $('.button2description').click(function(){
+        $(".description-modal").hide()
+    });
+});
+
+
+$(function(){
+    $('.button1description').click(function(){
+        $(".description2").show()
+        $(".description-modal").hide()
+    });
+});
+
+$(function(){
+    $('button.canceldescription').click(function(){
+        $(".description2").hide()
+    });
+});
+
+$(function(){
+   $('#id_description').change(function(){
+    if ($('#id_description').val() === 'Add New Description') $(".description-modal").show()
+    if ($('#id_description').val() === 'Add New Description') $(".description-modal").attr("disabled", false)
+    if ($('#id_description').val()) $("#id_description").attr("disabled", true)
+    if ($('#id_description').val()) $("#id_refrig").attr("disabled", false)
+       if ($('#id_type').val() === 'Thermostat') $("#cost_id").attr("disabled", false).focus()
+       if ($('#id_type').val() === 'Thermostat') $("#id_refrig").attr("disabled", true)
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_description');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("description-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_description: $('#id_description').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('#id_description').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("refrig2load-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_refrig").html(data);
+                     }
+                });
+        },400);
+    });
+});
+
+$(function(){
+    $('.acceptdescription').click(function(){
+        $(".description2").hide()
+        $("#id_description").attr("disabled", true)
+        setTimeout(function(){
+            var userInput = document.getElementById("id_description2").value;
+                console.log(userInput);
+                var url = $(".form2").attr("description2-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_description2: $('#id_description2').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.acceptdescription').click(function(){
+    $("#id_refrig").attr("disabled", false)
+        setTimeout(function(){
+            var urlC = $(".form2").attr("descriptionload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_description").html(data);
+                     }
+                });
+        },600);
+    });
+});
+
+       ////////////////// Refrig  //////////////////////////////////////
+
+
+$(function(){
+    $('.button2refrig').click(function(){
+        $(".refrig-modal").hide()
+    });
+});
+
+
+$(function(){
+    $('.button1refrig').click(function(){
+        $(".refrig2").show()
+        $(".refrig-modal").hide()
+    });
+});
+
+$(function(){
+    $('button.cancelrefrig').click(function(){
+        $(".refrig2").hide()
+    });
+});
+
+$(function(){
+   $('#id_refrig').change(function(){
+    if ($('#id_refrig').val() === 'Add New Refrig.') $(".refrig-modal").show()
+    if ($('#id_refrig').val() === 'Add New Refrig.') $(".refrig-modal").attr("disabled", false)
+    if ($('#id_refrig').val()) $("#id_refrig").attr("disabled", true)
+    if ($('#id_refrig').val()) $("#id_btu").attr("disabled", false)
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_refrig');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("refrig-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_refrig: $('#id_refrig').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('#id_refrig').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("btu2load-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_btu").html(data);
+                     }
+                });
+        },400);
+    });
+});
+$(function(){
+    $('.acceptrefrig').click(function(){
+        $(".refrig2").hide()
+        $("#id_refrig").attr("disabled", true)
+        $("#id_btu").attr("disabled", false)
+        setTimeout(function(){
+            var userInput = document.getElementById("id_refrig2").value;
+                console.log(userInput);
+                var url = $(".form2").attr("refrig2-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_refrig2: $('#id_refrig2').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.acceptrefrig').click(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("refrigload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_refrig").html(data);
+                     }
+                });
+        },400);
+    });
+});
+
+
+
+       ////////////////// BTU's //////////////////////////////////////
+
+$(function(){
+    $('.button2btu').click(function(){
+        $(".btu-modal").hide()
+    });
+});
+
+
+$(function(){
+    $('.button1btu').click(function(){
+        $(".btu2").show()
+        $(".btu-modal").hide()
+    });
+});
+
+$(function(){
+    $('button.cancelbtu').click(function(){
+        $(".btu2").hide()
+    });
+});
+
+$(function(){
+   $('#id_btu').change(function(){
+    if ($('#id_btu').val() === 'Add New BTU') $(".btu-modal").show()
+    if ($('#id_btu').val() === 'Add New BTU') $(".btu-modal").attr("disabled", false)
+    if ($('#id_btu').val()) $("#id_btu").attr("disabled", true)
+    if ($('#id_btu').val()) $("#id_outputstg1").attr("disabled", false)
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_btu');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("btu-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_btu: $('#id_btu').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('#id_btu').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("outputstg12load-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_outputstg1").html(data);
+                     }
+                });
+        },400);
+    });
+});
+$(function(){
+    $('.acceptbtu').click(function(){
+        $(".btu2").hide()
+        $("#id_btu").attr("disabled", true)
+        $("#id_outputstg1").attr("disabled", false)
+        setTimeout(function(){
+            var userInput = document.getElementById("id_btu2").value;
+                console.log(userInput);
+                var url = $(".form2").attr("btu2-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_btu2: $('#id_btu2').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.acceptbtu').click(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("btuload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_btu").html(data);
+                     }
+                });
+        },400);
+    });
+});
+
+
+       ////////////////// Output stage 1 //////////////////////////////////////
+
+$(function(){
+    $('.button2outputstg1').click(function(){
+        $(".outputstg1-modal").hide()
+    });
+});
+
+
+$(function(){
+    $('.button1outputstg1').click(function(){
+        $(".outputstg12").show()
+        $(".outputstg1-modal").hide()
+    });
+});
+
+$(function(){
+    $('button.canceloutputstg1').click(function(){
+        $(".outputstg12").hide()
+    });
+});
+
+$(function(){
+   $('#id_outputstg1').change(function(){
+    if ($('#id_outputstg1').val() === 'Add New Output Stage 1') $(".outputstg1-modal").show()
+    if ($('#id_outputstg1').val() === 'Add New Output Stage 1') $(".outputstg1-modal").attr("disabled", false)
+    if ($('#id_outputstg1').val()) $("#id_outputstg1").attr("disabled", true)
+    if ($('#id_outputstg1').val()) $("#id_outputstg2").attr("disabled", false)
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_outputstg1');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("outputstg1-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_outputstg1: $('#id_outputstg1').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('#id_outputstg1').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("outputstg22load-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_outputstg2").html(data);
+                     }
+                });
+        },400);
+    });
+});
+$(function(){
+    $('.acceptoutputstg1').click(function(){
+        $(".outputstg12").hide()
+        $("#id_outputstg1").attr("disabled", true)
+        $("#id_outputstg2").attr("disabled", false)
+        setTimeout(function(){
+            var userInput = document.getElementById("id_outputstg12").value;
+                console.log(userInput);
+                var url = $(".form2").attr("outputstg12-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_outputstg12: $('#id_outputstg12').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.acceptoutputstg1').click(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("outputstg1load-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_outputstg1").html(data);
+                     }
+                });
+        },400);
+    });
+});
+
+
+
+       ////////////////// Outputstg2  //////////////////////////////////////
+
+
+$(function(){
+    $('.button2outputstg2').click(function(){
+        $(".outputstg2-modal").hide()
+    });
+});
+
+
+$(function(){
+    $('.button1outputstg2').click(function(){
+        $(".outputstg22").show()
+        $(".outputstg2-modal").hide()
+    });
+});
+
+$(function(){
+    $('button.canceloutputstg2').click(function(){
+        $(".outputstg22").hide()
+    });
+});
+
+$(function(){
+   $('#id_outputstg2').change(function(){
+    if ($('#id_outputstg2').val() === 'Add New Output Stage 2') $(".outputstg2-modal").show()
+    if ($('#id_outputstg2').val() === 'Add New Output Stage 2') $(".outputstg2-modal").attr("disabled", false)
+    if ($('#id_outputstg2').val()) $("#id_outputstg2").attr("disabled", true)
+    if ($('#id_outputstg2').val()) $("#id_outputstg3").attr("disabled", false)
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_outputstg2');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("outputstg2-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_outputstg2: $('#id_outputstg2').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('#id_outputstg2').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("outputstg32load-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_outputstg3").html(data);
+                     }
+                });
+        },400);
+    });
+});
+$(function(){
+    $('.acceptoutputstg2').click(function(){
+        $(".outputstg22").hide()
+        $("#id_outputstg2").attr("disabled", true)
+        $("#id_outputstg3").attr("disabled", false)
+        setTimeout(function(){
+            var userInput = document.getElementById("id_outputstg22").value;
+                console.log(userInput);
+                var url = $(".form2").attr("outputstg22-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_outputstg22: $('#id_outputstg22').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.acceptoutputstg2').click(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("outputstg2load-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_outputstg2").html(data);
+                     }
+                });
+        },400);
+    });
+});
+
+
+
+
+       ////////////////// Outputstg 3  //////////////////////////////////////
+
+
+$(function(){
+    $('.button2outputstg3').click(function(){
+        $(".outputstg3-modal").hide()
+    });
+});
+
+
+$(function(){
+    $('.button1outputstg3').click(function(){
+        $(".outputstg32").show()
+        $(".outputstg3-modal").hide()
+    });
+});
+
+$(function(){
+    $('button.canceloutputstg3').click(function(){
+        $(".outputstg32").hide()
+    });
+});
+
+$(function(){
+   $('#id_outputstg3').change(function(){
+    if ($('#id_outputstg3').val() === 'Add New Output Stage 3') $(".outputstg3-modal").show()
+    if ($('#id_outputstg3').val() === 'Add New Output Stage 3') $(".outputstg3-modal").attr("disabled", false)
+    if ($('#id_outputstg3').val()) $("#id_outputstg3").attr("disabled", true)
+    if ($('#id_outputstg3').val()) $("#cost_id").attr("disabled", false)
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_outputstg3');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("outputstg3-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_outputstg3: $('#id_outputstg3').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+//$(function(){
+//    $('#id_outputstg3').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("warr2load-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_warr").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+$(function(){
+    $('.acceptoutputstg3').click(function(){
+        $(".outputstg32").hide()
+        $("#id_outputstg3").attr("disabled", true)
+        $("#cost_id").attr("disabled", false)
+        setTimeout(function(){
+            var userInput = document.getElementById("id_outputstg32").value;
+                console.log(userInput);
+                var url = $(".form2").attr("outputstg32-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_outputstg32: $('#id_outputstg32').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.acceptoutputstg3').click(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("outputstg3load-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_outputstg3").html(data);
+                     }
+                });
+        },400);
+    });
+});;
+
+
+       ////////////////// Warranty //////////////////////////////////////
+
+$(function(){
+    $('.button2warr').click(function(){
+        $(".warr-modal").hide()
+    });
+});
+
+$(function(){
+    $('.button1warr').click(function(){
+        $(".warr2").show()
+        $(".warr-modal").hide()
+    });
+});
+
+$(function(){
+    $('.cancelwarr').click(function(){
+        $(".warr2").hide()
+    });
+});
+
+$(function(){
+   $('#id_warr').change(function(){
+    if ($('#id_warr').val() === 'Add New Warranty') $(".warr-modal").show()
+    if ($('#id_warr').val() === 'Add New Warranty') $(".warr-modal").attr("disabled", false)
+    if ($('#id_warr').val()) $("#id_warr").attr("disabled", true)
+    if ($('#id_warr').val()) $("#height_id").attr("disabled", false)
+       if ($('#id_type').val() === 'Thermostat') $("#height_id").attr("disabled", true)
+       if ($('#id_type').val() === 'Thermostat') $("a#btn1").focus().css('background-color', '#66d09a')
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_warr');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("warr-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_warr: $('#id_warr').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.acceptwarr').click(function(){
+        $(".warr2").hide()
+        $("#id_warr").attr("disabled", true)
+        $("#height_id").attr("disabled", false)
+        setTimeout(function(){
+            var userInput = document.getElementById("id_warr2").value;
+                console.log(userInput);
+                var url = $(".form2").attr("warr2-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_warr2: $('#id_warr2').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.acceptwarr').click(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("warrload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_warr").html(data);
+                     }
+                });
+        },600);
+    });
+});
+
+</script>

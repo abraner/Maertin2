@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../static/login/newcon.css">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background-image: url('../../../../img/A.jpg');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: cover;" >
+<div class="img"><img class="img" src='../../img/img.png'></div>
+<div class="container">
+  <div class="container1">
+  </div>
+  <div class="container2">
+    <form class="form2" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+
+        <div class="form-rowbutton">
+            <button id="btn1" type="submit" class="btn-success">ENTER</button>
+        </div>
+        </form>
+  </div>
+  <div class="container3">
+
+
+  </div>
+</div>
+</body>
+</html>

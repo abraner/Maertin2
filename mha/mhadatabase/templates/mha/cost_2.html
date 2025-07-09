@@ -1,0 +1,50 @@
+<div class="input">
+<label class="label">Price :</label>
+    <input id="cost_id"  value="{{ cost.cost }}" onfocusout="myFunctionCost()">
+</div>
+<!--<div class="button">
+<button type="button" class="btn btnmodify">Modify Model #</button>
+</div>-->
+<script>
+
+$(document).ready(function() {
+
+     var x = document.getElementById('cost_id').value;
+    if (x.indexOf("$") != 0)
+    {
+        x = "$" + x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    document.getElementById('cost_id').value = x;
+    console.log(x);
+});
+
+function myFunctionCost() {
+$(document).ready(function() {
+     var x = document.getElementById('cost_id').value;
+    if (x.indexOf("$") != 0)
+    {
+        x = "$" + x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    document.getElementById('cost_id').value = x;
+    console.log(x);
+});
+
+
+var userInput = document.getElementById("cost_id").value;
+                       console.log(userInput);
+                    var url = $(".form2").attr("cost-url");
+                     $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            cost_id: $("#cost_id").val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+
+}
+
+
+
+
+</script>

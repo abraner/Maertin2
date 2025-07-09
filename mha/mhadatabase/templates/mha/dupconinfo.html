@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="shortcut icon" type="image/png" href="img/favicon.png"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../static/login/dupconinfo.css">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background-image: url('../../../../img/A.jpg');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: cover;" >
+<section id="workarea1">
+            <section id="section2">
+                <form id="form2" method="post">
+                    {% csrf_token %}
+                    {{ form.as_table }}
+                </form>
+                <h1 id="formh2">Is the Customer's Information the same as the Contractors?</h1>
+                <div id="button1">
+                    <a class="button1" href="../yesdupcon/">Yes</a>
+                    <a class="button2" href="{{ instance.get_absolute4_url }}">No</a>
+                    </div>
+
+            </section>
+        </section>
+</body>
+</html>
+<script type="text/javascript">
+</script>

@@ -1,0 +1,22 @@
+
+<label class="label">Model # :</label><input id="addnew_id"  type="text" value="{{ addnew.addnew }}">
+<button type="button" class="btn btnsubmit">Submit Model #</button>
+
+<script>
+$(function(){
+    $('.btn.btnsubmit').click(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("load_addnew-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#addnew_id").html(data);
+                     }
+                });
+        }, 400);
+    });
+});
+
+</script>

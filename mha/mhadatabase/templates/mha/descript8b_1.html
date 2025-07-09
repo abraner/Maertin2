@@ -1,0 +1,61 @@
+<div class="input">
+{{ form.descript8 }}
+</div>
+
+<div class="input">
+    <input id="descript8b_id" type="text" value="{{ descript8b }}">
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+
+$(document).ready(function() {
+
+//$("#id_descript8").attr("disabled", true)
+
+    if ($('#descript8b_id').val()) {
+        // The field has a value
+    $("#id_descript8").hide()
+    } else {
+    $("#id_descript8").show()
+     $('#descript8b_id').hide()
+        // The field is empty or its value is considered falsy (e.g., 0, "", null, undefined)
+    }
+    });
+
+$(function(){
+   $('#id_descript8').change(function(){
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_descript8');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("descript8-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_descript8: $('#id_descript8').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 0);
+    });
+});
+
+$(function(){
+    $('#id_descript8').change(function(){
+        $("#id_descript8b").show()
+        $("#id_descript8").hide()
+        setTimeout(function(){
+            var urlC = $(".form2").attr("descript8bload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_descript8b").html(data);
+                     }
+                });
+        },200);
+    });
+});
+</script>

@@ -1,0 +1,512 @@
+body{
+    font: 22px/1.5 Arial, Helvetica,sans-serif;
+    padding:0;
+    margin:0;
+}
+
+img.img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 20%;
+    margin-top: 50px;
+}
+
+div.container{
+    width:100%;
+    margin-top:0px;
+    margin-left:auto;
+    margin-right:auto;
+    display: flex;
+}
+
+a#back{
+    border: 2px solid #C0C0C0;
+    border-radius: 2px;
+    background: #a9a9a9;
+    width: 12%;
+    height: 1.5vw;
+    font-size: calc(.5vw + .5vh + .25vmin);
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    cursor: pointer;
+    float: right;
+    margin-top: -4%;
+    margin-right: 2.5%;
+    margin-bottom: .5%;
+    transition: 0.6s;
+   text-align: center;
+    overflow: hidden;
+    padding:3px 5px;
+}
+a#back{
+    color: #000000;
+}
+
+a#back:hover{
+    color: #a9a9a9;
+    background: #505050;
+    text-decoration: underline;
+}
+
+a#back2.btn.btn9{
+    border: 2px solid #C0C0C0;
+    border-radius: 2px;
+    background: red;
+    min-width: 7vw;
+    font-size: calc(.5vw + .5vh + .20vmin);
+    font-family: "calibri";
+    font-weight: bold;
+    cursor: pointer;
+    float: left;
+    margin-top:11em;
+    transition: 0.6s;
+   text-align: center;
+    overflow: hidden;
+    padding-top:0px;
+    text-decoration: none;
+}
+a#back2.btn.btn9{
+    color: #000000;
+}
+
+a#back2.btn.btn9:hover{
+    color: white;
+    background: #5a3510;
+    text-decoration: underline;
+}
+
+div.form-delete{
+    display: flex;
+    margin-top: 2vh;
+}
+
+
+
+#form1{
+
+    margin-top:0px;
+    margin-left: auto;
+    margin-right:auto;
+    display:block;
+}
+
+span.phone-field-ext{
+    display:none;
+}
+
+div.container1{
+    flex: 1;
+}
+
+div.container2{
+    flex: 2;
+    margin-top: 35px;
+    margin-left:auto;
+    margin-right:auto;
+    background:#4682B4;
+    position: relative;
+    border: 2px solid #C0C0C0;
+    border-color: black;
+    flex-direction: row;
+    display: flex;
+}
+
+div.container2A{
+    display: inline-flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+div.container2B{
+    display: inline-flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+div.container3{
+    flex: 1;
+}
+
+
+
+label#label_conid, #label_concompanytname, #label_confirstname, #label_conlastname, #label_conadd1, #label_conadd2,
+#label_concity, #label_const, label.label_conzipcode, .label_conwork1, .label_conwork2,  .label_concell1,
+ .label_concell2, label.label_conwork1, .label_conhome, .label_conemail1, .label_conemail2, .label_const, label{
+    width:40%;
+    padding-right:0.25%;
+    color:black;
+    font-weight: bold;
+    text-align:right;
+    font-size: calc(.5vw + .65vh + .25vmin);
+    font-style: italic;
+    font-family: "Times New Roman";
+    margin-right: 10px;
+
+}
+
+
+
+
+.form-rowcom{
+    display: flex;
+     padding-top: 0.5vh;
+    margin-bottom: 2px;
+    float: left;
+    width: 100%;
+}
+
+.form-row, .form-rowst, .form-rowphone, .form-rowemail{
+    display:flex;
+    padding-top:0.5vh;
+    margin-bottom: 2px;
+    float: left;
+    width: 100%;
+}
+
+p{
+    display:flex;
+    padding-top:0.5vh;
+    margin-bottom: 2px;
+    float: left;
+    width: 100%;
+    margin-top: 0px;
+}
+
+.form-rowemail{
+    display:flex;
+     padding-top:0.5vh;
+     margin-bottom: 2px;
+}
+
+.form-rowbutton{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+
+}
+
+.form-rowbuttoncust{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.custinfo{
+    justify-content: center;
+    display: flex;
+    margin-bottom: 10px;
+
+}
+
+h4{
+    color:black;
+    font-weight: bold;
+    font-size: calc( 1vw + .65vh + .25vmin);
+    font-style: italic;
+    font-family: "Times New Roman";
+    margin-top: 2vh;
+    margin-left:auto;
+    margin-right:auto;
+    margin-bottom: 3px;
+}
+
+div.containerA{
+    width: 50vw;
+    height: 70vh;
+
+}
+
+.required2{
+    color:  red;
+    -webkit-text-stroke: .5px black;
+}
+
+#id_form2-conid, #id_form1-custid{
+    width: 4.5vw;
+    margin-right:6%;
+    margin-top:0px;
+    font-size: calc( .5vw + .65vh + .25vmin);
+    padding-left:5px;
+    text-align:center;
+    -webkit-appearance: textfield;
+}
+
+#id_form2-concompanytname, #id_form1-custcompanytname{
+    width: 53%;
+    margin-right:2%;
+    margin-top:0px;
+    font-size: calc(.5vw + .65vh + .25vmin);
+    font-family: "Times New Roman";
+    padding-left:5px;
+
+
+}
+#id_form2-confirstname, #id_form2-conlastname, #id_form2-conadd1, #id_form2-conadd2, #id_form2-concity,
+#id_form1-custfirstname, #id_form1-custlastname, #id_form1-custadd1, #id_form1-custadd2, #id_form1-custcity{
+    width: 53%;
+    margin-top:0px;
+    font-size: calc(.5vw + .65vh + .25vmin);
+    padding-left:5px;
+    margin-right: 10px;
+}
+
+#id_form2-const, #id_form1-custst{
+    width: 8%;
+    margin-top:0px;
+    font-size: calc(.5vw + .65vh + .25vmin);
+    padding-left:5px;
+    margin-right: 10px;
+}
+
+#id_form2-conzipcode, #id_form1-custzipcode{
+    width: 13%;
+    margin-top:0px;
+    font-size: calc(.5vw + .65vh + .25vmin);
+    padding-left:5px;
+    margin-right: 10px;
+}
+
+#id_form2-conwork1_0, #id_form2-conwork2_0, #id_form2-concell1_0, #id_form2-concell2_0, #id_form2-conhome_0,
+#id_form1-custwork1_0, #id_form1-custwork2_0, #id_form1-custcell1_0, #id_form1-custcell2_0, #id_form1-custhome_0{
+    width: 30%;
+    margin-top:0px;
+    font-size: calc(.5vw + .65vh + .25vmin);
+    padding-left:5px;
+    margin-right: 10px;
+}
+
+#id_form2-conemail1, #id_form2-conemail2, #id_form1-custemail1, #id_form1-custemail2{
+    width: 52%;
+    margin-top:0px;
+    font-size: calc(.5vw + .65vh + .25vmin);
+    padding-left:5px;
+    margin-right: 10px;
+}
+
+button.btn.btn1{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 100%;
+    font-size: calc(.5vw + .5vh + .25vmin);
+    color: #000000;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 2vh;
+    margin-left:auto;
+    margin-right:auto;
+    margin-bottom: 3px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    padding: 4px;
+}
+
+button{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 68%;
+    font-size: calc(.5vw + .5vh + .25vmin);
+    color: #000000;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 2vh;
+    margin-left: 18%;
+    margin-bottom: 3px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    padding: 4px;
+}
+
+button.btn.btn1:hover, button:hover{
+    color: white;
+    background: #1e90ff;
+}
+
+button.btn.btn2{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    height: 4vh;
+    font-size: calc(.5vw + .5vh + .25vmin);
+    color: #000000;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+
+}
+
+
+button.btn.btn2:hover{
+    color: white;
+    background: #1e90ff;
+}
+
+
+.form-rowcust{
+    width: 80%;
+    margin-top: 0px;
+    margin-left:auto;
+    margin-right:auto;
+    position: relative;
+    border: 2px solid #C0C0C0;
+    border-color: black;
+}
+
+.header1{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    background: #6aadad;
+}
+
+
+
+.rowcust{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    margin-top: 2px;
+    background: #6aadad;
+}
+
+#custid{
+    font-size: calc(.5vw + .5vh + .25vmin);
+    width: 80px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+}
+
+
+#custfirstname{
+    font-size: calc(.5vw + .5vh + .25vmin);
+    width: 200px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+}
+
+#custlastname{
+    font-size: calc(.5vw + .5vh + .25vmin);
+    width: 200px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+}
+
+#custadd1{
+    font-size: calc(.5vw + .5vh + .25vmin);
+    width: 244px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+}
+
+#custcity{
+    font-size: calc(.5vw + .5vh + .25vmin);
+    width: 150px;
+    text-align: center;
+
+    font-weight:bold;
+}
+
+.mfg-modal{
+    width:100%;
+    height:100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    position: absolute;
+    top:0;
+    display:flex;
+    align-items: center;
+}
+
+.modal-content{
+    width:533px;
+    height:250px;
+    margin: auto;
+    background-color: #c0c0c0;
+    border-radius:10px;
+}
+
+.modal-contentdescip{
+    width:533px;
+    height:300px;
+    margin: auto;
+    background-color: #c0c0c0;
+    border-radius:10px;
+}
+
+.modaltitle, .add-mfg-title{
+    height:50px;
+    width:400px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    font-size: calc( 1vw + 0.65vh + .25vmin);
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+}
+
+.description-title{
+    height:50px;
+    width:400px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    font-size: calc( 1vw + 0.65vh + .25vmin);
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    margin-bottom: 1px;
+    margin-top: 10px;
+}
+
+a.btn.button1, button.button2{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: white;
+    width: 150px;
+    font-size: calc( 1vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 25px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+
+}
+a.btn.button1:hover, .button.button2:hover{
+    color: white;
+    background: #1e90ff;
+}
+
+.butrow{
+        display: flex;
+}
+
+input#id_form2-conwork1_1, input#id_form2-conwork2_1, input#id_form2-concell1_1, input#id_form2-concell2_1,
+input#id_form2-conhome_1,input#id_form1-custwork1_1, input#id_form1-custwork2_1, input#id_form1-custcell1_1,
+input#id_form1-custcell2_1, input#id_form1-custhome_1, .phone-field-ext{
+    display:none;
+}

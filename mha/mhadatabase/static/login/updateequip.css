@@ -1,0 +1,212 @@
+img.img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 20%;
+    margin-top:50px;
+}
+
+a{
+
+}
+
+
+div.container{
+    display: flex;
+    flex: 1;
+}
+
+div.container1{
+    display: flex;
+    flex: 1;
+}
+
+div.container2{
+    display: flex;
+    flex: 4;
+    justify-content: center;
+    height: 500px;
+    width: 100%;
+    margin-top: 48px;
+    background: #008B8B;
+    border: black 4px solid;
+}
+
+.form2{
+    width: 100%;
+}
+
+div.form-rowT{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    margin-top: 25px;
+}
+
+div.form-row{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    margin-top: 17px;
+}
+
+div.form-rowmodnum{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    margin-top: 17px;
+}
+
+div.form-rowB{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    margin-top: 46px;
+    justify-content: center;
+}
+
+label.label, label.label-modnum{
+    font-size: calc(.75vw + 0.75vh + .25vmin);
+    font-weight:bold;
+    width: 250px;
+    justify-content: right;
+    display: flex;
+    margin-right: 10px;
+    margin-left: 30px;
+}
+
+
+select#id_type, select#id_mfg, select#id_efficiency, select#id_mfgmodeldescrip, select#id_config{
+    font-size: calc(.75vw + 0.75vh + .25vmin);
+    width: 350px;
+}
+
+div.container2A{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 379px;
+    height: 366px;
+    margin-top: 101px;
+    background: #4682B4;
+    border: black 4px solid;
+}
+
+div.container2B{
+
+}
+div.container2C{
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    height: 600px;
+}
+
+div.container2D{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 490px;
+}
+
+div.container2E{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 490px;
+}
+
+div.container3{
+    display: flex;
+    flex: 1;
+}
+
+button.btn.btn1{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 170px;
+    font-size: calc(0.75vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 0.5%;
+    margin-left: 60px;
+    margin-right:0.0%;
+    margin-bottom: 0.0%;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+
+}
+
+
+#title{
+    font-size: calc( 1.75vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 25px;
+    justify-content: center;
+    display: flex;
+    text-decoration: underline;
+}
+#titleD{
+    font-size: calc( 1vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 100px;
+    margin-bottom: 25px;
+    justify-content: center;
+    display: flex;
+    text-decoration: underline;
+}
+
+
+button.btn.btn2, button.btn.btn3, button.btn.btn4, button.btn.btn5,
+ button.btn.btn6, button.btn.btn7, button.btn.btn8{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 195px;
+    font-size: calc( .75vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-left: 10px;
+    margin-right: 10px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    padding:0px;
+}
+
+
+button.btn.btn1:hover, button.btn.btn2:hover, button.btn.btn3:hover, button.btn.btn4:hover, button.btn.btn5furn:hover
+, button.btn.btn5cond:hover, button.btn.btn5evap:hover, button.btn.btn6:hover, button.btn.btn7:hover{
+    color: white;
+    background: #1e90ff;
+}
+
+.form-rowd{
+    justify-content: center;
+    display: flex;
+}
+#id_modelnum{
+    font-size: calc(.75vw + 0.75vh + .25vmin);
+    width: 350px;
+}
+
+input.form-control{
+    text-align: center;
+    width: 225px;
+}

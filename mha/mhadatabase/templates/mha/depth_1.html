@@ -1,0 +1,52 @@
+<div class="input">
+<label class="label1">Depth :</label><input id="depth_id" type="text" value="{{ depth.depth }}" onfocusout="myFunctionDepth()">
+</div>
+<!--<div class="button">
+<button type="button" class="btn btnmodify">Modify Model #</button>
+</div>-->
+<script>
+ $(document).ready(function() {
+ $("#depth_id").attr("disabled", true)
+
+
+   const inputFields = document.querySelectorAll('input[type="text"], input[type="email"], input[type="number"]');
+
+
+   inputFields.forEach(input => {
+     const defaultValue = input.value;
+     input.addEventListener('focus', function() {
+       if (this.value === defaultValue) {
+         this.value = '';
+       }
+     });
+     input.addEventListener('blur', function() {
+        if (this.value === '') {
+         this.value = defaultValue;
+        }
+     });
+   });
+
+});
+
+
+
+
+
+
+function myFunctionDepth() {
+if ($('#depth_id').val() >1) $("#depth_id").attr("disabled", true)
+//if ($('#width_id').val() >1) $("#depth_id").attr("disabled", false)
+var userInput = document.getElementById("depth_id").value;
+                    console.log(userInput);
+                    var url = $(".form2").attr("depth-url");
+                     $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            depth_id: $("#depth_id").val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+}
+
+</script>

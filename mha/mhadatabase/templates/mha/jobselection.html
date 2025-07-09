@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../../static/login/jobselection.css">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background-image: url('../../../../img/A.jpg');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: cover;" >
+<div class="img"><img class="img" src='../../../img/img.png'></div>
+<div class="container">
+  <div class="container1">
+  </div>
+  <div class="container2">
+    <form class="form2" method="post">
+         <span class="closeadd-btn" onclick="closeFormAndRedirect()">&times;</span>
+      {% csrf_token %}
+      {{ form.name_of_field }}
+        <div class="form-rowcom">
+            {{ form.custid.errors }}
+            {{ form.custid }}
+        </div>
+        <div class="form-rowcon">
+            {{ form.conid.errors }}
+            {{ form.conid }}
+        </div>
+        <div class="form-row">
+            <label class="label_jobselection">Furnace, Condenser, and Coil Combinations</label>
+            <div class="form-rowbutton">
+                <a class="btn btn1"  href="{{ instance2.get_absolute17_url }}">Start New Bid</a>
+            </div>
+
+        </div>
+        <div class="form-row">
+            <label class="label_jobselection">Condenser and Coil Only</label>
+            <div class="form-rowbutton">
+                <a href="/mhadatabase/mattoupdate">
+                    <button type="button" class="btn btn1">Start New Bid</button>
+                </a>
+            </div>
+
+        </div>
+        <div class="form-row">
+            <label class="label_jobselection">Furnace Only</label>
+            <div class="form-rowbutton">
+                <a href="/mhadatabase/mattoupdate">
+                    <button type="button" class="btn btn1">Start New Bid</button>
+                </a>
+            </div>
+
+        </div>
+        <div class="form-rowbottom">
+            <label class="label_jobselection">Miscellaneous</label>
+            <div class="form-rowbutton">
+                <a href="/mhadatabase/mattoupdate">
+                    <button type="button" class="btn btn1">Start New Bid</button>
+                </a>
+            </div>
+        </div>
+         <div class="form-rowcancel">
+                <a href="{% url 'mhadatabase:customerpage' instance.custid %}">
+                    <button type="button" class="btn btn2">Cancel</button>
+                </a>
+            </div>
+        </form>
+
+  </div>
+  <div class="container3">
+
+
+  </div>
+</div>
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+<script>
+
+
+function closeFormAndRedirect() {
+    window.location.href = '{% url 'mhadatabase:customerpage' instance.id %}'; // Redirect
+}
+
+
+</script>

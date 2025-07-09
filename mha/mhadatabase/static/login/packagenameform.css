@@ -1,0 +1,224 @@
+div.img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 20%;
+    margin-top:100px;
+}
+
+div.container{
+    display: flex;
+    justify-content: center;
+}
+
+
+div.container2{
+    width: 710px;
+    display: flex;
+    flex-direction: column;
+}
+
+#package1{
+    border: 4px solid black;
+    border-radius: 2px;
+    background: #008B8B;
+}
+
+.header1{
+    margin-top: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: row;
+    color:silver;
+    font-weight: bold;
+    font-size: calc(2vw + .65vh + .25vmin);
+    font-style: italic;
+     text-shadow: 2px 2px black;
+    justify-content: center;
+
+}
+
+.packageid{
+    width: 50px;
+    margin-left: 9px;
+    margin-right: 15px;
+    font-size: calc(.75vw + .65vh + .25vmin);
+    color: #008b8b;
+    background: #008b8b;
+    text-align: center;
+}
+
+.packagename{
+    width: 400px;
+    margin-right: 15px;
+    font-size: calc(.75vw + .65vh + .25vmin);
+    text-align: center;
+    border: 2px solid black;
+    border-radius: 2px;
+    background: white;
+}
+
+.package1{
+    display: flex;
+    flex-direction: row;
+}
+.current{
+    margin-top: 35px;
+    font-size: calc(.75vw + .65vh + .25vmin);
+    text-align: center;
+    font-weight: bold;
+}
+
+.new{
+    margin-top: 24px;
+    margin-bottom: 10px;
+    font-size: calc(.75vw + .65vh + .25vmin);
+    text-align: center;
+    font-weight: bold;
+}
+
+.package2a{
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.package2b{
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+}
+
+.package2d{
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 71px;
+}
+
+#id_name1b, #id_name2b, #id_name3b, #id_name4b, #id_name5b, #id_name6b, #id_name7b, #id_name8b, #id_name9b, #id_name10b,
+ #id_name11b, #id_name12b, #id_name13b, #id_name14b, #id_name15b, #id_name16b{
+    margin-right: 20px;
+    margin-left: 178px;
+    margin-bottom: 25px;
+    width: 340px;
+    text-align: center;
+    border: 2px solid black;
+}
+
+
+.package2{
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+}
+
+.package2c{
+
+}
+
+
+.newbutton{
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    margin-bottom: 50px;
+}
+
+.changename{
+    width: 275px;
+    margin-right: 15px;
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #FFCCCB;
+    font-size: calc( .5vw + 0.75vh + .25vmin);
+    text-align: center;
+    color: black;
+    font-weight:bold;
+    cursor: pointer;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    text-decoration-line: none;
+    display: block;
+    padding-top: 2px;
+}
+
+.changename:hover{
+    color: black;
+    background: gold;
+}
+
+a#back{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 83px;
+    font-size: calc(0.5vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 73px;
+    margin-left:70px;
+    margin-right: 0px;
+    margin-bottom: 0.0%;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    justify-content: center;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    display: flex;
+}
+
+a#back:hover{
+    color: white;
+    background: #1e90ff;
+}
+
+.close-btn{
+    color: #dddddd;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    background-color: red; /* Make it red */
+    padding-top: 1px;
+    padding-bottom: 3px;
+    padding-left: 3px;
+    padding-right: 3px;
+    border-bottom: black 2px solid;
+    border-left: black 2px solid;
+
+}
+
+.close-btn:hover{
+    color: grey; /* Optional: Change color on hover */
+}
+
+.closeadd-btn{
+    color: black;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    background-color: red; /* Make it red */
+    padding-top: 1px;
+    padding-bottom: 3px;
+    padding-left: 3px;
+    padding-right: 3px;
+    border-bottom: black 2px solid;
+    border-left: black 2px solid;
+}
+
+.closeadd-btn:hover{
+    color: grey; /* Optional: Change color on hover */
+}

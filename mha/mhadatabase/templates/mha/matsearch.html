@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../static/login/matsearch.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background: #008B8B;
+             background-image: url('../../../../img/inventory2.jpg');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: 70%;
+             background-position: center;" >
+<div class="img"><img class="img" src='../../../img/img.png'></div>
+<div class="container">
+  <div class="container2">
+    <form class="form2" method="post"
+          mfgsearch-url="{% url 'mhadatabase:mfgsearch' %}"
+          vendorsearch-url="{% url 'mhadatabase:vendorsearch' %}"
+          typesearch-url="{% url 'mhadatabase:typesearch' %}"
+
+      >
+
+       <div id="title">Filter Material</div>
+      {% csrf_token %}
+      {{ form.name_of_field }}
+          <div class="form-matmfg">
+              {{ form.matmfg.errors }}
+              <label class="label">Manufacturer :</label>
+              {{ form.matmfg }}
+              <a href="/mhadatabase/filtermfg">
+                  <button type="button" class="btn btn4">Open Material</button>
+              </a>
+          </div>
+          <div class="form-matvendor">
+              {{ form.vendor.errors }}
+              <label class="label">Vendor :</label>
+              {{ form.vendor }}
+              <a href="/mhadatabase/filtervendor">
+                  <button type="button" class="btn btn5">Open Material</button>
+              </a>
+          </div>
+          <div class="form-mattype">
+              {{ form.materialtype.errors }}
+              <label class="label">Material Type. :</label>
+              {{ form.materialtype }}
+              <a href="/mhadatabase/filtertype">
+                  <button type="button" class="btn btn6">Open Material</button>
+              </a>
+          </div>
+          <div class="form-rowB">
+               <a href="/mhadatabase/mattoupdate">
+                   <button type="button" class="btn btn1">Back</button>
+               </a>
+          </div>
+      </form>
+
+
+
+  </div>
+    </div>
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+$(document).ready(function() {
+
+const mfgSelect = document.querySelector('#id_matmfg');
+mfgSelect.options[1].style.display = 'none';
+
+const vendorSelect = document.querySelector('#id_vendor');
+vendorSelect.options[1].style.display = 'none';
+
+const typeSelect = document.querySelector('#id_materialtype');
+typeSelect.options[1].style.display = 'none';
+
+});
+
+
+
+$(function(){
+   $('#id_matmfg').change(function(){
+        setTimeout(function(){
+                $(".form-matvendor").hide()
+                $(".form-mattype").hide()
+                var selectBox =document.getElementById('id_matmfg');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("mfgsearch-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_matmfg: $('#id_matmfg').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+
+$(function(){
+   $('#id_vendor').change(function(){
+        setTimeout(function(){
+                $(".form-matmfg").hide()
+                $(".form-mattype").hide()
+                var selectBox =document.getElementById('id_vendor');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("vendorsearch-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_vendor: $('#id_vendor').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+   $('#id_materialtype').change(function(){
+        setTimeout(function(){
+                $(".form-matmfg").hide()
+                $(".form-matvendor").hide()
+                var selectBox =document.getElementById('id_materialtype');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("typesearch-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_materialtype: $('#id_materialtype').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+
+
+</script>

@@ -1,0 +1,79 @@
+<div class="input">
+<label class="label1">Model # :</label><input id="modelnum_id" type="text"  value="{{ modelnum.modelnum }}" onfocusout="myFunction()">
+</div>
+<script>
+
+   const inputFields = document.querySelectorAll('input[type="text"], input[type="email"], input[type="number"]');
+
+
+   inputFields.forEach(input => {
+     const defaultValue = input.value;
+     input.addEventListener('focus', function() {
+       if (this.value === defaultValue) {
+         this.value = '';
+       }
+     });
+     input.addEventListener('blur', function() {
+        if (this.value === '') {
+         this.value = defaultValue;
+        }
+     });
+   });
+
+
+
+
+
+function myFunction() {
+if ($('#modelnum_id').val().match(/^[1-9]/)) $("#id_mfg").attr("disabled", false)
+if ($('#modelnum_id').val().match(/^[a-z]/)) $("#id_mfg").attr("disabled", false)
+if ($('#modelnum_id').val().match(/^[A-Z]/)) $("#id_mfg").attr("disabled", false)
+
+if ($('#modelnum_id').val().match(/^[1-9]/)) $("#modelnum_id").attr("disabled", true)
+if ($('#modelnum_id').val().match(/^[a-z]/)) $("#modelnum_id").attr("disabled", true)
+if ($('#modelnum_id').val().match(/^[A-Z]/)) $("#modelnum_id").attr("disabled", true)
+
+
+var userInput = document.getElementById("modelnum_id").value;
+                    console.log(userInput);
+                    var url = $(".form2").attr("modelnum-url");
+                     $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            modelnum_id: $("#modelnum_id").val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+
+
+$(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("mfgload2-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_mfg").html(data);
+                     }
+                });
+        },400);
+});
+
+
+
+
+}
+
+
+
+
+
+$(function(){
+    $('.btn.btnmodify').click(function(){
+        $(".form-row2").show()
+        $(".form-row1").hide()
+    });
+});
+</script>

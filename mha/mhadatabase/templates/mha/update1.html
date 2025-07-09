@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../static/login/equiptoupdate.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background: #6aadad;
+             background-image: url('../../../../img/B.png');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: 70%;
+             background-position: center;" >
+<div class="img"><img class="img" src='../../img/img.png'></div>
+<div class="container">
+  <div class="container2">
+      <div class="headermain">
+          <div class="headermainA">
+              <a id="1" href="/mhadatabase/globalincrease1">
+                  <button type="button" class="btn btnmain">Global Price Increase 1</button>
+              </a>
+              <a id="2" href="/mhadatabase/globalincrease2"  style="display:none">
+                  <button type="button" class="btn btnmain">Global Price Increase 2</button>
+              </a>
+              <a id="3" href="/mhadatabase/globalincrease3"  style="display:none">
+                  <button type="button" class="btn btnmain">Global Price Increase 3</button>
+              </a>
+              <a id="4" href="/mhadatabase/globalincrease4"  style="display:none">
+                  <button type="button" class="btn btnmain">Global Price Increase 4</button>
+              </a>
+          </div>
+          <div class="headermainB">
+              <a href="/mhadatabase/updateequip">
+                  <button type="button" class="btn btn1">Back</button>
+              </a>
+                <form class="form3" method="post">
+              {% for obj in object_list2 %}
+              <div id="update">{{ obj.update }}</div>
+               {% endfor %}
+                </form>
+          </div>
+
+      </div>
+      <div class="header1">
+                <div id="A">Model #</div>
+                <div id="B">Manufacturer</div>
+                <div id="C">Type</div>
+                <div id="D">Config</div>
+                <div id="E">Description</div>
+                <div id="F">Motor</div>
+                <div id="G">Eff.</div>
+                <div id="H">BTU</div>
+                <div id="I">Price</div>
+      </div>
+      <form class="form2" method="post">
+       {% for obj in object_list %}
+          <div class="equiprow">
+                    <a id="id" href="{{ obj.get_absolute4_url }}">{{ obj.id }}</a>
+                    <div id="modelnum">{{ obj.modelnum }}</div>
+                    <div id="mfg">{{ obj.mfg }}</div>
+                    <div id="type">{{ obj.type }}</div>
+                    <div id="config">{{ obj.config }}</div>
+                    <div id="mfgmodeldescrip">{{ obj.mfgmodeldescrip }}</div>
+                    <div id="motortype">{{ obj.motortype }}</div>
+                    <div id="eff">{{ obj.eff }}</div>
+                    <div id="btu">{{ obj.btu }}</div>
+                    <div id="cost">{{ obj.cost }}</div>
+          </div>
+                    {% endfor %}
+        <div id="pag" class="pagination">
+                <span class="step-links">
+                    {% if object_list.has_previous %}
+                    <a href="?page=1">first</a>
+                    <a href="?page={{ object_list.previous_page_number }}">previous</a>
+                    {% endif %}
+                    <span class="object_list">
+                        Page {{ object_list.number }} of {{ object_list.paginator.num_pages }}.
+                    </span>
+                    {% if object_list.has_next %}
+                    <a href="?page={{ object_list.next_page_number }}">next</a>
+                    <a href="?page={{ object_list.paginator.num_pages }}">last</a>
+                    {% endif %}
+                </span>
+            </div>
+        <div class="search" >
+        <form id="searchbar" class="form-inline my-2 my-lg-0">
+            <input name="search"
+                   id="search"
+                   class="form-control mr-sm-2"
+                   type="search"
+                   placeholder="Search Existing Customers"
+                   aria-label="Search"
+                   >
+            <button id="searchbutton" class="btn-success" type="submit">Search</button>
+        </form>
+            </div>
+       </form>
+
+  </div>
+
+
+
+</div>
+
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+$(document).ready(function() {
+
+var objectName = $('#update').text();
+  console.log(objectName);
+
+
+if (objectName ==2) $("#1").hide()
+if (objectName ==2) $("#2").show()
+
+if (objectName ==3) $("#1").hide()
+if (objectName ==3) $("#3").show()
+
+if (objectName ==4) $("#1").hide()
+if (objectName ==4) $("#4").show()
+
+});
+
+
+
+
+
+
+let allElements = document.querySelectorAll('#cost');
+allElements.forEach(element => {
+if (element.textContent.indexOf("$") != 0)
+{
+    element.textContent = "$" + element.textContent.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+console.log(element.textContent);
+});
+
+
+</script>

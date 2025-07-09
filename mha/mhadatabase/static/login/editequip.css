@@ -1,0 +1,546 @@
+img.img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 20%;
+    margin-top: 55px;
+    margin-bottom: 30px;
+}
+
+a{
+    display: flex;
+}
+
+
+div.container{
+    display: flex;
+    flex: 1;
+}
+
+div.container1{
+    display: flex;
+    flex: 1;
+}
+
+div.container2{
+    display: flex;
+    flex: 6;
+    justify-content: center;
+    height: 680px;
+    background: #008B8B;
+    border: black 4px solid;
+}
+
+div.container2A{
+    width: 816px;
+    height: 558px;
+
+}
+
+div.container2B{
+    width: 594px;
+    height: 366px;
+
+}
+
+div.container3{
+    display: flex;
+    flex: 1;
+}
+label.label{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    font-weight:bold;
+    width: 223px;
+    justify-content: right;
+    display: flex;
+    margin-right: 10px;
+}
+
+label.label_height, label.label_width, label.label_depth{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    font-weight:bold;
+    width: 223px;
+    justify-content: right;
+    display: flex;
+    margin-right: 10px;
+}
+
+label.label1{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    font-weight:bold;
+    width: 222px;
+    justify-content: right;
+    display: flex;
+    margin-right: 10px;
+}
+
+div.form-row3{
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    margin-top: 17px;
+}
+
+div.form-row1, div.form-row2{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    margin-top: 17px;
+}
+
+div.form-row{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    margin-top: 17px;
+}
+div#id_addnew, #modelnum1{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+.input{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.button{
+
+}
+
+#modelnum{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+#id_modelnum{
+    display: flex;
+    flex-direction: row;
+}
+
+input#modelnum, input#id_modelnum1, input#addnew_id, input#modelnum_id{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 342px;
+}
+
+input#id_modelnum{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 342px;
+}
+
+#mfg2_0{
+    justify-content: center;
+    display: flex;
+}
+
+input#mfg{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 350px;
+}
+
+select#id_mfg{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 350px;
+}
+
+#id_mfg{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 350px;
+}
+
+select#id_type, select#id_config, select#id_efficiency, select#id_mfgmodeldescrip, select#id_gasviv, select#id_motortype
+{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 350px;
+}
+
+#id_type, #id_config, #id_eff, #id_mfgmodeldescrip, #id_gasviv, #id_motortype
+{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 350px;
+}
+
+select#id_configfurn, select#id_efffurn, select#id_mfgmodeldescripfurn, select#id_gasvivfurn, select#id_motortypefurn,
+select#id_refrigfurn, select#id_btufurn, select#id_outputstg1furn, select#id_outputstg2furn, select#id_outputstg3furn
+{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 350px;
+}
+
+select#id_refrig, select#id_btu, select#id_outputstg1, select#id_outputstg2, select#id_outputstg3, select#id_warr{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 350px;
+}
+
+#id_refrig, #id_btu, #id_outputstg1, #id_outputstg2, #id_outputstg3{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 350px;
+}
+
+#id_warr{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 350px;
+    height: 70px;
+}
+
+#id_cost{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 444px;
+     -webkit-appearance: textfield;
+}
+
+#cost_id{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 200px;
+     -webkit-appearance: textfield;
+}
+#cost{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 200px;
+     -webkit-appearance: textfield;
+}
+
+select#id_description{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 350px;
+
+
+}
+
+#id_description{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    width: 560px;
+    height: 100px;
+
+
+}
+
+#id_height, #id_width, #id_depth{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    -webkit-appearance: textfield;
+
+}
+
+#height_id, #width_id, #depth_id{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    -webkit-appearance: textfield;
+    width: 100px;
+
+}
+
+.buttonrow{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    margin-top: 2%;
+    justify-content: center;
+}
+
+a#back, a#delete{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 170px;
+    font-size: calc(0.5vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-left:0.0%;
+    margin-right: 64px;
+    margin-bottom: 0.0%;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    justify-content: center;
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+#text{
+    margin: auto;
+}
+
+button.btn.btn1, button#btn1.btn-success{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 170px;
+    height: 2vw;
+    font-size: calc(0.5vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-left:0.0%;
+    margin-right: 64px;
+    margin-bottom: 0.0%;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    text-decoration: underline
+
+}
+
+button.btn.btn2, button.btn.btn3{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 326px;
+    height: 3vw;
+    font-size: calc( 1vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 25px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 25px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+
+}
+button.btn.btn1:hover, button.btn.btn2:hover, button.btn.btn3:hover, button#btn1.btn-success:hover,
+a#back:hover, a#delete:hover{
+    color: white;
+    background: #1e90ff;
+}
+
+button.btn.btnmodify, button.btn.btnsubmit{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 150px;
+    height: 2vw;
+    font-size: calc( .5vw + 0.75vh + .25vmin);
+    color: black;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    float: right;
+
+}
+
+button.btn.btnmodify:hover, button.btn.btnsubmit:hover{
+    color: white;
+    background: #1e90ff;
+}
+
+.mfg-modal, .mfg2, .type-modal, .type2, .config-modal, .config2, .eff-modal, .eff2, .mfgmodeldescrip-modal,
+.mfgmodeldescrip2, .gasviv-modal, .gasviv2, .motortype-modal, .motortype2, .description2, .description-modal,
+.refrig2, .refrig-modal, .btu2, .btu-modal, .outputstg12, .outputstg1-modal, .outputstg22, .outputstg2-modal, .outputstg32,
+.outputstg3-modal, .warr2, .warr-modal{
+    width:100%;
+    height:100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    position: absolute;
+    top:0;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.modal-content{
+    width:500px;
+    height:300px;
+    margin-left:0px;
+    margin-right:0px;
+    background-color:#D3D3D3;
+    border-radius:10px;
+}
+
+.modaltitle, .add-mfg-title{
+    height:50px;
+    width:400px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    font-size: 24px;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    padding-top:50px;
+}
+
+.description-title, .refrig-title, .btu-title, .outputstg1-title, .outputstg2-title, .outputstg3-title, .warr-title{
+    height:50px;
+    width:400px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    font-size: 24px;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    padding-top: 9px;
+}
+
+.input2{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+#id_mfg2, #id_type2, #id_config2, #id_efficiency2, #id_mfgmodeldescrip2, #id_gasviv2, #id_motortype2
+, #id_description2, #id_refrig2, #id_btu2, #id_outputstg12, #id_outputstg22, #id_outputstg32, #id_warr2{
+    font-size: calc( 1vw + 0.75vh + .25vmin);
+    width: 420px;
+}
+
+.button1, .button1type, .button1config, .button1eff, .button1mfgmodeldescrip, .button1gasviv, .button1motortype
+, .button1description, .button1refrig, .button1btu, .button1outputstg1, .button1outputstg2, .button1outputstg3,
+.button1warr{
+    border: 2px solid #C0C0C0;
+    border-radius: 2px;
+    background: #007bff;
+    width: 120px;
+    height: 30px;
+    font-size: 18px;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    cursor: pointer;
+    float: left;
+    margin-top: 60px;
+    margin-top: 70px;
+    margin-right: 0px;
+    margin-left:100px;
+    transition: 0.6s;
+    text-align: center;
+    overflow: hidden;
+    padding:3px 5px;
+    display:inline-block;
+}
+.button1, .button1type, .button1config, .button1eff, .button1mfgmodeldescrip, .button1gasviv, .button1motortype
+, .button1description, .button1refrig, .button1btu, .button1outputstg1, .button1outputstg2, .button1outputstg3, .button1warr{
+    color: #000000;
+}
+
+.button1:hover, .button1type:hover, .button1config:hover, .button1eff:hover, .button1mfgmodeldescrip:hover,
+.button1, .button1gasviv:hover, .button1motortype:hover, .button1description:hover, .button1refrig:hover,
+.button1btu:hover, .button1outputstg1:hover, .button1outputstg2:hover, .button1outputstg3:hover, .button1warr:hover{
+    color: #a9a9a9;
+    background: #003380;
+    text-decoration: underline;
+}
+
+.button2, .button2type, .button2config, .button2eff, .button2mfgmodeldescrip, .button2gasviv, .button2motortype
+, .button2description, .button2refrig, .button2btu, .button2outputstg1, .button2outputstg2, .button2outputstg3,
+.button2warr{
+    border: 2px solid #C0C0C0;
+    border-radius: 2px;
+    background: #007bff;
+    width: 120px;
+    height: 30px;
+    font-size: 18px;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    cursor: pointer;
+    float: right;
+    margin-top: 60px;
+    margin-top: 70px;
+    margin-right: 100px;
+    margin-left:0px;
+    transition: 0.6s;
+    text-align: center;
+    overflow: hidden;
+    padding:3px 5px;
+    display:inline-block;
+}
+.button2, .button2type, .button2config, .button2eff, .button2mfgmodeldescrip, .button2gasviv, .button2motortype
+, .button2description, .button2refrig, .button2btu, .button2outputstg1, .button2outputstg2, .button2outputstg3,
+.button2warr{
+    color: #000000;
+}
+
+.button2:hover, .button2type:hover, .button2config:hover, .button2eff:hover, .button2mfgmodeldescrip:hover,
+.button2gasviv:hover, .button2motortype:hover, .button2description:hover, .button2refrig:hover, .button2btu:hover,
+.button2outputstg1:hover, .button2outputstg2:hover, .button2outputstg3:hover, .button2warr:hover{
+    color: #a9a9a9;
+    background: #003380;
+    text-decoration: underline;
+}
+
+.accept, .accepttype, .acceptconfig, .accepteff, .acceptmfgmodeldescrip, .acceptgasviv, .acceptmotortype,
+ .acceptdescription, .acceptrefrig, .acceptbtu, .acceptoutputstg1, .acceptoutputstg2, .acceptoutputstg3, .acceptwarr{
+    border: 2px solid #C0C0C0;
+    border-radius: 2px;
+    background:#a9a9a9;
+    width: 120px;
+    height: 30px;
+    font-size: 18px;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    cursor: pointer;
+    float: left;
+    margin-top: 40px;
+    margin-right: 0px;
+    margin-left:100px;
+    transition: 0.6s;
+    text-align: center;
+    overflow: hidden;
+    padding:3px 5px;
+    display:inline-block;
+}
+.accept, .accepttype, .acceptconfig, .accepteff, .acceptmfgmodeldescrip, .acceptgasviv, .acceptmotortype,
+ .acceptdescription, .acceptrefrig, .acceptbtu, .acceptoutputstg1, .acceptoutputstg2, .acceptoutputstg3, .acceptwarr{
+    color: #000000;
+}
+
+.accept:hover, .accepttype:hover, .acceptconfig:hover, .accepteff:hover, .acceptmfgmodeldescrip:hover,
+ .acceptgasviv:hover, .acceptmotortype:hover, .acceptdescription:hover, .acceptrefrig:hover, .acceptbtu:hover,
+ .acceptoutputstg1:hover, .acceptoutputstg2:hover, .acceptoutputstg3:hover, .acceptwarr:hover{
+    color: #a9a9a9;
+    background: #003380;
+    text-decoration: underline;
+}
+
+.cancel, .canceltype, .cancelconfig, .canceleff, .cancelmfgmodeldescrip, .cancelgasviv, .cancelmotortype,
+ .canceldescription, .cancelrefrig, .cancelbtu, .canceloutputstg1, .canceloutputstg2, .canceloutputstg3, .cancelwarr{
+    border: 2px solid #C0C0C0;
+    border-radius: 2px;
+    background:#a9a9a9;
+    width: 120px;
+    height: 30px;
+    font-size: 18px;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    cursor: pointer;
+    float: left;
+    margin-top: 40px;
+    margin-right: 0px;
+    margin-left:100px;
+    transition: 0.6s;
+    text-align: center;
+    overflow: hidden;
+    padding:3px 5px;
+    display:inline-block;
+}
+.cancel, .canceltype, .cancelconfig, .canceleff, .cancelmfgmodeldescrip, .cancelgasviv, .cancelmotortype,
+ .canceldescription, .cancelrefrig, .canceloutputstg1, .canceloutputstg2, .canceloutputstg3, .cancelwarr{
+    color: #000000;
+}
+
+.cancel:hover, .canceltype:hover, .cancelconfig:hover, .canceleff:hover, .cancelmfgmodeldescrip:hover,
+ .cancelgasviv:hover, .cancelmotortype:hover, .canceldescription:hover, .cancelrefrig:hover, .canceloutputstg1:hover
+ , .canceloutputstg2:hover, .canceloutputstg3:hover, .cancelwarr:hover{
+    color: #a9a9a9;
+    background: #003380;
+    text-decoration: underline;
+}

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../../static/login/contractorpage.css">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background-image: url('../../../../img/A.jpg');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: cover;" >
+<div class="img"><img class="img" src='../../../../img/img.png'></div>
+<div class="container">
+    <div class="container1">
+
+    </div>
+    <div class="container2">
+        <div class="container2A">
+            <form class="form2" method="post">
+                {% csrf_token %}
+                {{ form.name_of_field }}
+                <div class="form-rowcom">
+                    {{ form.concompanytname.errors }}
+                    <label id="label_concompanytname">Company:</label>
+                    {{ form.concompanytname }}
+                </div>
+                <div class="form-row">
+                    {{ form.confirstname.errors }}
+                    <label id="label_confirstname">First Name:</label>
+                    {{ form.confirstname }}
+                </div>
+                <div class="form-row">
+                    {{ form.conlastname.errors }}
+                    <label id="label_conlastname">Last Name:</label>
+                    {{ form.conlastname }}
+                </div>
+                <div class="form-row">
+                    {{ form.conadd1.errors }}
+                    <label id="label_conadd1">Address #1:</label>
+                    {{ form.conadd1 }}
+                </div>
+                <div class="form-row">
+                    {{ form.conadd2.errors }}
+                    <label id="label_conadd2">Address #2:</label>
+                    {{ form.conadd2 }}
+                </div>
+                <div class="form-row">
+                    {{ form.concity.errors }}
+                    <label id="label_concity">City:</label>
+                    {{ form.concity }}
+                </div>
+                <div class="form-rowst">
+                    {{ form.const.errors }}
+                    <label class="label_const">State:</label>
+                    {{ form.const }}
+                </div>
+                <div class="form-row">
+                    {{ form.conzipcode.errors }}
+                    <label class="label_conzipcode">Zip Code:</label>
+                    {{ form.conzipcode }}
+                </div>
+                <div class="form-rowphone">
+                    {{ form.conwork1.errors }}
+                    <label class="label_conwork1">Work Phone 1:</label>
+                    {{ form.conwork1 }}
+                </div>
+                <div class="form-rowphone">
+                    {{ form.conwork2.errors }}
+                    <label class="label_conwork2">Work Phone 2:</label>
+                    {{ form.conwork2 }}
+                </div>
+                <div class="form-rowphone">
+                    {{ form.concell1.errors }}
+                    <label class="label_concell1">Cell Phone 1:</label>
+                    {{ form.concell1 }}
+                </div>
+                <div class="form-rowphone">
+                     {{ form.concell2.errors }}
+                     <label class="label_concell2">Cell Phone 2:</label>
+                    {{ form.concell2 }}
+                </div>
+                <div class="form-rowphone">
+                    {{ form.conhome.errors }}
+                    <label class="label_conhome">Home Phone:</label>
+                    {{ form.conhome }}
+                </div>
+                <div class="form-rowemail">
+                    {{ form.conemail1.errors }}
+                    <label class="label_conemail1">Email #1:</label>
+                    {{ form.conemail1 }}
+                </div>
+                <div class="form-rowemail">
+                    {{ form.conemail2.errors }}
+                    <label class="label_conemail2">Email #2:</label>
+                    {{ form.conemail2 }}
+                </div>
+            </form>
+            <div class="form-rowbutton">
+                <a href="{% url 'mhadatabase:conedit' instance.id %}">
+                    <button type="button" class="btn btn1">Update Contractors Info</button>
+                </a>
+            </div>
+            <div class="form-rowbutton">
+                <a href="/mhadatabase/mattoupdate">
+                    <button type="button" class="btn btn1">Delete Contractors</button>
+                </a>
+            </div>
+        </div>
+        <div class="container2B">
+            <div class="form-rowbuttoncust">
+                <a class="btn btn2" id="btn" href="{{ instance.get_absolute8_url }}">Add New Customer</a>
+                <div  class="custinfo">
+                    <h4>Customer Information</h4>
+                </div>
+                <a href="/mhadatabase/main">
+                    <button type="button" class="btn btn3">Close</button>
+                </a>
+            </div>
+            <div class="form-rowcust">
+                <div class="header1">
+                    <div id="A1">ID</div>
+                    <div id="A">First Name</div>
+                    <div id="B">Last Name</div>
+                    <div id="C">Address</div>
+                    <div id="D">City</div>
+                </div>
+                <form class="form3" method="post">
+                    {% csrf_token %}
+                    {{ form.name_of_field }}
+                    <div class="rowcust">
+                        {% for obj in object_list %}
+                        <a id="custid"  href="{{ obj.get_absolute12_url }}">{{ obj.custid }}</a>
+                        <div id="custfirstname">{{ obj.custfirstname|default_if_none:""  }}</div>
+                        <div id="custlastname">{{ obj.custlastname|default_if_none:""  }}</div>
+                        <div id="custadd1">{{ obj.custadd1|default_if_none:""  }}</div>
+                        <div id="custcity">{{ obj.custcity|default_if_none:""  }}</div>
+                    </div>
+                    {% endfor %}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="container3">
+
+    </div>
+</div>
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+
+$(document).ready(function() {
+$("#id_concompanytname").attr("disabled", true)
+$("#id_confirstname").attr("disabled", true)
+$("#id_conlastname").attr("disabled", true)
+$("#id_conadd1").attr("disabled", true)
+$("#id_conadd2").attr("disabled", true)
+$("#id_concity").attr("disabled", true)
+$("#id_const").attr("disabled", true)
+$("#id_conzipcode").attr("disabled", true)
+$("#id_conwork1_0").attr("disabled", true)
+$("#id_conwork2_0").attr("disabled", true)
+$("#id_concell1_0").attr("disabled", true)
+$("#id_concell2_0").attr("disabled", true)
+$("#id_conhome_0").attr("disabled", true)
+$("#id_conemail1").attr("disabled", true)
+$("#id_conemail2").attr("disabled", true)
+
+});
+
+$(function(){
+    $('button.btn.btn2').click(function(){
+        $(".mfg-modal").show()
+    });
+});
+
+
+$(function(){
+    $('.button2').click(function(){
+        $(".mfg-modal").hide()
+    });
+});
+
+$(function(){
+    $('.button2').click(function(){
+        $(".mfg-modal").hide()
+    });
+});
+
+
+
+</script>

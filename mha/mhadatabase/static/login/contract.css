@@ -1,0 +1,713 @@
+body{
+    font: 22px/1.5 Arial, Helvetica,sans-serif;
+    padding:0;
+
+}
+
+div.container{
+    width:100%;
+    margin-top:0px;
+   margin-left: auto;
+  margin-right: auto;
+    display: flex;
+}
+
+div.container1{
+    flex: 3;
+    display: flex;
+}
+
+div.container2{
+    width: 790px;
+}
+
+div.container3{
+    flex: 3;
+    display: flex;
+}
+
+.contract{
+    margin-top: 15px;
+}
+
+
+
+.section1{
+    border: black 4px solid;
+}
+
+.section2{
+    border-bottom: black 4px solid;
+    border-left: black 4px solid;
+    border-right: black 4px solid;
+    display: flex;
+}
+
+.section3{
+    border-bottom: black 4px solid;
+    border-left: black 4px solid;
+    border-right: black 4px solid;
+}
+
+.section4{
+    border-bottom: black 4px solid;
+    border-left: black 4px solid;
+    border-right: black 4px solid;
+}
+
+.section5{
+    border-bottom: black 4px solid;
+    border-left: black 4px solid;
+    border-right: black 4px solid;
+    display: flex;
+    flex-direction: column;
+}
+
+.section55{
+    display: flex;
+    flex-direction: row;
+}
+
+.section6{
+    border: black 4px solid;
+    display: flex;
+    flex-direction: column;
+}
+
+.section7{
+    border-bottom: black 4px solid;
+    border-left: black 4px solid;
+    border-right: black 4px solid;
+    display: flex;
+    flex-direction: column;
+}
+
+.section8{
+    border-bottom: black 4px solid;
+    border-left: black 4px solid;
+    border-right: black 4px solid;
+    display: flex;
+    flex-direction: column;
+}
+
+.section9{
+    border-bottom: black 4px solid;
+    border-left: black 4px solid;
+    border-right: black 4px solid;
+    display: flex;
+    flex-direction: column;
+}
+
+.logo{
+    margin-top: 0px;
+    margin-bottom: 0px;
+    display: flex;
+    flex-direction: row;
+}
+
+.logo1{
+    width: 242px;
+}
+
+.logo2{
+    width: 360px;
+    text-align: center;
+}
+
+.jobinfo{
+    margin-bottom: 18px;
+    display: flex;
+}
+
+.rowcustid{
+    margin-right: 10px;
+}
+
+.rowjobid{
+    margin-right: 10px;
+}
+
+.rowbidid{
+    margin-right: 10px;
+}
+
+#label_custid, #label_jobid, #label_bidid{
+    font-size: calc(.3vw + 0.75vh + .25vmin);
+}
+
+#id_custid{
+    width: 50px;
+    font-size: calc(.3vw + 0.75vh + .25vmin);
+    text-align: center;
+    -webkit-appearance: textfield;
+}
+
+#id_jobid{
+    width: 50px;
+    font-size: calc(.3vw + 0.75vh + .25vmin);
+    text-align: center;
+    -webkit-appearance: textfield;
+}
+
+#id_bidid{
+    width: 50px;
+    font-size: calc(.3vw + 0.75vh + .25vmin);
+    text-align: center;
+    -webkit-appearance: textfield;
+}
+
+#header{
+    text-align: center;
+    font-size: calc(1.0vw + 0.75vh + .25vmin);
+    font-weight:bold;
+}
+
+
+.logo3{
+    width: 187px;
+}
+
+i.bi bi-calendar-date input-group-text{
+    width: 40px;
+
+}
+
+.input-group-text {
+    width: 43px;
+}
+
+.calendar {
+    display: flex;
+    margin-top: 3px;
+    margin-bottom: 10px;
+}
+
+.dateheader{
+    margin-left: 44px;
+    margin-right: 5px;
+    margin-top: 5px;
+    font-weight:bold;
+}
+
+img.img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 204px;
+    margin-top: 6px;
+}
+
+#number{
+    text-align: center;
+}
+
+#info{
+    margin-bottom: 5px;
+    text-align: center;
+    font-size: calc(0.5vw + 0.75vh + .25vmin);
+    font-weight:bold;
+}
+
+#name{
+    margin-top: 10px;
+    display: flex;
+}
+
+#label-name{
+    margin-right: 5px;
+    margin-left: 32px;
+    font-weight:bold;
+}
+
+#address{
+    display: flex;
+}
+
+#label-job{
+    margin-right: 5px;
+    margin-left: 10px;
+    font-weight:bold;
+}
+
+#email{
+    margin-bottom: 10px;
+    display: flex;
+}
+
+#label-email{
+    margin-right: 5px;
+    margin-left: 66px;
+    font-weight:bold;
+}
+
+#cell1{
+    margin-top: 11px;
+    display: flex;
+}
+
+#label-cell1{
+    margin-right: 5px;
+    margin-left: 135px;
+    font-weight:bold;
+}
+
+#label-cell2{
+    margin-right: 5px;
+    margin-left: 135px;
+    font-weight:bold;
+}
+
+
+#cell2{
+    display: flex;
+}
+
+#header2{
+    font-size: calc(0.35vw + 0.75vh + .25vmin);
+    text-align: center;
+    padding-top: 10px;
+    margin-bottom: 10px;
+}
+
+#header2a{
+    text-align: center;
+    font-weight:bold;
+    text-decoration: underline;
+    margin-bottom: 5px;
+}
+
+
+#memo31{
+     text-align: center;
+     margin-bottom: 10px;
+}
+
+#equipheader{
+    display: flex;
+
+}
+
+.type{
+    width: 112px;
+    text-align: center;
+    font-weight:bold;
+    margin-left: 25px;
+}
+
+.man{
+    width: 124px;
+    text-align: center;
+    font-weight:bold;
+}
+
+.partnum{
+    width: 250px;
+    text-align: center;
+    font-weight:bold;
+}
+
+.descrip{
+    width: 124px;
+    text-align: center;
+    font-weight:bold;
+}
+
+.btu{
+    width: 124px;
+    text-align: center;
+    font-weight:bold;
+}
+
+.type1{
+    width: 112px;
+    text-align: center;
+    margin-left: 25px;
+}
+
+.man1{
+    width: 124px;
+    text-align: center;
+}
+
+.partnum1{
+    width: 250px;
+    text-align: center;
+}
+
+.descrip1{
+    width: 124px;
+    text-align: center;
+}
+
+.btu1{
+    width: 124px;
+    text-align: center;
+}
+
+.warr2{
+    width: 463px;
+    text-align: center;
+    font-weight:bold;
+}
+
+.type3{
+    width: 112px;
+    text-align: center;
+    margin-left: 25px;
+}
+
+.partnum3{
+    width: 180px;
+    text-align: center;
+}
+
+.warr3{
+    width: 472px;
+    text-align: center;
+}
+
+#header4{
+    width: 100%;
+    text-align: center;
+    font-weight:bold;
+    text-decoration: underline;
+    padding-top: 18px;
+    margin-bottom: 0px;
+}
+
+.header4{
+    width: 100%;
+    text-align: center;
+    font-weight:bold;
+    text-decoration: underline;
+    margin-top: 4px;
+    margin-bottom: 1px;
+}
+
+.equiprow1top{
+    display: flex;
+    margin-bottom: 5px;
+    height: 25px;
+    border-bottom: black 1px solid;
+    border-top: black 1px solid;
+}
+
+
+.equiprow1{
+    display: flex;
+    margin-bottom: 5px;
+    height: 25px;
+    border-bottom: black 1px solid;
+}
+
+.equipheader{
+    display: flex;
+}
+
+
+
+.type2{
+    width: 120px;
+    margin-left: 25px;
+    text-align: center;
+    font-weight:bold;
+
+}
+
+.man{
+    width: 120px;
+    text-align: left;
+}
+
+.partnum2{
+    width: 180px;
+    text-align: center;
+    font-weight:bold;
+}
+
+.descrip{
+    width: 170px;
+    text-align: left;
+}
+
+.btu{
+    width: 100px;
+    text-align: left;
+}
+
+.section5a{
+    width: 394px;
+    margin-top: 10px;
+    margin-bottom: 0px;
+}
+
+.section5b{
+    width: 394px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.rowmemo{
+    justify-content: center;
+    display: flex;
+    margin-top: 5px;
+}
+
+.rowmemolast{
+    justify-content: center;
+    display: flex;
+    margin-bottom: 5px;
+}
+
+
+#id_memo1, #id_memo2, #id_memo3, #id_memo4, #id_memo5, #id_memo6, #id_memo7, #id_memo8, #id_memo9, #id_memo10,
+#id_memo11, #id_memo12, #id_memo13, #id_memo14, #id_memo15, #id_memo16, #id_memo17, #id_memo18{
+    width: 360px;
+    font-size: calc(.3vw + 0.75vh + .25vmin);
+}
+
+.contract2{
+height: 900px;
+}
+
+
+.rebaterow1{
+    margin-top: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+#commed{
+    width: 200px;
+    display: flex;
+}
+
+#nicor{
+    width: 200px;
+    display: flex;
+}
+
+#commedheader{
+    width: 114px;
+    margin-right: 10px;
+    text-align: right;
+    font-weight:bold;
+}
+
+#nicorheader{
+    width: 114px;
+    margin-right: 10px;
+    text-align: right;
+    font-weight:bold;
+}
+
+#totalrebate{
+    width: 237px;
+    display: flex;
+}
+
+#totalreabeheader{
+    width: 251px;
+    margin-right: 10px;
+    text-align: right;
+    font-weight:bold;
+}
+
+.totalbeforerebate{
+    width: 200px;
+    margin-right: 10px;
+    font-weight:bold;
+    text-align: right;
+}
+
+.totalrebate{
+    margin-right: 10px;
+    font-weight:bold;
+    text-align: right;
+}
+
+.totalrebate2{
+    width: 200px;
+    margin-right: 10px;
+    font-weight:bold;
+    text-align: right;
+}
+
+
+.finalcost{
+    width: 200px;
+    margin-right: 10px;
+    font-weight:bold;
+    text-align: right;
+
+}
+
+
+
+.costrow{
+    display: flex;
+}
+
+.costrow1{
+    width: 230px;
+}
+
+.costrow2{
+    width: 230px;
+}
+
+.costrow3{
+    width: 300px;
+}
+
+
+#id_costbeforrebate, #id_totalrebate, #id_totaljobcost{
+    width: 100px;
+    text-align: right;
+    -webkit-appearance: textfield;
+}
+
+div.tbr, div.tr, div.fc{
+    text-align: right;
+    width: 100px;
+}
+
+
+#totalbeforerebate, #totalreabte2, #finalcost{
+    width: 315px;
+    display: flex;
+}
+
+
+
+#wordsA{
+    margin-right: 15px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: right;
+}
+
+#words{
+    margin-left: 15px;
+    text-align: right;
+    border: black 1px solid;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-weight: 600;
+
+}
+
+#dollar{
+    width: 60px;
+    margin-left: 6px;
+}
+
+
+.header8{
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-top: 4px;
+    margin-bottom: 16px;
+}
+
+.costpayment{
+
+}
+
+.costrow4, .costrow5, .costrow6, .costrow7{
+    display: flex;
+    margin-top: 15px;
+}
+
+#id_deposit, #id_balance{
+    -webkit-appearance: textfield;
+    width: 75px;
+    text-align: right;
+    margin-right: 10px;
+}
+
+.dpterms{
+    width: 377px;
+    margin-right: 15px;
+}
+
+#id_depositterms{
+    width: 377px;
+}
+
+.costrowheader, .balanceheader{
+    width: 130px;
+    margin-left: 6px;
+    margin-right: 5px;
+    font-weight: bold;
+    text-align: right;
+}
+
+.finalrowheader{
+    width: 130px;
+    margin-left: 6px;
+    margin-right: 5px;
+    font-weight: bold;
+    text-align: right;
+}
+
+
+.dpdate{
+    display: flex;
+}
+
+.dpcalendar{
+    display: flex;
+}
+
+input.datepicker_input.form-control{
+    width: 110px;
+}
+
+
+
+input.datepicker_input.form-control2{
+    width: 110px;
+}
+
+div.final7a{
+    width: 630px;
+}
+
+div.final7b{
+    align-items: flex-end;
+    display: flex;
+}
+
+.disclaimer1{
+    margin-left: 15px;
+    margin-top: 20px;
+}
+
+
+.disclaimer2{
+    margin-left: 15px;
+}
+
+.disclaimer3{
+    margin-left: 15px;
+    margin-bottom: 20px;
+}
+
+.sig1{
+    margin-top: 70px;
+    text-align: center;
+}
+
+.sig2{
+    margin-top: 80px;
+    text-align: center;
+    margin-bottom: 0px;
+}
+
+.page{
+    text-align: center;
+}

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../static/login/addnewequip.css">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background: #4682B4;
+             background-image: url('../../../../img/B.png');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: 70%;
+             background-position: center;">
+<div class="img"><img class="img" src='../../img/img.png'></div>
+<div class="container">
+  <div class="container1">
+  </div>
+  <div class="container2">
+      <div class="container2A">
+      <form class="form2" method="post">
+          {% csrf_token %}
+          {{ form.name_of_field }}
+          <div class="form-row1">
+              {{ form.mfg.errors }}
+              <label class="label">Model # :</label>
+              {{ form.modelnum }}
+          </div>
+          <div class="form-row2"  style="display:none">
+              <div id="addnew">
+                    <div id="id_addnew"></div>
+
+                </div>
+          </div>
+          <div class="form-row">
+              {{ form.mfg.errors }}
+              <label class="label">Mfg :</label>
+              {{ form.mfg }}
+          </div>
+          <div class="form-row">
+              {{ form.type.errors }}
+              <label class="label">Type # :</label>
+              {{ form.type }}
+          </div>
+          <div class="form-row">
+              {{ form.config.errors }}
+              <label class="label">Config :</label>
+              {{ form.config }}
+          </div>
+          <div class="form-row">
+              {{ form.efficiency.errors }}
+              <label class="label">Efficiency :</label>
+              {{ form.efficiency }}
+          </div>
+          <div class="form-row">
+              {{ form.mfgmodeldescrip.errors }}
+              <label class="label">Mfg. Descrip. :</label>
+              {{ form.mfgmodeldescrip }}
+          </div>
+          <div class="form-row">
+              {{ form.gasviv.errors }}
+              <label class="label">Gas VIv :</label>
+              {{ form.gasviv }}
+          </div>
+          <div class="form-row">
+              {{ form.motortype.errors }}
+              <label class="label">Motor Type :</label>
+              {{ form.motortype }}
+          </div>
+          <div class="form-row">
+              {{ form.description.errors }}
+              <label class="label">Description :</label>
+              {{ form.description }}
+          </div>
+            <div class="buttonrow">
+                   <a id="delete"  href="/mhadatabase/updateequip">Exit and Save</a>
+               </div>
+      </form>
+      </div>
+      <div class="container2B">
+           <form class="form2" method="post">
+          {% csrf_token %}
+          {{ form.name_of_field }}
+          <div class="form-row">
+              {{ form.refrig.errors }}
+              <label class="label">Refrig :</label>
+              {{ form.refrig }}
+          </div>
+          <div class="form-row">
+              {{ form.btu.errors }}
+              <label class="label">BTUs :</label>
+              {{ form.btu }}
+          </div>
+          <div class="form-row">
+              {{ form.outputstg1.errors }}
+              <label class="label">Output Stage 1 :</label>
+              {{ form.outputstg1 }}
+          </div>
+          <div class="form-row">
+              {{ form.outputstg2.errors }}
+              <label class="label">Output Stage 2 :</label>
+              {{ form.outputstg2 }}
+          </div>
+          <div class="form-row">
+              {{ form.outputstg3.errors }}
+              <label class="label">Output Stage 3 :</label>
+              {{ form.outputstg3 }}
+          </div>
+          <div class="form-row">
+              {{ form.price.errors }}
+              <label class="label">Price :</label>
+              {{ form.price }}
+          </div>
+          <div class="form-row">
+              {{ form.warr.errors }}
+              <label class="label">Warranty :</label>
+              {{ form.warr }}
+          </div>
+          <div class="form-row">
+              {{ form.height.errors }}
+              <label class="label">Height :</label>
+              {{ form.height }}
+          </div>
+          <div class="form-row">
+              {{ form.width.errors }}
+              <label class="label">Width :</label>
+              {{ form.width }}
+          </div>
+          <div class="form-row">
+              {{ form.depth.errors }}
+              <label class="label">Depth :</label>
+              {{ form.depth }}
+          </div>
+           </form>
+      </div>
+  </div>
+    <div class="container3">
+
+    </div>
+</div>
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+
+</script>

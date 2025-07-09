@@ -1,0 +1,26 @@
+<div class="input">
+<label class="label1">Height :</label>
+    <input id="height_id" type="text" value="{{ height.height }}" onfocusout="myFunctionHeight()">
+
+</div>
+<!--<div class="button">
+<button type="button" class="btn btnmodify">Modify Model #</button>
+</div>-->
+<script>
+
+
+function myFunctionHeight() {
+var userInput = document.getElementById("height_id").value;
+                    console.log(userInput);
+                    var url = $(".form2").attr("height-url");
+                     $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            height_id: $("#height_id").val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+}
+
+</script>

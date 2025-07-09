@@ -1,0 +1,429 @@
+img.img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 20%;
+    margin-top: 55px;
+    margin-bottom: 30px;
+}
+
+a{
+    display: flex;
+}
+
+
+div.container{
+    display: flex;
+    flex: 1;
+}
+
+div.container1{
+    display: flex;
+    flex: 1;
+}
+
+div.container2{
+    display: flex;
+    flex: 6;
+    justify-content: center;
+    background: #4682B4;
+    border: black 4px solid;
+}
+
+div.container2A{
+    display: flex;
+    flex: 1;
+}
+
+div.container2B{
+    display: flex;
+    flex: 1;
+}
+
+div.container3{
+    display: flex;
+    flex: 1;
+}
+
+label.label1{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    font-weight:bold;
+    width: 232px;
+    justify-content: right;
+    display: flex;
+    margin-right: 10px;
+}
+
+label.label{
+    font-size: calc(1vw + 0.75vh + .25vmin);
+    font-weight:bold;
+    width: 232px;
+    justify-content: right;
+    display: flex;
+    margin-right: 10px;
+
+}
+
+.form-row1{
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+
+  select option:nth-of-type(2) {
+    background-color: lightcoral;
+  }
+
+#modelnum{
+    font-size: calc(.75vw + 0.75vh + .25vmin);
+    text-align: center;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+div.input{
+    display: flex
+
+
+}
+#modelnum_id{
+    font-size: calc( 1vw + 0.75vh + .25vmin);
+    text-align: center;
+    width: 50%;
+}
+#confignew{
+    font-size: calc( 1vw + 0.75vh + .25vmin);
+    text-align: center;
+    width: 75%;
+    background: white;
+}
+
+.form-row{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+}
+
+.form-roweff{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+}
+
+.form-roweff3{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+}
+
+
+#id_cost{
+    font-size: calc(.75vw + 0.75vh + .25vmin);
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#id_smart{
+    width: 10px;
+    background-color: #4682b4;
+    border: none;
+
+}
+
+#id_mfg, #id_type, #id_config,
+ #id_eff,
+#id_mfgmodeldescrip,
+#id_gasviv,
+#id_motortype,
+#id_refrig,
+#id_btu,
+#id_outputstg1,
+#id_outputstg2,
+#id_outputstg3,
+#cost_id, #id_warr{
+    font-size: calc( 1vw + 0.75vh + .25vmin);
+    text-align: center;
+    width: 50%;
+}
+
+#id_description{
+    font-size: calc( 1vw + 0.75vh + .25vmin);
+    text-align: center;
+    width: 100%;
+    word-wrap: break-word;
+
+}
+
+
+#height_id, #width_id, #depth_id{
+    font-size: calc( 1vw + 0.75vh + .25vmin);
+    text-align: center;
+    width: 25%;
+}
+
+#cost{
+    width: 100%;
+
+}
+
+.buttonrow{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    margin-top: 25px;
+    margin-bottom: 25px;
+    justify-content: center;
+}
+
+.mfg-modal, .mfg2, .type-modal, .type2, .config-modal, .config2, .eff-modal, .eff2, .mfgmodeldescrip-modal, 
+.mfgmodeldescrip2, .gasviv-modal, .gasviv2, .motortype-modal, .motortype2,.description-modal, .description2, 
+.refrig-modal, .refrig2, .btu-modal, .btu2, .outputstg1-modal, .outputstg12, .outputstg2-modal, .outputstg22,
+.outputstg3-modal, .outputstg32, .warr-modal, .warr2, .therm-modal
+{
+    width:100%;
+    height:100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    position: absolute;
+    top:0;
+    display:flex;
+    align-items: center;
+}
+
+.modal-content{
+    width:533px;
+    height:250px;
+    margin: auto;
+    background-color: #c0c0c0;
+    border-radius:10px;
+}
+
+.modal-contentdescip{
+    width:733px;
+    height:300px;
+    margin: auto;
+    background-color: #c0c0c0;
+    border-radius:10px;
+}
+
+.modaltitle, .add-mfg-title{
+    height:50px;
+    width:400px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    font-size: calc( 1vw + 0.65vh + .25vmin);
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+}
+
+.description-title{
+    height:50px;
+    width:400px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    font-size: calc( 1vw + 0.65vh + .25vmin);
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight: bold;
+    margin-bottom: 1px;
+    margin-top: 10px;
+}
+
+.input2{
+    display: flex;
+    justify-content: center;
+}
+
+#id_mfg2, #id_type2, #id_config2, #id_eff2,
+#id_mfgmodeldescrip2, #id_mfgmodeldescripcond2, #id_mfgmodeldescripevap2,#id_gasviv2, #id_gasvivcond2, #id_gasvivevap2,
+#id_motortype2, #id_motortypecond2, #id_motortypeevap2, #id_description2, #id_descriptioncond2, #id_descriptionevap2,
+#id_refrig2, #id_refrigcond2, #id_refrigevap2, #id_btu2, #id_btucond2, #id_btuevap2,
+#id_outputstg12, #id_outputstg1cond2, #id_outputstg1evap2, #id_outputstg12, #id_outputstg1cond2, #id_outputstg1evap2,
+#id_outputstg22, #id_outputstg2cond2, #id_outputstg2evap2, #id_outputstg22, #id_outputstg2cond2, #id_outputstg2evap2,
+#id_outputstg32, #id_outputstg3cond2, #id_outputstg3evap2, #id_outputstg32, #id_outputstg3cond2, #id_outputstg3evap2,
+#id_warr2{
+    text-align:center;
+    font-size: calc( 1vw + 0.65vh + .25vmin);
+}
+
+
+a#back, a#delete, a#btn1{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 170px;
+    font-size: calc(0.5vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-right: 64px;
+    margin-bottom: 0.0%;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    justify-content: center;
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+
+
+button.btn.btn1, button#btn1.btn-success{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 170px;
+    height: 2vw;
+    font-size: calc(0.5vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-left:64px;
+    margin-right: 64px;
+    margin-bottom: 0.0%;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    text-decoration: underline
+
+}
+
+button.btn.btn2, button.btn.btn3{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 326px;
+    height: 3vw;
+    font-size: calc( 1vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 25px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 25px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+
+}
+button.btn.btn1:hover, button.btn.btn2:hover, button.btn.btn3:hover, button#btn1.btn-success:hover,
+a#back:hover, a#delete:hover, a#btn1:hover{
+    color: white;
+    background: #1e90ff;
+}
+
+button.btn.btn1, button#btn1.btn-success{
+    border: 2px solid black;
+    border-radius: 2px;
+    width: 170px;
+    font-size: calc(0.5vw + 0.75vh + .25vmin);
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-left:64px;
+    margin-right: 64px;
+    margin-bottom: 0.0%;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    text-decoration: underline
+
+}
+
+.butrow{
+        display: flex;
+}
+
+
+
+button.button1, button.button2, button.accept, button.cancel, .button1type, .button2type, .accepttype, .canceltype,
+.button1config, .button2config, .acceptconfig, .cancelconfig,
+
+.button1eff, .button2eff, .accepteff2, .canceleff2,
+
+.button1mfgmodeldescrip, .button2mfgmodeldescrip, .acceptmfgmodeldescrip, .cancelmfgmodeldescrip,
+
+.button1gasviv, .button2gasviv, .acceptgasviv, .cancelgasviv,
+
+.button1motortype, .button2motortype, .acceptmotortype, .cancelmotortype,
+
+.button1description, .button2description, .acceptdescription, .canceldescription,
+
+.button1refrig, .button2refrig, .acceptrefrig, .cancelrefrig,
+
+.button1btu, .button2btu, .acceptbtu, .cancelbtu,
+
+.button1outputstg1, .button2outputstg1, .acceptoutputstg1, .canceloutputstg1,
+
+.button1outputstg2, .button2outputstg2, .acceptoutputstg2, .canceloutputstg2,
+
+.button1outputstg3, .button2outputstg3, .acceptoutputstg3, .canceloutputstg3,
+
+.button1warr, .button2warr, .acceptwarr, .cancelwarr, .button1therm, .button2therm
+
+{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: white;
+    width: 150px;
+    font-size: calc( 1vw + 0.75vh + .25vmin);
+    color: black;
+    font-style: italic;
+    font-family: "Times New Roman";
+    font-weight:bold;
+    cursor: pointer;
+    margin-top: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 25px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+
+}
+.button.button1:hover, .button.button2:hover, .button.accept:hover, .button.cancel:hover, .button1type:hover, .button2type:hover,
+.button1config:hover, .button2config:hover, .acceptconfig:hover, .cancelconfig:hover,
+
+.button1eff:hover, .button2eff:hover, .accepteff2:hover, .canceleff2:hover,
+
+.button1mfgmodeldescrip:hover, .button2mfgmodeldescrip:hover, .acceptmfgmodeldescrip:hover, .cancelmfgmodeldescrip:hover,
+
+.button1gasviv:hover, .button2gasviv:hover, .acceptgasviv:hover, .cancelgasviv:hover,
+
+.button1motortype:hover, .button2motortype:hover, .acceptmotortype:hover, .cancelmotortype:hover,
+
+.button1description:hover, .button2description:hover, .acceptdescriptione:hover, .canceldescriptione:hover,
+
+.button1refrig:hover, .button2refrig:hover, .acceptrefrig:hover, .cancelrefrig:hover,
+
+.button1btu:hover, .button2btug:hover, .acceptbtu:hover, .cancelbtu:hover,
+
+.button1outputstg1:hover, .button2outputstg1:hover, .acceptoutputstg1:hover, .canceloutputstg1:hover,
+
+.button1outputstg2:hover, .button2outputstg2:hover, .acceptoutputstg2:hover, .canceloutputstg2:hover,
+
+.button1outputstg3:hover, .button2outputstg3:hover, .acceptoutputstg3:hover, .canceloutputstg3:hover,
+
+.button1warr:hover, .button2warr:hover, .acceptwarr:hover, .cancelwarr:hover
+
+
+{
+    color: white;
+    background: #1e90ff;
+}

@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../static/login/editequip.css">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background: #6aadad;
+             background-image: url('../../../../img/B.png');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: 70%;
+             background-position: center;">
+<div class="img"><img class="img" src='../../../img/img.png'></div>
+<div class="container">
+  <div class="container1">
+  </div>
+  <div class="container2">
+      <div class="container2A">
+      <form class="form2" method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+       <div class="form-rowbutton">
+           <button id="btn1" type="submit" class="btn-success">ENTER</button>
+       </div>
+      </form>
+      </div>
+  </div>
+    <div class="container3">
+
+    </div>
+
+</div>
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+
+$(document).ready(function() {
+
+$("#id_mfg").attr("disabled", true)
+$("#id_type").attr("disabled", true)
+$("#id_config").attr("disabled", true)
+$("#id_eff").attr("disabled", true)
+$("#id_mfgmodeldescrip").attr("disabled", true)
+$("#id_gasviv").attr("disabled", true)
+$("#id_motortype").attr("disabled", true)
+$("#id_description").attr("disabled", true)
+$("#id_refrig").attr("disabled", true)
+$("#id_btu").attr("disabled", true)
+$("#id_outputstg1").attr("disabled", true)
+$("#id_outputstg2").attr("disabled", true)
+$("#id_outputstg3").attr("disabled", true)
+$("#id_height").attr("disabled", true)
+$("#id_width").attr("disabled", true)
+$("#id_depth").attr("disabled", true)
+$("#id_warr").attr("disabled", true)
+
+
+
+//setTimeout(function(){
+//            $("#id_modelnum").attr("disabled", true)
+//            var urlC = $(".form2").attr("modelload2-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_modelnum").html(data);
+//                     }
+//                });
+//        }, 0);
+//
+//
+//
+//setTimeout(function(){
+//            var urlC = $(".form2").attr("costload2-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_cost").html(data);
+//                     }
+//                });
+//        }, 0);
+//
+
+
+// setTimeout(function(){
+//            var urlC = $(".form2").attr("heightload2-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_height").html(data);
+//                     }
+//                });
+//        }, 0);
+//
+//
+//setTimeout(function(){
+//            var urlC = $(".form2").attr("depthload2-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_depth").html(data);
+//                     }
+//                });
+//        }, 0);
+//
+//
+// setTimeout(function(){
+//            var urlC = $(".form2").attr("widthload2-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_width").html(data);
+//                     }
+//                });
+//        }, 0);
+
+
+
+
+});
+
+
+//////////////////// Manufacturer //////////////////////////////////////
+//$(function(){
+//   $('#id_mfg').change(function(){
+//    if ($('#id_mfg').val() ==1) $(".mfg-modal").show()
+//    if ($('#id_mfg').val() >1) $("#id_mfg").attr("disabled", true)
+//    if ($('#id_mfg').val() >1) $("#id_type").attr("disabled", false)
+//        setTimeout(function(){
+//                var selectBox =document.getElementById('id_mfg');
+//                var userInput =selectBox.options[selectBox.selectedIndex].value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("mfg-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_mfg: $('#id_mfg').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.button2mfg').click(function(){
+//        $(".mfg-modal").hide()
+//    });
+//});
+//
+//
+//$(function(){
+//    $('.button1').click(function(){
+//        $(".mfg2").show()
+//        $(".mfg-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('button.cancel').click(function(){
+//        $(".mfg2").hide()
+//    });
+//});
+//
+//
+//////////////////// Manufacturer Modal //////////////////////////////////////
+//
+// $(function(){
+//    $('.accept').click(function(){
+//        $(".mfg2").hide()
+//        $("#id_mfg").attr("disabled", true)
+//        $("#id_type").attr("disabled", false)
+//        setTimeout(function(){
+//            var userInput = document.getElementById("id_mfg2").value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("mfg2-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_mfg2: $('#id_mfg2').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.accept').click(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("mfgload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_mfg").html(data);
+//                     }
+//                });
+//        }, 400);
+//    });
+//});
+//
+//////////////////// Type //////////////////////////////////////
+//
+//$(function(){
+//    $('.button2type').click(function(){
+//        $(".type-modal").hide()
+//    });
+//});
+//
+//
+//$(function(){
+//    $('.button1type').click(function(){
+//        $(".type2").show()
+//        $(".type-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('button.canceltype').click(function(){
+//        $(".type2").hide()
+//    });
+//});
+//
+//
+//$(function(){
+//   $('#id_type').change(function(){
+//    if ($('#id_type').val() ==1) $(".type-modal").show()
+//    if ($('#id_type').val() >1) $("#id_type").attr("disabled", true)
+//    if ($('#id_type').val() >1) $("#id_config").attr("disabled", false)
+//        setTimeout(function(){
+//                var selectBox =document.getElementById('id_type');
+//                var userInput =selectBox.options[selectBox.selectedIndex].value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("type-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_type: $('#id_type').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.accepttype').click(function(){
+//        $(".type2").hide()
+//        $("#id_type").attr("disabled", true)
+//        $("#id_config").attr("disabled", false)
+//        setTimeout(function(){
+//            var userInput = document.getElementById("id_type2").value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("type2-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_type2: $('#id_type2').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.accepttype').click(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("typeload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_type").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//   ////////////////// Config //////////////////////////////////////
+//
+//$(function(){
+//    $('.button2config').click(function(){
+//        $(".config-modal").hide()
+//    });
+//});
+//
+//
+//$(function(){
+//    $('.button1config').click(function(){
+//        $(".config2").show()
+//        $(".config-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('button.cancelconfig').click(function(){
+//        $(".config2").hide()
+//    });
+//});
+//
+//
+//$(function(){
+//   $('#id_config').change(function(){
+//    if ($('#id_config').val() ==1) $(".config-modal").show()
+//        setTimeout(function(){
+//                var selectBox =document.getElementById('id_config');
+//                var userInput =selectBox.options[selectBox.selectedIndex].value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("config-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_config: $('#id_config').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptconfig').click(function(){
+//        $(".config2").hide()
+//        setTimeout(function(){
+//            var userInput = document.getElementById("id_config2").value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("config3-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_config2: $('#id_config2').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptconfig').click(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("configload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_config").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//   ////////////////// Efficiency //////////////////////////////////////
+//
+//$(function(){
+//    $('.button2eff').click(function(){
+//        $(".eff-modal").hide()
+//    });
+//});
+//
+//
+//$(function(){
+//    $('.button1eff').click(function(){
+//        $(".eff2").show()
+//        $(".eff-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('button.canceleff').click(function(){
+//        $(".eff2").hide()
+//    });
+//});
+//
+//$(function(){
+//   $('#id_efficiency').change(function(){
+//    if ($('#id_efficiency').val() ==1) $(".eff-modal").show()
+//        setTimeout(function(){
+//                var selectBox =document.getElementById('id_efficiency');
+//                var userInput =selectBox.options[selectBox.selectedIndex].value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("eff-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_efficiency: $('#id_efficiency').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.accepteff').click(function(){
+//        $(".eff2").hide()
+//
+//        setTimeout(function(){
+//            var userInput = document.getElementById("id_efficiency2").value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("eff3-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_efficiency2: $('#id_efficiency2').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.accepteff').click(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("effload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_efficiency").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//   ////////////////// Mfg Model Description //////////////////////////////////////
+//
+//$(function(){
+//    $('.button2mfgmodeldescrip').click(function(){
+//        $(".mfgmodeldescrip-modal").hide()
+//    });
+//});
+//
+//
+//$(function(){
+//    $('.button1mfgmodeldescrip').click(function(){
+//        $(".mfgmodeldescrip2").show()
+//        $(".mfgmodeldescrip-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('button.cancelmfgmodeldescrip').click(function(){
+//        $(".mfgmodeldescrip2").hide()
+//    });
+//});
+//
+//$(function(){
+//   $('#id_mfgmodeldescrip').change(function(){
+//    if ($('#id_mfgmodeldescrip').val() ==1) $(".mfgmodeldescrip-modal").show()
+//        setTimeout(function(){
+//                var selectBox =document.getElementById('id_mfgmodeldescrip');
+//                var userInput =selectBox.options[selectBox.selectedIndex].value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("mfgmodeldescrip-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_mfgmodeldescrip: $('#id_mfgmodeldescrip').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptmfgmodeldescrip').click(function(){
+//        $(".mfgmodeldescrip2").hide()
+//        setTimeout(function(){
+//            var userInput = document.getElementById("id_mfgmodeldescrip2").value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("mfgmodeldescrip3-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_mfgmodeldescrip2: $('#id_mfgmodeldescrip2').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptmfgmodeldescrip').click(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("mfgmodeldescripload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_mfgmodeldescrip").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//   ////////////////// Gas VIv //////////////////////////////////////
+//
+//$(function(){
+//    $('.button2gasviv').click(function(){
+//        $(".gasviv-modal").hide()
+//    });
+//});
+//
+//
+//$(function(){
+//    $('.button1gasviv').click(function(){
+//        $(".gasviv2").show()
+//        $(".gasviv-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('button.cancelgasviv').click(function(){
+//        $(".gasviv2").hide()
+//    });
+//});
+//
+//$(function(){
+//   $('#id_gasviv').change(function(){
+//    if ($('#id_gasviv').val() ==1) $(".gasviv-modal").show()
+//        setTimeout(function(){
+//                var selectBox =document.getElementById('id_gasviv');
+//                var userInput =selectBox.options[selectBox.selectedIndex].value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("gasviv-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_gasviv: $('#id_gasviv').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptgasviv').click(function(){
+//        $(".gasviv2").hide()
+//        setTimeout(function(){
+//            var userInput = document.getElementById("id_gasviv2").value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("gasviv3-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_gasviv2: $('#id_gasviv2').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptgasviv').click(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("gasvivload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_gasviv").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//       ////////////////// Motor Type //////////////////////////////////////
+//
+//$(function(){
+//    $('.button2motortype').click(function(){
+//        $(".motortype-modal").hide()
+//    });
+//});
+//
+//
+//$(function(){
+//    $('.button1motortype').click(function(){
+//        $(".motortype2").show()
+//        $(".motortype-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('button.cancelmotortype').click(function(){
+//        $(".motortype2").hide()
+//    });
+//});
+//
+//$(function(){
+//   $('#id_motortype').change(function(){
+//    if ($('#id_motortype').val() ==1) $(".motortype-modal").show()
+//        setTimeout(function(){
+//                var selectBox =document.getElementById('id_motortype');
+//                var userInput =selectBox.options[selectBox.selectedIndex].value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("motortype-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_motortype: $('#id_motortype').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptmotortype').click(function(){
+//        $(".motortype2").hide()
+//        setTimeout(function(){
+//            var userInput = document.getElementById("id_motortype2").value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("motortype3-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_motortype2: $('#id_motortype2').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptmotortype').click(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("motortypeload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_motortype").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//       ////////////////// Description //////////////////////////////////////
+//
+//$(function(){
+//    $('.button2description').click(function(){
+//        $(".description-modal").hide()
+//    });
+//});
+//
+//
+//$(function(){
+//    $('.button1description').click(function(){
+//        $(".description2").show()
+//        $(".description-modal").hide()
+//    });
+//});
+//
+//
+//$(function(){
+//    $('button.canceldescription').click(function(){
+//        $(".description2").hide()
+//    });
+//});
+//
+//$(function(){
+//   $('#id_description').change(function(){
+//    if ($('#id_description').val() ==1) $(".description-modal").show()
+//        setTimeout(function(){
+//                var selectBox =document.getElementById('id_description');
+//                var userInput =selectBox.options[selectBox.selectedIndex].value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("description-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_description: $('#id_description').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptdescription').click(function(){
+//        $(".description2").hide()
+//        setTimeout(function(){
+//            var userInput = document.getElementById("id_description2").value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("description3-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_description2: $('#id_description2').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptdescription').click(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("descriptionload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_description").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//       ////////////////// Refrig //////////////////////////////////////
+//
+//$(function(){
+//    $('.button2refrig').click(function(){
+//        $(".refrig-modal").hide()
+//    });
+//});
+//
+//
+//
+//$(function(){
+//    $('.button1refrig').click(function(){
+//        $(".refrig2").show()
+//        $(".refrig-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('.cancelrefrig').click(function(){
+//        $(".refrig2").hide()
+//    });
+//});
+//
+//$(function(){
+//   $('#id_refrig').change(function(){
+//    if ($('#id_refrig').val() ==1) $(".refrig-modal").show()
+//        setTimeout(function(){
+//                var selectBox =document.getElementById('id_refrig');
+//                var userInput =selectBox.options[selectBox.selectedIndex].value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("refrig-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_refrig: $('#id_refrig').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptrefrig').click(function(){
+//        $(".refrig2").hide()
+//        setTimeout(function(){
+//            var userInput = document.getElementById("id_refrig2").value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("refrig3-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_refrig2: $('#id_refrig2').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptrefrig').click(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("refrigload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_refrig").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//
+//       ////////////////// BTU's //////////////////////////////////////
+//
+//$(function(){
+//    $('.button2btu').click(function(){
+//        $(".btu-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('.button1btu').click(function(){
+//        $(".btu2").show()
+//        $(".btu-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('.cancelbtu').click(function(){
+//        $(".btu2").hide()
+//    });
+//});
+//
+//$(function(){
+//   $('#id_btu').change(function(){
+//    if ($('#id_btu').val() ==1) $(".btu-modal").show()
+//        setTimeout(function(){
+//                var selectBox =document.getElementById('id_btu');
+//                var userInput =selectBox.options[selectBox.selectedIndex].value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("btu-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_btu: $('#id_btu').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptbtu').click(function(){
+//        $(".btu2").hide()
+//        setTimeout(function(){
+//            var userInput = document.getElementById("id_btu2").value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("btu3-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_btu2: $('#id_btu2').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptbtu').click(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("btuload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_btu").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//       ////////////////// Outputstg1 //////////////////////////////////////
+//
+//$(function(){
+//    $('.button2outputstg1').click(function(){
+//        $(".outputstg1-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('.button1outputstg1').click(function(){
+//        $(".outputstg12").show()
+//        $(".outputstg1-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('.canceloutputstg1').click(function(){
+//        $(".outputstg12").hide()
+//    });
+//});
+//
+//$(function(){
+//   $('#id_outputstg1').change(function(){
+//    if ($('#id_outputstg1').val() ==1) $(".outputstg1-modal").show()
+//        setTimeout(function(){
+//                var selectBox =document.getElementById('id_outputstg1');
+//                var userInput =selectBox.options[selectBox.selectedIndex].value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("outputstg1-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_outputstg1: $('#id_outputstg1').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptoutputstg1').click(function(){
+//        $(".outputstg12").hide()
+//        setTimeout(function(){
+//            var userInput = document.getElementById("id_outputstg12").value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("outputstg13-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_outputstg12: $('#id_outputstg12').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptoutputstg1').click(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("outputstg1load-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_outputstg1").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//       ////////////////// Outputstg2 //////////////////////////////////////
+//
+//$(function(){
+//    $('.button2outputstg2').click(function(){
+//        $(".outputstg2-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('.button1outputstg2').click(function(){
+//        $(".outputstg22").show()
+//        $(".outputstg2-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('.canceloutputstg2').click(function(){
+//        $(".outputstg22").hide()
+//    });
+//});
+//
+//$(function(){
+//   $('#id_outputstg2').change(function(){
+//    if ($('#id_outputstg2').val() ==1) $(".outputstg2-modal").show()
+//        setTimeout(function(){
+//                var selectBox =document.getElementById('id_outputstg2');
+//                var userInput =selectBox.options[selectBox.selectedIndex].value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("outputstg2-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_outputstg2: $('#id_outputstg2').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptoutputstg2').click(function(){
+//        $(".outputstg22").hide()
+//        setTimeout(function(){
+//            var userInput = document.getElementById("id_outputstg22").value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("outputstg23-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_outputstg22: $('#id_outputstg22').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptoutputstg2').click(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("outputstg2load-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_outputstg2").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//       ////////////////// Outputstg3 //////////////////////////////////////
+//
+//$(function(){
+//    $('.button2outputstg3').click(function(){
+//        $(".outputstg3-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('.button1outputstg3').click(function(){
+//        $(".outputstg32").show()
+//        $(".outputstg3-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('.canceloutputstg3').click(function(){
+//        $(".outputstg32").hide()
+//    });
+//});
+//
+//$(function(){
+//   $('#id_outputstg3').change(function(){
+//    if ($('#id_outputstg3').val() ==1) $(".outputstg3-modal").show()
+//        setTimeout(function(){
+//                var selectBox =document.getElementById('id_outputstg3');
+//                var userInput =selectBox.options[selectBox.selectedIndex].value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("outputstg3-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_outputstg3: $('#id_outputstg3').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptoutputstg3').click(function(){
+//        $(".outputstg32").hide()
+//        setTimeout(function(){
+//            var userInput = document.getElementById("id_outputstg32").value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("outputstg33-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_outputstg32: $('#id_outputstg32').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptoutputstg3').click(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("outputstg3load-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_outputstg3").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//       ////////////////// Warranty //////////////////////////////////////
+//
+//$(function(){
+//    $('.button2warr').click(function(){
+//        $(".warr-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('.button1warr').click(function(){
+//        $(".warr2").show()
+//        $(".warr-modal").hide()
+//    });
+//});
+//
+//$(function(){
+//    $('.cancelwarr').click(function(){
+//        $(".warr2").hide()
+//    });
+//});
+//
+//$(function(){
+//   $('#id_warr').change(function(){
+//    if ($('#id_warr').val() ==1) $(".warr-modal").show()
+//        setTimeout(function(){
+//                var selectBox =document.getElementById('id_warr');
+//                var userInput =selectBox.options[selectBox.selectedIndex].value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("warr-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_warr: $('#id_warr').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptwarr').click(function(){
+//        $(".warr2").hide()
+//        setTimeout(function(){
+//            var userInput = document.getElementById("id_warr2").value;
+//                console.log(userInput);
+//                var url = $(".form2").attr("warr3-url");
+//                    $.ajax({
+//                        type:'POST',
+//                       url: url,
+//                       data:{
+//                            id_warr2: $('#id_warr2').val(),
+//                            csrfmiddlewaretoken: '{{ csrf_token }}'
+//                         },
+//                    });
+//        }, 100);
+//    });
+//});
+//
+//$(function(){
+//    $('.acceptwarr').click(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("warrload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_warr").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+
+</script>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../static/login/editfurnequip.css">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background: #6aadad;
+             background-image: url('../../../../img/B.png');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: 70%;
+             background-position: center;">
+<div class="img"><img class="img" src='../../../img/img.png'></div>
+<div class="container">
+  <div class="container1">
+  </div>
+  <div class="container2">
+      <div class="container2A">
+          <form class="form2" method="post"
+                outputstg1editload-url="{% url 'mhadatabase:load_outputstg1edit' instance.modelnum %}"
+                outputstg2editload-url="{% url 'mhadatabase:load_outputstg2edit' instance.modelnum %}"
+                outputstg3editload-url="{% url 'mhadatabase:load_outputstg3edit' instance.modelnum %}"
+                btueditload-url="{% url 'mhadatabase:load_btuedit' instance.modelnum %}"
+                refrigeditload-url="{% url 'mhadatabase:load_refrigedit' instance.modelnum %}"
+                descriptioneditload-url="{% url 'mhadatabase:load_descriptionedit' instance.modelnum %}"
+                motortypeeditload-url="{% url 'mhadatabase:load_motortypeedit' instance.modelnum %}"
+                gasviveditload-url="{% url 'mhadatabase:load_gasvivedit' instance.modelnum %}"
+                mfgmodeldescripeditload-url="{% url 'mhadatabase:load_mfgmodeldescripedit' instance.modelnum %}"
+                effeditload-url="{% url 'mhadatabase:load_effedit' instance.modelnum %}"
+                configeditload-url="{% url 'mhadatabase:load_configedit' instance.modelnum %}"
+                warredit-url="{% url 'mhadatabase:warredit' instance.modelnum %}"
+                costedit-url="{% url 'mhadatabase:costedit' instance.modelnum %}"
+                costeditload-url="{% url 'mhadatabase:load_costedit' instance.modelnum %}"
+                heightload-url="{% url 'mhadatabase:load_height' %}"
+                widthload-url="{% url 'mhadatabase:load_width' %}"
+                depthload-url="{% url 'mhadatabase:load_depth' %}"
+          >
+              {% csrf_token %}
+              {{ form.name_of_field }}
+              <div class="form-row3">
+                  <div id="modelnum">
+                      {{ form.modelnum.errors }}
+                      <label class="label">Model Number :</label>
+                      {{ form.modelnum }}
+                  </div>
+              </div>
+          <div class="form-row">
+              {{ form.mfg.errors }}
+              <label class="label">Mfg :</label>
+              {{ form.mfg }}
+          </div>
+          <div class="form-row">
+              {{ form.type.errors }}
+              <label class="label">Type # :</label>
+              {{ form.type }}
+          </div>
+          <div class="form-row">
+              {{ form.config.errors }}
+              <label class="label">Config :</label>
+              {{ form.config }}
+          </div>
+          <div class="form-row">
+              {{ form.eff.errors }}
+              <label class="label">Efficiency :</label>
+              {{ form.eff }}
+          </div>
+          <div class="form-row">
+              {{ form.mfgmodeldescrip.errors }}
+              <label class="label">Mfg. Descrip. :</label>
+              {{ form.mfgmodeldescrip }}
+          </div>
+          <div class="form-row">
+              {{ form.gasviv.errors }}
+              <label class="label">Gas VIv :</label>
+              {{ form.gasviv }}
+          </div>
+          <div class="form-row">
+              {{ form.motortype.errors }}
+              <label class="label">Motor Type :</label>
+              {{ form.motortype }}
+          </div>
+          <div class="form-row">
+              {{ form.description.errors }}
+              <label class="label">Description :</label>
+              {{ form.description }}
+          </div>
+            <div class="buttonrow">
+                   <a id="back"  href="/mhadatabase/updateequip">Save and Exit</a>
+               </div>
+          </form>
+
+      </div>
+      <div class="container2B">
+          <form class="form2" method="post">
+          {% csrf_token %}
+          {{ form.name_of_field }}
+          <div class="form-row">
+              {{ form.refrig.errors }}
+              <label class="label">Refrig :</label>
+              {{ form.refrig }}
+          </div>
+          <div class="form-row">
+              {{ form.btu.errors }}
+              <label class="label">BTUs :</label>
+              {{ form.btu }}
+          </div>
+          <div class="form-row">
+              {{ form.outputstg1.errors }}
+              <label class="label">Output Stage 1 :</label>
+              {{ form.outputstg1 }}
+          </div>
+          <div class="form-row">
+              {{ form.outputstg2.errors }}
+              <label class="label">Output Stage 2 :</label>
+              {{ form.outputstg2}}
+          </div>
+          <div class="form-row">
+              {{ form.outputstg3.errors }}
+              <label class="label">Output Stage 3 :</label>
+              {{ form.outputstg3 }}
+          </div>
+          <div class="form-row">
+              <div id="cost">
+                  <div id="id_cost"></div>
+                </div>
+          </div>
+          <div class="form-row">
+              {{ form.warr.errors }}
+              <label class="label">Warranty :</label>
+              {{ form.warr }}
+          </div>
+          <div class="form-row">
+              <div id="height">
+                  <div id="id_height"></div>
+                </div>
+          </div>
+          <div class="form-row">
+              <div id="width">
+                  <div id="id_width"></div>
+                </div>
+          </div>
+          <div class="form-row">
+              <div id="depth">
+                  <div id="id_depth"></div>
+                </div>
+          </div>
+           </form>
+
+
+      </div>
+  </div>
+    <div class="container3">
+
+    </div>
+
+    <div class="warr-modal" style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new Warranty to the master list?</h3>
+            <button type="button" class="button1warr">Yes</button>
+            <button type="button" class="button2warr">No</button>
+        </div>
+    </div>
+    <div class="warr2" style="display:none">
+        <div class="modal-content">
+            <h3 class="warr-title">Add New Warranty</h3>
+            <div class="input2">
+                {{ form.warr2.errors }}
+                {{ form.warr2 }}
+            </div>
+            <div class="butrow">
+                <button type="button" class="acceptwarr">Accept</button>
+                <button type="button" class="cancelwarr">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+
+$(document).ready(function() {
+
+$("#id_modelnum").attr("disabled", true)
+$("#id_mfg").attr("disabled", true)
+$("#id_type").attr("disabled", true)
+$("#id_config").attr("disabled", true)
+$("#id_eff").attr("disabled", true)
+$("#id_mfgmodeldescrip").attr("disabled", true)
+$("#id_gasviv").attr("disabled", true)
+$("#id_motortype").attr("disabled", true)
+$("#id_description").attr("disabled", true)
+$("#id_refrig").attr("disabled", true)
+$("#id_btu").attr("disabled", true)
+$("#id_outputstg1").attr("disabled", true)
+$("#id_outputstg2").attr("disabled", true)
+$("#id_outputstg3").attr("disabled", true)
+
+
+
+setTimeout(function(){
+            var urlC = $(".form2").attr("configeditload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_config").html(data);
+                     }
+                });
+        }, 0);
+
+
+ setTimeout(function(){
+            var urlC = $(".form2").attr("effeditload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_eff").html(data);
+                     }
+                });
+        }, 0);
+
+
+ setTimeout(function(){
+            var urlC = $(".form2").attr("mfgmodeldescripeditload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_mfgmodeldescrip").html(data);
+                     }
+                });
+        }, 0);
+
+
+
+ setTimeout(function(){
+            var urlC = $(".form2").attr("gasviveditload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_gasviv").html(data);
+                     }
+                });
+        }, 0);
+
+
+ setTimeout(function(){
+            var urlC = $(".form2").attr("motortypeeditload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_motortype").html(data);
+                     }
+                });
+        }, 0);
+
+
+ setTimeout(function(){
+            var urlC = $(".form2").attr("descriptioneditload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_description").html(data);
+                     }
+                });
+        }, 0);
+
+
+ setTimeout(function(){
+            var urlC = $(".form2").attr("refrigeditload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_refrig").html(data);
+                     }
+                });
+        }, 0);
+
+
+ setTimeout(function(){
+            var urlC = $(".form2").attr("btueditload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_btu").html(data);
+                     }
+                });
+        }, 0);
+
+
+ setTimeout(function(){
+            var urlC = $(".form2").attr("outputstg1editload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_outputstg1").html(data);
+                     }
+                });
+        }, 0);
+
+
+ setTimeout(function(){
+            var urlC = $(".form2").attr("outputstg2editload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_outputstg2").html(data);
+                     }
+                });
+        }, 0);
+
+
+ setTimeout(function(){
+            var urlC = $(".form2").attr("outputstg3editload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_outputstg3").html(data);
+                     }
+                });
+        }, 0);
+
+setTimeout(function(){
+            var urlC = $(".form2").attr("costeditload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_cost").html(data);
+                     }
+                });
+        }, 0);
+
+
+ setTimeout(function(){
+            var urlC = $(".form2").attr("heightload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_height").html(data);
+                     }
+                });
+        }, 0);
+
+
+setTimeout(function(){
+            var urlC = $(".form2").attr("depthload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_depth").html(data);
+                     }
+                });
+        }, 0);
+
+
+ setTimeout(function(){
+            var urlC = $(".form2").attr("widthload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_width").html(data);
+                     }
+                });
+        }, 0);
+
+
+
+
+});
+
+
+
+
+       ////////////////// Warranty //////////////////////////////////////
+
+$(function(){
+    $('.button2warr').click(function(){
+        $(".warr-modal").hide()
+    });
+});
+
+$(function(){
+    $('.button1warr').click(function(){
+        $(".warr2").show()
+        $(".warr-modal").hide()
+    });
+});
+
+$(function(){
+    $('.cancelwarr').click(function(){
+        $(".warr2").hide()
+    });
+});
+
+$(function(){
+   $('#id_warr').change(function(){
+    if ($('#id_warr').val() ==1) $(".warr-modal").show()
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_warr');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("warredit-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_warr: $('#id_warr').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.acceptwarr').click(function(){
+        $(".warr2").hide()
+        setTimeout(function(){
+            var userInput = document.getElementById("id_warr2").value;
+                console.log(userInput);
+                var url = $(".form2").attr("warr3-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_warr2: $('#id_warr2').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+$(function(){
+    $('.acceptwarr').click(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("warrload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_warr").html(data);
+                     }
+                });
+        },400);
+    });
+});
+
+</script>

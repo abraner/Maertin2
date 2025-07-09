@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../static/login/globalincrease.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background: #6aadad;
+             background-image: url('../../../../img/B.png');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: 70%;
+             background-position: center;" >
+<div class="img"><img class="img" src='../../img/img.png'></div>
+
+      <form class="form2" method="post"
+        percentincrease5-url="{% url 'mhadatabase:percentincrease5' %}"
+      >
+          
+
+          <div class="increase-modal" style="">
+              <div class="increase-content">
+                  <h3 class="increasetitle">Global Price Increase</h3>
+                  <div class="increasepercent">
+                      <div class="form-row">
+                          <label class="label">Percent Increase:</label>
+                          <select name="percentage" id="id_percentage">
+                              {% for p in percentages %}
+                              <option value="{{ p.id }}">{{ p.value }}</option>
+                              {% endfor %}
+                          </select>
+                      </div>
+                  </div>
+                   <div class="headermainA">
+                       <a href="/mhadatabase/updateprice5">
+                           <button type="button" class="btn btnmain">Update Price</button>
+                       </a>
+
+                      <a href="/mhadatabase/equiptoupdate5">
+                          <button type="button" class="btn btn1">Close</button>
+                      </a>
+                  </div>
+              </div>
+          </div>
+      </form>
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+////////////////// Percent Increase //////////////////////////////////////
+$(function(){
+   $('#id_percentage').change(function(){
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_percentage');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("percentincrease5-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_percentage: $('#id_percentage').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+
+</script>

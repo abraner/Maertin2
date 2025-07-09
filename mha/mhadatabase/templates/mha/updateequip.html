@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../static/login/updateequip.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background: #6aadad;
+             background-image: url('../../img/B.png');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: 70%;
+             background-position: center;" >
+<div class="img"><img class="img" src='../../img/img.png'></div>
+<div class="container">
+  <div class="container1">
+  </div>
+  <div class="container2">
+      <form class="form2" method="post"
+            typeupdate-url="{% url 'mhadatabase:typeupdate' %}"
+            typeupdateload-url="{% url 'mhadatabase:load_typeupdate' %}"
+            mfgupdate-url="{% url 'mhadatabase:mfgupdate' %}"
+            mfgupdateload-url="{% url 'mhadatabase:mfgupdateload' %}"
+            effupdate-url="{% url 'mhadatabase:effupdate' %}"
+            effupdateload-url="{% url 'mhadatabase:effupdateload' %}"
+            mfgmodeldescripload-url="{% url 'mhadatabase:mfgmodeldescripload' %}"
+            modeldescripupdate-url="{% url 'mhadatabase:modeldescripupdate' %}"
+            modnumupdate-url="{% url 'mhadatabase:modnumupdate' %}"
+
+      >
+
+       <div id="title">Filter Equipment</div>
+      {% csrf_token %}
+      {{ form.name_of_field }}
+      <div class="form-rowT">
+              
+              <label class="label">Type :</label>
+              {{ form.type }}
+          <a href="/mhadatabase/update1">
+              <button type="button" class="btn btn3">Open Equipment</button>
+          </a>
+          </div>
+          <div class="form-row">
+             
+              <label class="label">Manufacturer :</label>
+              {{ form.mfg }}
+              <a href="/mhadatabase/update2">
+                  <button type="button" class="btn btn4">Open Equipment</button>
+              </a>
+          </div>
+          <div class="form-row">
+              <label class="label">Efficiency. :</label>
+              {{ form.eff }}
+              <a href="/mhadatabase/update3">
+                  <button type="button" class="btn btn5">Open Equipment</button>
+              </a>
+          </div>
+          <div class="form-row">
+              <label class="label">Model Descrip. :</label>
+              {{ form.mfgmodeldescrip }}
+              <a href="/mhadatabase/update4">
+                  <button type="button" class="btn btn6">Open Equipment</button>
+              </a>
+          </div>
+           <div class="form-rowmodnum">
+              <label class="label-modnum">Enter Model Number :</label>
+              {{ form.modelnum }}
+              <a href="/mhadatabase/update4">
+                  <button type="button" class="btn btn8">Open Equipment</button>
+              </a>
+          </div>
+          <div class="form-rowB">
+               <a href="/mhadatabase/equipmat">
+                   <button type="button" class="btn btn1">Back</button>
+               </a>
+          </div>
+      </form>
+  </div>
+
+  <div class="container3">
+
+
+  </div>
+</div>
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+$(document).ready(function() {
+$("#id_mfg").attr("disabled", true)
+$("#id_config").attr("disabled", true)
+$("#id_eff").attr("disabled", true)
+$("#id_mfgmodeldescrip").attr("disabled", true)
+$("button.btn.btn3").hide()
+$("button.btn.btn4").hide()
+$("button.btn.btn5").hide()
+$("button.btn.btn6").hide()
+$("button.btn.btn7").hide()
+
+});
+
+////////////////////////////// Type //////////////////////////////////////
+
+
+$(function(){
+   $('#id_type').change(function(){
+        setTimeout(function(){
+                $("button.btn.btn3").show()
+                $("#id_mfg").attr("disabled", false)
+                $("button.btn.btn8").hide()
+                $("#id_modelnum").attr("disabled", true)
+                var selectBox =document.getElementById('id_type');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("typeupdate-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_type: $('#id_type').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+
+$(function(){
+    $('#id_type').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("mfgupdateload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_mfg").html(data);
+                     }
+                });
+        },400);
+    });
+});
+
+
+
+////////////////////////////// Manufacturer //////////////////////////////////////
+
+
+$(function(){
+   $('#id_mfg').change(function(){
+        setTimeout(function(){
+        $("#id_type").attr("disabled", true)
+        $("#id_eff").attr("disabled", false)
+        $("button.btn.btn3").hide()
+        $("button.btn.btn4").show()
+                var selectBox =document.getElementById('id_mfg');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("mfgupdate-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_mfg: $('#id_mfg').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+
+$(function(){
+    $('#id_mfg').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("effupdateload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_eff").html(data);
+                     }
+                });
+        },400);
+    });
+});
+
+//////////////////////////////// Eff. //////////////////////////////////////
+
+$(function(){
+   $('#id_eff').change(function(){
+
+        $("#id_mfg").attr("disabled", true)
+        $("#id_mfgmodeldescrip").attr("disabled", false)
+        $("button.btn.btn4").hide()
+        $("button.btn.btn5").show()
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_eff');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("effupdate-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_eff: $('#id_eff').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+
+$(function(){
+    $('#id_eff').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("mfgmodeldescripload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_mfgmodeldescrip").html(data);
+                     }
+                });
+        },400);
+    });
+});
+
+
+
+
+////////////////////////////// Model Description Furnace //////////////////////////////////////
+
+
+$(function(){
+   $('#id_mfgmodeldescrip').change(function(){
+        setTimeout(function(){
+        $("#id_eff").attr("disabled", true)
+        $("#id_config").attr("disabled", false)
+        $("button.btn.btn5").hide()
+        $("button.btn.btn6").show()
+                var selectBox =document.getElementById('id_mfgmodeldescrip');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("modeldescripupdate-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_mfgmodeldescrip: $('#id_mfgmodeldescrip').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+
+//$(function(){
+//    $('#id_mfgmodeldescripfurn').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("modeldescripupdateload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_mfgmodeldescripfurn").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+
+
+
+
+</script>

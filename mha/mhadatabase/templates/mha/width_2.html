@@ -1,0 +1,24 @@
+<div class="input">
+<label class="label1">Width :</label><input id="width_id" type="text" value="{{ width.width }}" onfocusout="myFunctionWidth()">
+</div>
+<!--<div class="button">
+<button type="button" class="btn btnmodify">Modify Model #</button>
+</div>-->
+<script>
+
+
+function myFunctionWidth() {
+var userInput = document.getElementById("width_id").value;
+                    console.log(userInput);
+                    var url = $(".form2").attr("width-url");
+                     $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            width_id: $("#width_id").val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+}
+
+</script>
