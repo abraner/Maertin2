@@ -86,6 +86,11 @@ div.form-delete{
 
 }
 
+#location{
+
+}
+
+
 #formh2{
     width: 100%;
     text-align:center;
@@ -150,11 +155,11 @@ li::marker{
 }
 
 div.container1{
-    flex: 3;
+    flex: 1;
 }
 
 div.container2{
-    flex: 4;
+    flex: 6;
     margin-top: 35px;
     margin-left:auto;
     margin-right:auto;
@@ -166,15 +171,49 @@ div.container2{
     display: flex;
 }
 
+div.container2A{
+    display: inline-flex;
+    flex-direction: column;
+}
+
+div.container2B{
+    display: inline-flex;
+    flex-direction: column;
+    width: 100%;
+}
 
 div.container3{
-    flex: 3;
+    flex: 1;
 }
 
 
+.outerdiv{
+    width: 97%;
+    height:70vh;
+    margin-top:0%;
+    margin-left:auto;
+    margin-right:auto;
+    background:#a9a9a9;
+    position: relative;
+    border: 2px solid #C0C0C0;
+    border-color: black;
+}
+
+.outerdiv2{
+    width: 97%;
+    height:70vh;
+    margin-top:0%;
+    margin-left:auto;
+    margin-right:auto;
+    background:#a9a9a9;
+    position: relative;
+    border: 2px solid #C0C0C0;
+    border-color: black;
+
+}
 
 
-div.form-rowcustinfo{
+div.form-rowconinfo{
     width:100%;
     margin-top:-54.6vh;
 }
@@ -192,23 +231,23 @@ p{
 
 }
 
-.form-rowcustid{
+.form-rowconid{
     display:flex;
     padding-top:1.5vh;
     height: 3vh;
 
 }
 
-label#label_custid{
+label#label_conid{
     width: 12.2vw;
 
 }
-label#label_custid{
+label#label_conid{
     width: 25vw;
 
 }
 
-input#id_custid{
+input#id_conid{
     width: 4.5vw;
     margin-right:6%;
     margin-top:0px;
@@ -218,7 +257,7 @@ input#id_custid{
     text-align:center;
 }
 
-input#id_custid{
+input#id_conid{
     width: 4.5vw;
     margin-right:2%;
     margin-top:0px;
@@ -279,16 +318,15 @@ input#id_custid{
 .form-rowbuttoncust{
     display: flex;
     margin-bottom: 10px;
-    margin-left: 0px;
-    margin-right: 0px;
+    margin-left: 107px;
     margin-top: 50px;
+    width: 883px;
     justify-content: center;
 }
 
 .custinfo{
-    margin-left: 0px;
-    margin-right: 0px;
-    width: 45%;
+    margin-left: 100px;
+    margin-right: 218px;
 }
 
 h4{
@@ -320,8 +358,8 @@ label{
     font-family: "Times New Roman";
 }
 
-label.label_custst, label.label_custzipcode, label.label_custwork1, label.label_custwork2, label.label_custcell1,
-label.label_custcell2, label.label_custhome, label.label_custemail1, label.label_custemail2{
+label.label_const, label.label_conzipcode, label.label_conwork1, label.label_conwork2, label.label_concell1,
+label.label_concell2, label.label_conhome, label.label_conemail1, label.label_conemail2{
     width:37%;
     padding-right:0.25%;
     color:black;
@@ -333,11 +371,12 @@ label.label_custcell2, label.label_custhome, label.label_custemail1, label.label
 }
 
 
-input#id_custcompanytname {
+input#id_concompanytname {
     width: 80%;
     margin-right:3%;
     margin-top:0px;
     font-size: calc(.4vw + .65vh + .25vmin);
+    font-family: "Times New Roman";
     padding-left:5px;
 
 }
@@ -348,7 +387,7 @@ input#id_custcompanytname {
 }
 
 
-input#id_custfirstname, input#id_custlastname, input#id_custadd1, input#id_custadd2, input#id_custcity{
+input#id_confirstname, input#id_conlastname, input#id_conadd1, input#id_conadd2, input#id_concity{
     width: 14vw;
     margin-top:0px;
     font-size: calc(.4vw + .65vh + .25vmin);
@@ -356,22 +395,22 @@ input#id_custfirstname, input#id_custlastname, input#id_custadd1, input#id_custa
     margin-right: 10px;
 }
 
-input#id_custst{
+input#id_const{
     width: 1.5vw;
     margin-top:0px;
     font-size: calc(.4vw + .65vh + .25vmin);
     padding-left:5px;
 }
 
-input#id_custzipcode{
+input#id_conzipcode{
     width: 3vw;
     margin-right:25%;
     margin-top:0px;
     font-size: calc(.4vw + .65vh + .25vmin);
     padding-left:5px;
 }
-input#id_custwork1_0, input#id_custwork2_0,
-input#id_custcell1_0, input#id_custcell2_0, input#id_custhome_0{
+input#id_conwork1_0, input#id_conwork2_0,
+input#id_concell1_0, input#id_concell2_0, input#id_conhome_0{
     width: 7.5vw;
     margin-right:0%;
     margin-top:0px;
@@ -379,7 +418,7 @@ input#id_custcell1_0, input#id_custcell2_0, input#id_custhome_0{
     padding-left:5px;
 }
 
-input#id_custemail1, input#id_custemail2{
+input#id_conemail1, input#id_conemail2{
     width: 40%;
     margin-right:5%;
     margin-top:0px;
@@ -388,7 +427,7 @@ input#id_custemail1, input#id_custemail2{
 }
 
 
-input#id_custwork1_1, input#id_custwork2_1, input#id_custcell1_1, input#id_custcell2_1, input#id_custhome_1, .phone-field-ext{
+input#id_conwork1_1, input#id_conwork2_1, input#id_concell1_1, input#id_concell2_1, input#id_conhome_1, .phone-field-ext{
     display:none;
 }
 
@@ -419,8 +458,7 @@ button.btn.btn1:hover{
     background: #1e90ff;
 }
 
-button.btn.btn2{
-    width: 200px;
+a#btn.btn.btn2{
     border: 2px solid black;
     border-radius: 2px;
     background: #C0C0C0;
@@ -433,11 +471,13 @@ button.btn.btn2{
     transition: 0.6s;
     position: relative;
     overflow: hidden;
-    padding: 7px;
+    padding-left: 17px;
+    padding-right: 17px;
+    padding-top: 5px;
 }
 
 
-button.btn.btn2:hover{
+a#btn.btn.btn2:hover{
     color: white;
     background: #1e90ff;
 }
@@ -469,132 +509,303 @@ button.btn.btn3:hover{
 }
 
 .form-rowcust{
-    margin-top: 21px;
-    margin-left:80px;
-    margin-right: 80px;
+    width: 92%;
+    margin-top: 14px;
+    margin-left:46px;
+    margin-bottom: 50px;
     position: relative;
-    border: 2px solid #C0C0C0;
-    border-color: black;
 }
 
 .header1{
     display: flex;
-    width: 100%;
     flex-direction: row;
     background: #6aadad;
 }
 
 
+.form3{
+}
+
+
+.colcust1{
+    display: flex;
+    flex-direction: row;
+    border-right: black 2px solid;
+    border-left: black 2px solid;
+    border-bottom: black 2px solid;
+    height: 30px;
+}
+
 #A1{
-    width: 80px;
-    font-size: calc(.5vw + .5vh + .25vmin);
+    width: 74px;
+    font-size: calc(.4vw + .5vh + .25vmin);
     text-align: center;
     border-right: black 2px solid;
     border-bottom: black 2px solid;
+    border-left: black 2px solid;
+    border-top: black 2px solid;
     font-weight:bold;
     color:white;
     background:#004385;
 }
 
 #A{
-    width: 225px;
-    font-size: calc(.5vw + .5vh + .25vmin);
+    width: 150px;
+    font-size: calc(.4vw + .5vh + .25vmin);
     text-align: center;
     border-right: black 2px solid;
     border-bottom: black 2px solid;
+    border-top: black 2px solid;
     font-weight:bold;
     color:white;
     background:#004385;
 }
 
 #B{
-    width: 200px;
-    font-size: calc(.5vw + .5vh + .25vmin);
+    width: 100px;
+    font-size: calc(.4vw + .5vh + .25vmin);
     text-align: center;
     border-right: black 2px solid;
     border-bottom: black 2px solid;
+    border-top: black 2px solid;
     font-weight:bold;
     color:white;
     background:#004385;
 }
 
 #C{
-    width: 243px;
-    font-size: calc(.5vw + .5vh + .25vmin);
+    width: 102px;
+    font-size: calc(.4vw + .5vh + .25vmin);
     text-align: center;
     border-right: black 2px solid;
     border-bottom: black 2px solid;
+    border-top: black 2px solid;
     font-weight:bold;
     color:white;
     background:#004385;
 }
 
 #D{
-    width: 150px;
-    font-size: calc(.5vw + .5vh + .25vmin);
+    width: 101px;
+    font-size: calc(.4vw + .5vh + .25vmin);
     text-align: center;
     font-weight:bold;
     color:white;
     background:#004385;
+    border-right: black 2px solid;
+    border-top: black 2px solid;
     border-bottom: black 2px solid;
 }
 
-.form3{
-    display: flex;
-    flex-direction: column;
+#E{
+    width: 103px;
+    font-size: calc(.4vw + .5vh + .25vmin);
+    text-align: center;
+    font-weight:bold;
+    color:white;
+    background:#004385;
+    border-right: black 2px solid;
+    border-bottom: black 2px solid;
+    border-top: black 2px solid;
+}
+
+#F{
+    width: 347px;
+    font-size: calc(.4vw + .5vh + .25vmin);
+    text-align: center;
+    font-weight:bold;
+    color:white;
+    background:#004385;
+    border-top: black 2px solid;
+    border-bottom: black 2px solid;
+}
+
+#G{
+    width: 79px;
+    font-size: calc(.4vw + .5vh + .25vmin);
+    text-align: center;
+    font-weight:bold;
+    color:white;
+    background:#004385;
+    border-right: black 2px solid;
+    border-left: black 2px solid;
+    border-bottom: black 2px solid;
+    border-top: black 2px solid;
 }
 
 
+
+.jobdata{
+    width: 680px;
+    height:50PX;
+    background:GREEN;
+}
+
 .rowcust{
-
+    display: flex;
     width: 100%;
-
+    flex-direction: row;
     margin-top: 2px;
     background:#51a9ff;
 }
 
 
-.table{
-
+.colcust{
+    display: flex;
+    width: 100%;
+    height: 30px;
+    flex-direction: column;
+    margin-top: 2px;
+    background:#51a9ff;
 }
 
-#custid{
 
+.curloc{
+    color: blue;
     font-size: calc(.5vw + .5vh + .25vmin);
-    width: 80px;
+    width: 139px;
     text-align: center;
     border-right: black 2px solid;
-    border-top: black 2px solid;
-    border-bottom: black 2px solid;
     font-weight:bold;
-    display: inline-block;
+    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.options{
+    font-size: calc(.5vw + .5vh + .25vmin);
+    width: 95px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.loccost{
+    font-size: calc(.5vw + .5vh + .25vmin);
+    width: 95px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rebate{
+    font-size: calc(.5vw + .5vh + .25vmin);
+    width: 93px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.costafterrebate{
+    font-size: calc(.5vw + .5vh + .25vmin);
+    width: 96px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.count{
+    font-size: calc(.5vw + .5vh + .25vmin);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 
-#text{}
 
+.jobcost, .proposal, .material, button.btn.btn2{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 94px;
+    font-size: calc(.3vw + .5vh + .25vmin);
+    color: #000000;
+    font-weight:bold;
+    cursor: pointer;
+    margin-left:5px;
+    margin-right:5px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+
+.rowmulti{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.multiproposal{
+    border: 2px solid black;
+    border-radius: 2px;
+    background: #C0C0C0;
+    width: 132px;
+    font-size: calc(.3vw + .5vh + .25vmin);
+    color: #000000;
+    font-weight:bold;
+    cursor: pointer;
+    margin-left:5px;
+    margin-right:5px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    transition: 0.6s;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+
+
+
+
+.custid{
+    font-size: calc(.5vw + .5vh + .25vmin);
+    width: 70px;
+    text-align: center;
+    border-right: black 2px solid;
+    font-weight:bold;
+    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 
 #custfirstname{
-    color:blue;
     font-size: calc(.5vw + .5vh + .25vmin);
-    width: 225px;
+    width: 200px;
     text-align: center;
     border-right: black 2px solid;
-    border-top: black 2px solid;
-    border-bottom: black 2px solid;
     font-weight:bold;
-    display: inline-block;
 }
 
 #custlastname{
     font-size: calc(.5vw + .5vh + .25vmin);
-    width: 202px;
+    width: 200px;
     text-align: center;
+    border-right: black 2px solid;
     font-weight:bold;
-    display: inline-block;
-    border-top: black 2px solid;
-    border-bottom: black 2px solid;
 }
 
 #custadd1{
@@ -611,94 +822,6 @@ button.btn.btn3:hover{
     text-align: center;
 
     font-weight:bold;
-}
-
-.mfg-modal{
-    width:100%;
-    height:100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    position: absolute;
-    top:0;
-    display:flex;
-    align-items: center;
-}
-
-.modal-custtent{
-    width:533px;
-    height:250px;
-    margin: auto;
-    background-color: #c0c0c0;
-    border-radius:10px;
-}
-
-.modal-custtentdescip{
-    width:533px;
-    height:300px;
-    margin: auto;
-    background-color: #c0c0c0;
-    border-radius:10px;
-}
-
-.modaltitle, .add-mfg-title{
-    height:50px;
-    width:400px;
-    margin-left:auto;
-    margin-right:auto;
-    text-align:center;
-    font-size: calc( 1vw + 0.65vh + .25vmin);
-    font-style: italic;
-    font-family: "Times New Roman";
-    font-weight: bold;
-}
-
-.description-title{
-    height:50px;
-    width:400px;
-    margin-left:auto;
-    margin-right:auto;
-    text-align:center;
-    font-size: calc( 1vw + 0.65vh + .25vmin);
-    font-style: italic;
-    font-family: "Times New Roman";
-    font-weight: bold;
-    margin-bottom: 1px;
-    margin-top: 10px;
-}
-
-a.btn.button1, button.button2{
-    border: 2px solid black;
-    border-radius: 2px;
-    background: white;
-    width: 150px;
-    font-size: calc( 1vw + 0.75vh + .25vmin);
-    color: black;
-    font-style: italic;
-    font-family: "Times New Roman";
-    font-weight:bold;
-    cursor: pointer;
-    margin-top: 40px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 25px;
-    transition: 0.6s;
-    position: relative;
-    overflow: hidden;
-    text-align: center;
-
-}
-a.btn.button1:hover, .button.button2:hover{
-    color: white;
-    background: #1e90ff;
-}
-
-.butrow{
-        display: flex;
-}
-
-input#id_form2-custwork1_1, input#id_form2-custwork2_1, input#id_form2-custcell1_1, input#id_form2-custcell2_1,
-input#id_form2-custhome_1,input#id_form1-custwork1_1, input#id_form1-custwork2_1, input#id_form1-custcell1_1,
-input#id_form1-custcell2_1, input#id_form1-custhome_1, .phone-field-ext{
-    display:none;
 }
 
 .mfg-modal{
@@ -783,6 +906,20 @@ a.btn.button1:hover, .button.button2:hover{
         display: flex;
 }
 
+input#id_form2-conwork1_1, input#id_form2-conwork2_1, input#id_form2-concell1_1, input#id_form2-concell2_1,
+input#id_form2-conhome_1,input#id_form1-custwork1_1, input#id_form1-custwork2_1, input#id_form1-custcell1_1,
+input#id_form1-custcell2_1, input#id_form1-custhome_1, .phone-field-ext{
+    display:none;
+}
+
+
+.info{
+    width: 235px;
+    font-size: calc(.4vw + .65vh + .25vmin);
+    background: #a3c1da;
+    padding-left: 5px;
+}
+
 .close-btn{
     color: #dddddd;
     font-weight: bold;
@@ -793,10 +930,10 @@ a.btn.button1:hover, .button.button2:hover{
     transition: 0.3s;
     background-color: red; /* Make it red */
     padding: 2px 5px; /* Adjust padding as needed */
-    padding-top: 2px;
+    padding-top: 1px;
     padding-bottom: 3px;
-    padding-left: 4px;
-    padding-right: 4px;
+    padding-left: 3px;
+    padding-right: 3px;
     border-bottom: black 2px solid;
     border-left: black 2px solid;
 
@@ -804,4 +941,15 @@ a.btn.button1:hover, .button.button2:hover{
 
 .close-btn:hover{
     color: grey; /* Optional: Change color on hover */
+}
+
+.checkbox{
+    width: 73px;
+    justify-content: center;
+    display: flex;
+
+}
+
+input#myCheckbox{
+
 }

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../../static/login/jobcost.css">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background-image: url('../../../../img/bid.png');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: cover;" >
+<div class="container">
+    <div class="container1">
+    </div>
+    <div class="container2">
+        <form class="form2" method="post"
+              targetnetprofit-url="{% url 'mhadatabase:targetnetprofit' instance.bidid %}"
+              netprofitload-url="{% url 'mhadatabase:load_netprofit' instance.bidid %}"
+              costplusprofit-url="{% url 'mhadatabase:load_costplusprofit' instance.bidid %}"
+              totalsubcost-url="{% url 'mhadatabase:load_totalsubcost' instance.bidid %}"
+              finaljobcost-url="{% url 'mhadatabase:load_finaljobcost' instance.bidid %}"
+
+        >
+            {% csrf_token %}
+            {{ form.name_of_field }}
+            <div class="row1">
+                <div class="column1">
+                    <div class="form-rowcustid">
+                        {{ form.custid.errors }}
+                        <label id="label_custid">Cust ID:</label>
+                        {{ form.custid }}
+                    </div>
+                    <div class="form-rowjobid">
+                        {{ form.jobid.errors }}
+                        <label id="label_jobid">Job ID:</label>
+                        {{ form.jobid }}
+                    </div>
+                    <div class="form-rowbidid">
+                        {{ form.bidid.errors }}
+                        <label id="label_bidid">Bid ID:</label>
+                        {{ form.bidid }}
+                    </div>
+                    <div class="form-rowcount">
+                        {{ form.count.errors }}
+                        {{ form.count }}
+                    </div>
+                </div>
+                <div class="column2">
+                    <div class="header1">Contractor Information</div>
+                    {% for obj in object_list %}
+                        <div class="form-rowfirst">
+                            {{ obj.confirstname }} {{ obj.conlastname }}
+                        </div>
+                        <div class="form-rowaddress">
+                            {{ obj.conadd1 }}
+                        </div>
+                        <div class="form-rowtown">
+                            <div class="form-rowcity">
+                                {{ obj.concity }}
+                            </div>
+                            <div class="form-rowst">
+                                {{ obj.const }}
+                            </div>
+                            <div class="form-rowzipcode">
+                                {{ obj.conzipcode }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="column3">
+                    <div class="header1">Customer Information</div>
+                    {% for obj in object_list2 %}
+                        <div class="form-rowfirst">
+                            {{ obj.custfirstname }} {{ obj.custlastname }}
+                        </div>
+                        <div class="form-rowaddress">
+                            {{ obj.custadd1 }}
+                        </div>
+                        <div class="form-rowtown">
+                            <div class="form-rowcity">
+                                {{ obj.custcity }}
+                            </div>
+                            <div class="form-rowst">
+                                {{ obj.custst }}
+                            </div>
+                            <div class="form-rowzipcode">
+                                {{ obj.custzipcode }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="column4">
+                </div>
+            </div>
+            {% for obj in object_list3 %}
+            <div class="row2">
+                <div class="form-rowoption">
+                    {{ obj.options }}
+                </div>
+            </div>
+            {% endfor %}
+            <div class="row3">
+                <div class="colunm1">
+                     {% for obj in object_list4 %}
+                    <div class="header2">Material Cost</div>
+                        <div class="form-rowsource">
+                        <div class="label">Material Cost</div>
+                            <div class="matcost">
+                                ${{ obj.matcost }}
+                            </div>
+                            <div class="labelT">Tax Rate</div>
+                        </div>
+                    <div class="form-rowsource">
+                        <div class="label">Sales Tax</div>
+                            <div class="matcost">
+                                ${{ obj.salestax }}
+                            </div>
+                        <div class="taxrate">
+                               {{ obj.taxrate }}
+                            </div>
+                        </div>
+                    <div class="form-rowsource">
+                        <div class="label">Total Material Cost</div>
+                            <div class="totalmatcost">
+                                ${{ obj.totalmatcost }}
+                            </div>
+                        </div>
+
+
+                    <div class="header2">Labor Cost</div>
+                        <div class="form-rowsource">
+                            <div class="label">Direct Labor Cost</div>
+                            <div class="matcost">
+                                ${{ obj.directlaborcost }}
+                            </div>
+                        </div>
+                    <div class="form-rowsource">
+                        <div class="label">Over Head On labor</div>
+                            <div class="matcost">
+                                {{ obj.ohlabor }}
+                            </div>
+                        </div>
+                    <div class="form-rowsource">
+                        <div class="label">Total Labor Cost</div>
+                            <div class="totalmatcost">
+                                ${{ obj.totallaborcost }}
+                            </div>
+                        </div>
+                </div>
+                <div class="colunm2">
+                    <div class="form-rowsource1">
+                        <div class="label2">Total Mat. and Labor Cost</div>
+                        <div class="matcost">
+                            ${{ obj.netjobcost }}
+                        </div>
+                    </div>
+                    <div class="form-rowsource">
+                        <div class="label2">Target Net Profit</div>
+                            {{ form.netprofit }}
+                    </div>
+                    <div class="form-rowsource">
+                        <div class="label2">Net Profit</div>
+                            <div id="id_netprofitcost"></div>
+                    </div>
+                     <div class="form-rowsource">
+                        <div class="label2">Cost Plus Profit</div>
+                            <div id="id_costplusprofit"></div>
+                    </div>
+                    <div class="form-rowsource">
+                        <div class="label2">Subcontractors Cost</div>
+                        <div class="matcost">
+                            ${{ obj.OSRcost }}
+                        </div>
+                    </div>
+                    <div class="form-rowsource">
+                        <div class="label2">Total with Sub's Cost</div>
+                        <div class="id_netjobcost3"></div>
+                    </div>
+                </div>
+
+                <div class="colunm3">
+                    <div class="form-rowsource1">
+                        <div class="label3">Nicor Instant Rebate</div>
+                        <div class="matcost">
+                            ${{ obj.instantrebate1 }}
+                        </div>
+                    </div>
+                    <div class="form-rowsource">
+                        <div class="label3">Com Ed Instant Rebate</div>
+                        <div class="matcost">
+                            ${{ obj.instantrebate2 }}
+                        </div>
+                    </div>
+                    <div class="form-rowsource">
+                        <div class="label3">Total Instant Rebate </div>
+                        <div class="matcost">
+                            ${{ obj.rebateamouint }}
+                        </div>
+                    </div>
+                    <div class="form-rowsource">
+                        <div class="label3">Job Cost Price</div>
+                        <div class="id_netjobcost3"></div>
+                    </div>
+                    <div class="form-rowsource">
+                        <div class="label3">Total Instant Rebate Amount</div>
+                        <div class="matcost">
+                            ${{ obj.rebateamouint }}
+                        </div>
+                    </div>
+                    <div class="form-rowsource">
+                        <div class="label3">Final Job Cost Price</div>
+                        <div class="id_finaljobcost"></div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </form>
+    </div>
+    <div class="container3">
+    </div>
+</div>
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+
+$(document).ready(function() {
+
+setTimeout(function(){
+        var urlC = $(".form2").attr("netprofitload-url");
+        req = $.ajax({
+               url: urlC,
+               data:{
+                 },
+                 success: function (data) {
+                   $("#id_netprofitcost").html(data);
+                 }
+            });
+    }, 0);
+
+
+setTimeout(function(){
+        var urlC = $(".form2").attr("costplusprofit-url");
+        req = $.ajax({
+               url: urlC,
+               data:{
+                 },
+                 success: function (data) {
+                   $("#id_costplusprofit").html(data);
+                 }
+            });
+    }, 0);
+
+
+setTimeout(function(){
+        var urlC = $(".form2").attr("totalsubcost-url");
+        req = $.ajax({
+               url: urlC,
+               data:{
+                 },
+                 success: function (data) {
+                   $(".id_netjobcost3").html(data);
+                 }
+            });
+    }, 0);
+
+
+setTimeout(function(){
+        var urlC = $(".form2").attr("finaljobcost-url");
+        req = $.ajax({
+               url: urlC,
+               data:{
+                 },
+                 success: function (data) {
+                   $(".id_finaljobcost").html(data);
+                 }
+            });
+    }, 0);
+
+
+});
+
+
+$(function(){
+   $('#id_netprofit').change(function(){
+        setTimeout(function(){
+                var selectBox =document.getElementById('id_netprofit');
+                var userInput =selectBox.options[selectBox.selectedIndex].value;
+                console.log(userInput);
+                var url = $(".form2").attr("targetnetprofit-url");
+                    $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_netprofit: $('#id_netprofit').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+        }, 100);
+    });
+});
+
+
+$(function(){
+    $('#id_netprofit').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("netprofitload-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_netprofitcost").html(data);
+                     }
+                });
+        },200);
+    });
+});
+
+    $(function(){
+    $('#id_netprofit').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("costplusprofit-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $("#id_costplusprofit").html(data);
+                     }
+                });
+        },300);
+    });
+});
+
+    $(function(){
+    $('#id_netprofit').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("totalsubcost-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $(".id_netjobcost3").html(data);
+                     }
+                });
+        },400);
+    });
+});
+
+    $(function(){
+    $('#id_netprofit').change(function(){
+        setTimeout(function(){
+            var urlC = $(".form2").attr("finaljobcost-url");
+            req = $.ajax({
+                   url: urlC,
+                   data:{
+                     },
+                     success: function (data) {
+                       $(".id_finaljobcost").html(data);
+                     }
+                });
+        },500);
+    });
+});
+
+
+
+</script>

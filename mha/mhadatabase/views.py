@@ -1,3 +1,5 @@
+import decimal
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, FormView
 from django.http import HttpResponseRedirect, HttpResponse
@@ -12,7 +14,7 @@ from .forms import EquipInfo, EquipInfoEdit, UpdateEquipInfo, IncreaseGlobal, In
     Package9b, \
     Package10a, Package10b, Package11a, Package11b, Package12a, Package12b, Package13a, Package13b, Package14a, \
     Package14b, \
-    Package15a, Package15b, Package16a, Package16b, ContractForm
+    Package15a, Package15b, Package16a, Package16b, ContractForm, JobInfoCurrent, Costjob
 from .models import Equipment, Equipment2, Man, Type, Gasvivfurn, Gasvivcond, Gasvivevap, Motortypefurn, Motortypecond, \
     Motortypeevap, Descriptionfurn, Descriptioncond, Descriptionevap, Refrigfurn, Refrigcond, Refrigevap, \
     BTUfurn, BTUcond, BTUevap, Outputstg1furn, Outputstg1cond, Outputstg1evap, Outputstg2, Outputstg3, Warr, Addnew, \
@@ -31,13 +33,14 @@ from .models import Equipment, Equipment2, Man, Type, Gasvivfurn, Gasvivcond, Ga
     InstallPackage8, \
     InstallPackage9, InstallPackage10, InstallPackage11, InstallPackage12, InstallPackage13, InstallPackage14, \
     InstallPackage15, \
-    InstallPackage16, PackageInfo, Package, TotalJobCost, SelectedEquip
-from django.db.models import Q, Sum, F
+    InstallPackage16, PackageInfo, Package, TotalJobCost, SelectedEquip, Option, Custpagelocation, multiformA, multiformB, \
+    multiformC, multiformD, multiformE, MatCost, OSRCost, laborCost, EquipmentCost, JobCost, Tax, Calculation
+from django.db.models import Q, Sum, F, Value
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from num2words import num2words
 from django.http import JsonResponse
 from django.shortcuts import get_list_or_404
-
+from django.db.models.functions import Coalesce
 
 class PostsListView(ListView, FormView):
     model = Equipment2
@@ -5187,8 +5190,8 @@ def newcust(request, id=None):
         return render(request, 'mha/newcust.html', context)
 
 
-def yesdupcon(request, id=None):
-    instance = get_object_or_404(CustomerInfo, conid=id)
+def yesdupcon(request, custid=None):
+    instance = get_object_or_404(CustomerInfo, custid=custid)
     form = DupConInfo(request.POST or None, instance=instance)
     a = ContractorInfo.objects.all()
     b = CustomerInfo.objects.order_by('conid').last()
@@ -5222,13 +5225,19 @@ def yesdupcon(request, id=None):
     uu = Contract.objects.values_list('id', flat=True).last()
     vv = Bidding.objects.values_list('id', flat=True).last()
     ww = EquipSelection.objects.values_list('id', flat=True).last()
+    xx = CurrentJobInfo.objects.values_list('id', flat=True).last() or 0
+    aa = CurrentJobInfo.objects.filter(id=xx).delete()
+    xx1 = xx + 1
+    CurrentJobInfo.objects.create(id=xx1, custid=u, conid=v, bidid=vv, jobid=ww)
+    s4 = Contract.objects.filter(id=uu).update(jobid=ww)
+    s5 = EquipSelection.objects.filter(id=ww).update(jobid=ww)
+    s6 = Bidding.objects.filter(id=vv).update(jobid=ww)
 
     instance2 = EquipSelection.objects.order_by('custid').last()
-    Bidding.objects.filter(id=vv).update(bidid=vv, )
-    EquipSelection.objects.filter(id=ww).update(bidid=ww)
-    Contract.objects.filter(id=uu).update(bidid=uu)
 
     context = {
+        "aa": aa,
+        "uu": uu,
         "b": b,
         "s": s,
         "t": t,
@@ -5236,6 +5245,9 @@ def yesdupcon(request, id=None):
         "s1": s1,
         "s2": s2,
         "s3": s3,
+        "s4": s4,
+        "s5": s5,
+        "s6": s6,
         "instance": instance,
         "form": form,
     }
@@ -5245,28 +5257,196 @@ def yesdupcon(request, id=None):
 def jobselection(request, id=None):
     instance = get_object_or_404(CustomerInfo, id=id)
     form = EquipmentSelect(request.POST or None, instance=instance)
-    u = CustomerInfo.objects.values_list('custid', flat=True).get(id=id)
-    v = CustomerInfo.objects.values_list('conid', flat=True).get(id=id)
-    s1 = Contract.objects.create(custid=u, conid=v)
-    s2 = Bidding.objects.create(custid=u, conid=v)
-    s3 = EquipSelection.objects.create(custid=u, conid=v)
     uu = Contract.objects.values_list('id', flat=True).last()
     vv = Bidding.objects.values_list('id', flat=True).last()
     ww = EquipSelection.objects.values_list('id', flat=True).last()
-    Bidding.objects.filter(id=vv).update(bidid=vv, jobid=ww)
-    EquipSelection.objects.filter(id=ww).update(bidid=vv, jobid=ww)
-    Contract.objects.filter(id=uu).update(bidid=vv, jobid=ww)
+    Bidding.objects.filter(id=vv).update(bidid=vv)
+    EquipSelection.objects.filter(id=ww).update(bidid=vv)
+    Contract.objects.filter(id=uu).update(bidid=vv)
     instance2 = get_object_or_404(EquipSelection, jobid=ww)
 
     context = {
         "instance": instance,
         "instance2": instance2,
         "form": form,
-        "s1": s1,
-        "s2": s2,
-        "s3": s3,
     }
     return render(request, 'mha/jobselection.html', context)
+
+
+
+
+def jobselection2(request, id=None):
+    instance = get_object_or_404(EquipSelection, id=id)
+    form = EquipmentSelect(request.POST or None, instance=instance)
+
+    a = EquipSelection.objects.values_list('conid', flat=True).get(id=id)
+    b = EquipSelection.objects.values_list('custid', flat=True).get(id=id)
+    c = EquipSelection.objects.values_list('optionid', flat=True).get(id=id)
+    c1 = EquipSelection.objects.values_list('jobid', flat=True).get(id=id)
+    d = c + 1
+    e = Option.objects.values_list('option', flat=True).get(id=d)
+    f = EquipSelection.objects.create(custid=b, conid=a, optionid=d, options=e, jobid=c1)
+    g = EquipSelection.objects.values_list('id', flat=True).last()
+
+    j = Bidding.objects.create(custid=b, conid=a, jobid=c1, optionsid=d, options=e)
+    j1 = Bidding.objects.values_list('id', flat=True).last()
+    j2 = Bidding.objects.filter(id=j1).update(bidid=j1)
+    k = CurrentJobInfo.objects.create(custid=b, conid=a, bidid=j1, jobid=c1, optionid=d, options=e)
+    l = EquipSelection.objects.filter(id=g).update(bidid=j1)
+    i = Contract.objects.create(custid=b, conid=a, jobid=c1, bidid=j1)
+    queryset = EquipSelection.objects.filter(id=g)
+    instance2 = get_object_or_404(EquipSelection, id=g)
+
+    j = Bidding.objects.filter(jobid=c1).count()
+    k = Bidding.objects.filter(jobid=c1).update(count=j)
+
+    context = {
+        "instance": instance,
+        "instance2": instance2,
+        "form": form,
+        "object_list": queryset,
+        'f': f,
+        'g': g,
+        'i': i,
+        'j': j,
+        'k': k,
+        "j2": j2,
+        "l": l,
+    }
+    return render(request, 'mha/jobselection2.html', context)
+
+
+def jobselection3(request, bidid=None):
+    instance = get_object_or_404(EquipSelection, bidid=bidid)
+    form = EquipmentSelect(request.POST or None, instance=instance)
+
+    a = EquipSelection.objects.values_list('conid', flat=True).get(bidid=bidid)
+    b = EquipSelection.objects.values_list('custid', flat=True).get(bidid=bidid)
+    c = EquipSelection.objects.values_list('optionid', flat=True).get(bidid=bidid)
+    c1 = EquipSelection.objects.values_list('jobid', flat=True).get(bidid=bidid)
+    c2 = EquipSelection.objects.values_list('joblocation', flat=True).get(bidid=bidid)
+    d = c + 1
+    e = Option.objects.values_list('option', flat=True).get(id=d)
+    f = EquipSelection.objects.create(custid=b, conid=a, optionid=d, options=e, jobid=c1)
+    g = EquipSelection.objects.values_list('id', flat=True).last()
+
+    j = Bidding.objects.create(custid=b, conid=a, jobid=c1, optionsid=d, options=e, joblocation=c2)
+    j1 = Bidding.objects.values_list('id', flat=True).last()
+    j2 = Bidding.objects.filter(id=j1).update(bidid=j1)
+    k = CurrentJobInfo.objects.create(custid=b, conid=a, bidid=j1, jobid=c1, optionid=d, options=e)
+    l = EquipSelection.objects.filter(id=g).update(bidid=j1, joblocation=c2)
+    i = Contract.objects.create(custid=b, conid=a, jobid=c1, bidid=j1)
+    queryset = EquipSelection.objects.filter(id=g)
+    instance2 = get_object_or_404(EquipSelection, id=g)
+
+    c = Bidding.objects.filter(jobid=c1).count()
+    d1 = Bidding.objects.filter(jobid=c1).update(count=c)
+
+
+    context = {
+        "instance": instance,
+        "instance2": instance2,
+        "form": form,
+        "object_list": queryset,
+        "d1": d1,
+        'f': f,
+        'g': g,
+        'i': i,
+        'j': j,
+        'k': k,
+        "j2": j2,
+        "l": l,
+    }
+    return render(request, 'mha/jobselection3.html', context)
+
+
+def jobselection4(request, bidid=None):
+    instance = get_object_or_404(EquipSelection, bidid=bidid)
+    form = EquipmentSelect(request.POST or None, instance=instance)
+
+    a = EquipSelection.objects.values_list('conid', flat=True).get(bidid=bidid)
+    b = EquipSelection.objects.values_list('custid', flat=True).get(bidid=bidid)
+    c = EquipSelection.objects.values_list('optionid', flat=True).get(bidid=bidid)
+    c1 = EquipSelection.objects.values_list('jobid', flat=True).get(bidid=bidid)
+    c2 = EquipSelection.objects.values_list('joblocation', flat=True).get(bidid=bidid)
+    d = c + 1
+    e = Option.objects.values_list('option', flat=True).get(id=d)
+    f = EquipSelection.objects.create(custid=b, conid=a, optionid=d, options=e, jobid=c1)
+    g = EquipSelection.objects.values_list('id', flat=True).last()
+
+    j = Bidding.objects.create(custid=b, conid=a, jobid=c1, optionsid=d, options=e, joblocation=c2)
+    j1 = Bidding.objects.values_list('id', flat=True).last()
+    j2 = Bidding.objects.filter(id=j1).update(bidid=j1)
+    k = CurrentJobInfo.objects.create(custid=b, conid=a, bidid=j1, jobid=c1, optionid=d, options=e)
+    l = EquipSelection.objects.filter(id=g).update(bidid=j1, joblocation=c2)
+    i = Contract.objects.create(custid=b, conid=a, jobid=c1, bidid=j1)
+    queryset = EquipSelection.objects.filter(id=g)
+    instance2 = get_object_or_404(EquipSelection, id=g)
+
+    c = Bidding.objects.filter(jobid=c1).count()
+    d1 = Bidding.objects.filter(jobid=c1).update(count=c)
+
+
+    context = {
+        "instance": instance,
+        "instance2": instance2,
+        "form": form,
+        "object_list": queryset,
+        "d1": d1,
+        'f': f,
+        'g': g,
+        'i': i,
+        'j': j,
+        'k': k,
+        "j2": j2,
+        "l": l,
+    }
+    return render(request, 'mha/jobselection4.html', context)
+
+
+def jobselection5(request, bidid=None):
+    instance = get_object_or_404(EquipSelection, bidid=bidid)
+    form = EquipmentSelect(request.POST or None, instance=instance)
+
+    a = EquipSelection.objects.values_list('conid', flat=True).get(bidid=bidid)
+    b = EquipSelection.objects.values_list('custid', flat=True).get(bidid=bidid)
+    c = EquipSelection.objects.values_list('optionid', flat=True).get(bidid=bidid)
+    c1 = EquipSelection.objects.values_list('jobid', flat=True).get(bidid=bidid)
+    c2 = EquipSelection.objects.values_list('joblocation', flat=True).get(bidid=bidid)
+    d = c + 1
+    e = Option.objects.values_list('option', flat=True).get(id=d)
+    f = EquipSelection.objects.create(custid=b, conid=a, optionid=d, options=e, jobid=c1)
+    g = EquipSelection.objects.values_list('id', flat=True).last()
+
+    j = Bidding.objects.create(custid=b, conid=a, jobid=c1, optionsid=d, options=e, joblocation=c2)
+    j1 = Bidding.objects.values_list('id', flat=True).last()
+    j2 = Bidding.objects.filter(id=j1).update(bidid=j1)
+    k = CurrentJobInfo.objects.create(custid=b, conid=a, bidid=j1, jobid=c1, optionid=d, options=e)
+    l = EquipSelection.objects.filter(id=g).update(bidid=j1, joblocation=c2)
+    i = Contract.objects.create(custid=b, conid=a, jobid=c1, bidid=j1)
+    queryset = EquipSelection.objects.filter(id=g)
+    instance2 = get_object_or_404(EquipSelection, id=g)
+
+    c = Bidding.objects.filter(jobid=c1).count()
+    d1 = Bidding.objects.filter(jobid=c1).update(count=c)
+
+
+    context = {
+        "instance": instance,
+        "instance2": instance2,
+        "form": form,
+        "object_list": queryset,
+        "d1": d1,
+        'f': f,
+        'g': g,
+        'i': i,
+        'j': j,
+        'k': k,
+        "j2": j2,
+        "l": l,
+    }
+    return render(request, 'mha/jobselection5.html', context)
+
 
 
 def contractorpage(request, id=None):
@@ -5281,11 +5461,80 @@ def contractorpage(request, id=None):
     return render(request, 'mha/contractorpage.html', context)
 
 
+def customerinfo(request, custid=None):
+    instance = get_object_or_404(CustomerInfo, custid=custid)
+    form = Custinfo(request.POST or None, instance=instance)
+    a = EquipSelection.objects.filter(custid=custid).values_list('custid', flat=True).last()
+    queryset = CustomerInfo.objects.filter(custid=a)
+    b = EquipSelection.objects.filter(custid=custid).values_list('bidid', flat=True)[0]
+    c1 = CurrentJobInfo.objects.filter(custid=custid).values_list('jobid', flat=True).count()
+    d1 = CurrentJobInfo.objects.filter(custid=custid).update(count=c1)
+    instance2 = get_object_or_404(EquipSelection, bidid=b)
+    instance1 = get_object_or_404(JobCost, bidid=b)
+    queryset2 = CurrentJobInfo.objects.filter(bidid=b)
+
+    f1 = EquipSelection.objects.filter(custid=custid).annotate(bididG=F('bidid'))
+    f2 = list(f1.values_list('bidid', flat=True))
+    ee = list(set(f2))
+    try:
+        c = EquipSelection.objects.filter(custid=custid).values_list('bidid', flat=True)[1]
+        instance3 = get_object_or_404(EquipSelection, bidid=c)
+    except Exception as ee:
+        c = 0
+        instance3 = 0
+    try:
+        d = EquipSelection.objects.filter(custid=custid).values_list('bidid', flat=True)[2]
+        instance4 = get_object_or_404(EquipSelection, bidid=d)
+    except Exception as ee:
+        d = 0
+        instance4 = 0
+    try:
+        e = EquipSelection.objects.filter(custid=custid).values_list('bidid', flat=True)[3]
+        instance5 = get_object_or_404(EquipSelection, bidid=e)
+    except Exception as ee:
+        e = 0
+        instance5 = 0
+    try:
+        f = EquipSelection.objects.filter(custid=custid).values_list('bidid', flat=True)[4]
+        instance6 = get_object_or_404(EquipSelection, bidid=f)
+    except Exception as ee:
+        f = 0
+        instance6 = 0
+
+
+    queryset3 = CurrentJobInfo.objects.filter(bidid=c)
+    queryset4 = CurrentJobInfo.objects.filter(bidid=d)
+    queryset5 = CurrentJobInfo.objects.filter(bidid=e)
+    queryset6 = CurrentJobInfo.objects.filter(bidid=f)
+
+    
+    context = {
+        "instance": instance,
+        "instance1": instance1,
+        "instance2": instance2,
+        "instance3": instance3,
+        "instance4": instance4,
+        "instance5": instance5,
+        "instance6": instance6,
+        "form": form,
+        "object_list": queryset,
+        "object_list2": queryset2,
+        "object_list3": queryset3,
+        "object_list4": queryset4,
+        "object_list5": queryset5,
+        "object_list6": queryset6,
+        "d1": d1,
+    }
+    return render(request, 'mha/customerinfo.html', context)
+
+
+
 def customerpage(request, id=None):
     instance = get_object_or_404(CustomerInfo, id=id)
     form = Custinfo(request.POST or None, instance=instance)
     queryset = CurrentJobInfo.objects.filter(custid=id)
-    queryset2 = EquipSelection.objects.filter(custid=id)
+#    queryset2 = EquipSelection.objects.filter(custid=id)
+    queryset2 = Custpagelocation.objects.filter(custid=id)
     context = {
         "instance": instance,
         "form": form,
@@ -5447,17 +5696,29 @@ def custcompany(request):
 
 def equipselection1(request, id=None):
     a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a2 = EquipSelection.objects.values_list('bidid', flat=True).last()
+    aa = EquipSelection.objects.filter(jobid=a).update(optionid=1, options='Option A')
+    ab = Bidding.objects.filter(jobid=a).update(optionsid=1, options='Option A')
+    ac = CurrentJobInfo.objects.filter(jobid=a).update(optionid=1, options='Option A')
     b = CustomerInfo.objects.values_list('id', flat=True).last()
-    c = SelectedEquip.objects.filter(id=1).update(type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
-    d = SelectedEquip.objects.filter(id=2).update(type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
-    e = SelectedEquip.objects.filter(id=3).update(type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
-    f = SelectedEquip.objects.filter(id=4).update(type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
-    g = SelectedEquip.objects.filter(id=5).update(type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
-    h = SelectedEquip.objects.filter(id=6).update(type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
-    i = SelectedEquip.objects.filter(id=7).update(type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
+    CustomerInfo.objects.values_list('id', flat=True).last()
+    SelectedEquip.objects.create(equipid=1, bidid=a2, type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
+    SelectedEquip.objects.create(equipid=2, bidid=a2,  type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
+    SelectedEquip.objects.create(equipid=3, bidid=a2,  type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
+    SelectedEquip.objects.create(equipid=4, bidid=a2,  type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
+    SelectedEquip.objects.create(equipid=5, bidid=a2,  type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
+    SelectedEquip.objects.create(equipid=6, bidid=a2,  type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
+    SelectedEquip.objects.create(equipid=7, bidid=a2,  type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
     instance = get_object_or_404(EquipSelection, jobid=a)
+    instance2 = get_object_or_404(EquipSelection, bidid=a2)
     form = EquipmentSelect1(request.POST or None, instance=instance)
     queryset = CustomerInfo.objects.filter(id=b).values()
+
+    c = Bidding.objects.filter(jobid=a).count()
+    d = Bidding.objects.filter(bidid=a2).update(count=c)
+
+
+
     if form.is_valid():
         instance = form.save(commit=False)
         instance.save()
@@ -5465,31 +5726,73 @@ def equipselection1(request, id=None):
 
     context = {
         "instance": instance,
+        "instance2": instance2,
         "form": form,
         "object_list": queryset,
-    }
-    return render(request, 'mha/equipselection1.html', context)
-
-
-def joblocation(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
-    form = EquipmentSelect1(request.POST)
-    b = request.POST['id_joblocation']
-    c = JobLocation.objects.filter(id=b).values_list('jobloc', flat=True)
-    d = EquipSelection.objects.filter(jobid=a).update(joblocation=c)
-    context = {
-        "form": form,
+        "aa": aa,
+        "ab": ab,
+        "ac": ac,
         "d": d,
     }
     return render(request, 'mha/equipselection1.html', context)
 
 
+def equipselection2(request, id=None):
+    a = EquipSelection.objects.values_list('id', flat=True).last()
+    a2 = EquipSelection.objects.values_list('bidid', flat=True).last()
+    b = CustomerInfo.objects.values_list('id', flat=True).last()
+    SelectedEquip.objects.filter(id=1).update(type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
+    SelectedEquip.objects.filter(id=2).update(type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
+    SelectedEquip.objects.filter(id=3).update(type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
+    SelectedEquip.objects.filter(id=4).update(type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
+    SelectedEquip.objects.filter(id=5).update(type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
+    SelectedEquip.objects.filter(id=6).update(type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
+    SelectedEquip.objects.filter(id=7).update(type='', mfg='', modelnum='', mfgmodeldescrip='', btu='', warr='')
+    instance = get_object_or_404(EquipSelection, id=a)
+    instance2 = get_object_or_404(EquipSelection, bidid=a2)
+    form = EquipmentSelect1(request.POST or None, instance=instance)
+    queryset = CustomerInfo.objects.filter(id=b).values()
+
+    if form.is_valid():
+        instance = form.save(commit=False)
+        instance.save()
+        return redirect(instance.get_absolute20_url())
+
+    context = {
+        "instance": instance,
+        "instance2": instance2,
+        "form": form,
+        "object_list": queryset,
+    #    "aa": aa,
+    #    "ab": ab,
+    #    "ac": ac,
+    }
+    return render(request, 'mha/equipselection1.html', context)
+
+
+def joblocation(request):
+    a1 = EquipSelection.objects.values_list('bidid', flat=True).last()
+    form = EquipmentSelect1(request.POST)
+    b = request.POST['id_joblocation']
+    c = JobLocation.objects.filter(id=b).values_list('jobloc', flat=True)
+    d = EquipSelection.objects.filter(bidid=a1).update(joblocation=c)
+    e = CurrentJobInfo.objects.filter(bidid=a1).update(currentlocrm=c)
+    f = Bidding.objects.filter(bidid=a1).update(joblocation=c)
+    context = {
+        "form": form,
+        "d": d,
+        "e": e,
+        "f": f,
+    }
+    return render(request, 'mha/equipselection1.html', context)
+
+
 def airhandler(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a1 = EquipSelection.objects.values_list('bidid', flat=True).last()
     form = EquipmentSelect1(request.POST)
     b = request.POST['id_furntype'] or 0
     c = FurnaceType.objects.filter(id=b).values_list('furntype', flat=True) or 0
-    d = EquipSelection.objects.filter(jobid=a).update(airhandlertype=c)
+    d = EquipSelection.objects.filter(bidid=a1).update(airhandlertype=c)
     context = {
         "form": form,
         "d": d,
@@ -5498,12 +5801,12 @@ def airhandler(request):
 
 
 def outsideunit(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
     FilterCondEff.objects.all().delete()
     form = EquipmentSelect1(request.POST)
     b = request.POST['id_outsideunittype'] or 0
     c = OutsideUnitType.objects.filter(id=b).values_list('outsidetype', flat=True) or 0
-    d = EquipSelection.objects.filter(jobid=a).update(outsideunittype=c)
+    d = EquipSelection.objects.filter(bidid=a).update(outsideunittype=c)
     e = Equipment2.objects.filter(type='Condenser').annotate(effA=F('eff'))
     g = list(e.values_list('eff', flat=True).distinct())
     try:
@@ -5572,19 +5875,20 @@ def load_condeff(request):
 
 
 def condeff(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
     FilterCondbtu.objects.all().delete()
     form = EquipmentSelect1(request.POST)
+#    SelectedEquip.objects.filter(equipid=1, bidid=a).delete()
     b = request.POST['id_condeff']
-    b1 = EquipSelection.objects.filter(jobid=a).update(condbtu='', conddescript='', condmodnum='', furnbtu='',
+    b1 = EquipSelection.objects.filter(bidid=a).update(condbtu='', conddescript='', condmodnum='', furnbtu='',
                                                        furnconfig='', furneff='', furndescript='', furnmodnum='',
                                                        furnheight=0.00, furnwidth=0.00, coilbtu='', coilconfig='',
                                                        coilmodnum='', coilwidth=0.00, coilheight=0.00,
                                                        furncoilheight=0.00)
     c = FilterCondEff.objects.filter(id=b).values_list('condefffilter', flat=True)
-    d = EquipSelection.objects.filter(jobid=a).update(condeff=c)
+    d = EquipSelection.objects.filter(bidid=a).update(condeff=c)
     d1 = EquipSelection.objects.values_list('condeff', flat=True).last()
-    d2 = SelectedEquip.objects.filter(id=1).update(type='Condenser')
+    d2 = SelectedEquip.objects.filter(equipid=1, bidid=a).update(type='Condenser', eff=d1)
     e = Equipment2.objects.filter(type='Condenser', eff=d1).annotate(btuA=F('btu'))
     g = list(e.values_list('btu', flat=True).distinct())
     try:
@@ -5654,20 +5958,20 @@ def load_condbtu(request):
 
 
 def condbtu(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
     FilterCondDescrip.objects.all().delete()
     form = EquipmentSelect1(request.POST)
     b = request.POST['id_condbtu']
-    b1 = EquipSelection.objects.filter(jobid=a).update(conddescript='', condmodnum='', furnbtu='',
+    b1 = EquipSelection.objects.filter(bidid=a).update(conddescript='', condmodnum='', furnbtu='',
                                                        furnconfig='', furneff='', furndescript='', furnmodnum='',
                                                        furnheight=0.00, furnwidth=0.00, coilbtu='', coilconfig='',
                                                        coilmodnum='', coilwidth=0.00, coilheight=0.00,
                                                        furncoilheight=0.00)
     c = FilterCondbtu.objects.filter(id=b).values_list('condbtufilter', flat=True)
-    d = EquipSelection.objects.filter(jobid=a).update(condbtu=c)
+    d = EquipSelection.objects.filter(bidid=a).update(condbtu=c)
     d1 = EquipSelection.objects.values_list('condeff', flat=True).last()
     d2 = EquipSelection.objects.values_list('condbtu', flat=True).last()
-    d3 = SelectedEquip.objects.filter(id=1).update(btu=c)
+    d3 = SelectedEquip.objects.filter(equipid=1, bidid=a).update(btu=d2)
     e = Equipment2.objects.filter(type='Condenser', eff=d1, btu=d2).annotate(mfgmodeldescripA=F('mfgmodeldescrip'))
     g = list(e.values_list('mfgmodeldescrip', flat=True).distinct())
     try:
@@ -5712,16 +6016,16 @@ def load_conddescript(request):
 
 
 def conddescrip(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
     FilterCondModelnum.objects.all().delete()
     form = EquipmentSelect1(request.POST)
     b = request.POST['id_conddescript']
     c = FilterCondDescrip.objects.filter(id=b).values_list('conddescripfilter', flat=True)
-    d = EquipSelection.objects.filter(jobid=a).update(conddescript=c)
+    d = EquipSelection.objects.filter(bidid=a).update(conddescript=c)
     d1 = EquipSelection.objects.values_list('condeff', flat=True).last()
     d2 = EquipSelection.objects.values_list('condbtu', flat=True).last()
     d3 = EquipSelection.objects.values_list('conddescript', flat=True).last()
-    d4 = SelectedEquip.objects.filter(id=1).update(mfgmodeldescrip=d3)
+    d4 = SelectedEquip.objects.filter(equipid=1, bidid=a).update(mfgmodeldescrip=d3)
     e = Equipment2.objects.filter(type='Condenser', eff=d1, btu=d2, mfgmodeldescrip=d3).annotate(
         modelnumA=F('modelnum'))
     g = list(e.values_list('modelnum', flat=True).distinct())
@@ -5766,16 +6070,21 @@ def load_condmodnum(request):
 
 
 def condmodnum(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
+    aa = Bidding.objects.values_list('bidid', flat=True).last()
     FilterFurnbtu.objects.all().delete()
+#    TotalJobCost.objects.filter(bidid=a,descripid=1).delete()
     form = EquipmentSelect1(request.POST)
     b = request.POST['id_condmodnum']
     c = FilterCondModelnum.objects.filter(id=b).values_list('condmodelnumfilter', flat=True)
-    d = EquipSelection.objects.filter(jobid=a).update(condmodnum=c)
+    d = EquipSelection.objects.filter(bidid=a).update(condmodnum=c)
     d1 = c.first()
     d2 = Equipment2.objects.filter(modelnum=d1).values_list('mfg', flat=True)
     d2a = Equipment2.objects.filter(modelnum=d1).values_list('warr', flat=True)
-    d3 = SelectedEquip.objects.filter(id=1).update(mfg=d2, modelnum=d1, warr=d2a)
+    d2b = Equipment2.objects.filter(modelnum=d1).values_list('cost', flat=True)
+    d3 = SelectedEquip.objects.filter(equipid=1, bidid=a).update(quanity=1, mfg=d2, modelnum=d1, warr=d2a)
+    d4 = Bidding.objects.filter(bidid=aa).update(cost1total=d2b, quanity1=1)
+    d5 = TotalJobCost.objects.create(bidid=a, jobcost=d2b, descripid=1)
     e = Equipment2.objects.filter(type='Furnace').annotate(btuA=F('btu'))
     g = list(e.values_list('btu', flat=True).distinct())
     try:
@@ -5822,6 +6131,8 @@ def condmodnum(request):
         "form": form,
         "d": d,
         "d3": d3,
+        "d4": d4,
+        "d5": d5,
 
     }
     return render(request, 'mha/equipselection1.html', context)
@@ -5843,17 +6154,18 @@ def load_furnbtu(request):
 
 
 def furnbtu(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
     FilterFurnConfig.objects.all().delete()
     FilterFurnModelnum.objects.all().delete()
     form = EquipmentSelect1(request.POST)
+#    SelectedEquip.objects.filter(equipid=2, bidid=a).delete()
     b = request.POST['id_furnbtu']
     c = FilterFurnbtu.objects.filter(id=b).values_list('furnbtufilter', flat=True)
-    d = EquipSelection.objects.filter(jobid=a).update(furnbtu=c, furnconfig='', furneff='', furndescript='',
+    d = EquipSelection.objects.filter(bidid=a).update(furnbtu=c, furnconfig='', furneff='', furndescript='',
                                                       furnmodnum='', furnwidth='0.00', furnheight='0.00')
     d1 = EquipSelection.objects.values_list('furnbtu', flat=True).last()
     d2 = FilterFurnModelnum.objects.create(id=1, furnmodelnumfilter="", furnheight=0.00, furnwidth=0.00)
-    d3 = SelectedEquip.objects.filter(id=2).update(type='Furnace', btu=d1)
+    d3 = SelectedEquip.objects.filter(equipid=2, bidid=a).update(type='Furnace', btu=d1)
     e = Equipment2.objects.filter(type='Furnace', btu=d1).annotate(configA=F('config'))
     g = list(e.values_list('config', flat=True).distinct())
     try:
@@ -5898,13 +6210,13 @@ def load_furnconfig(request):
 
 
 def furnconfig(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
     FilterFurnEff.objects.all().delete()
     FilterFurnModelnum.objects.all().delete()
     form = EquipmentSelect1(request.POST)
     b = request.POST['id_furnconfig']
     c = FilterFurnConfig.objects.filter(id=b).values_list('furnconfigfilter', flat=True)
-    d = EquipSelection.objects.filter(jobid=a).update(furnconfig=c, furneff='', furndescript='',
+    d = EquipSelection.objects.filter(bidid=a).update(furnconfig=c, furneff='', furndescript='',
                                                       furnmodnum='', furnwidth='0.00', furnheight='0.00')
     d1 = EquipSelection.objects.values_list('furnbtu', flat=True).last()
     d2 = EquipSelection.objects.values_list('furnconfig', flat=True).last()
@@ -5952,13 +6264,13 @@ def load_furneff(request):
 
 
 def furneff(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
     FilterFurnDescrip.objects.all().delete()
     FilterFurnModelnum.objects.all().delete()
     form = EquipmentSelect1(request.POST)
     b = request.POST['id_furneff']
     c = FilterFurnEff.objects.filter(id=b).values_list('furnefffilter', flat=True)
-    d = EquipSelection.objects.filter(jobid=a).update(furneff=c, furndescript='',
+    d = EquipSelection.objects.filter(bidid=a).update(furneff=c, furndescript='',
                                                       furnmodnum='', furnwidth='0.00', furnheight='0.00')
     d1 = EquipSelection.objects.values_list('furnbtu', flat=True).last()
     d2 = EquipSelection.objects.values_list('furnconfig', flat=True).last()
@@ -6008,18 +6320,18 @@ def load_furndescript(request):
 
 
 def furndescript(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
     FilterFurnModelnum.objects.all().delete()
     form = EquipmentSelect1(request.POST)
     b = request.POST['id_furndescript']
     c = FilterFurnDescrip.objects.filter(id=b).values_list('furndescripfilter', flat=True)
-    d = EquipSelection.objects.filter(jobid=a).update(furndescript=c,
+    d = EquipSelection.objects.filter(bidid=a).update(furndescript=c,
                                                       furnmodnum='', furnwidth='0.00', furnheight='0.00')
     d1 = EquipSelection.objects.values_list('furnbtu', flat=True).last()
     d2 = EquipSelection.objects.values_list('furnconfig', flat=True).last()
     d3 = EquipSelection.objects.values_list('furneff', flat=True).last()
     d4 = EquipSelection.objects.values_list('furndescript', flat=True).last()
-    d5 = SelectedEquip.objects.filter(id=2).update(mfgmodeldescrip=d4)
+#    d5 = SelectedEquip.objects.filter(id=2).update(mfgmodeldescrip=d4)
     e = Equipment2.objects.filter(type='Furnace', btu=d1, config=d2, eff=d3, mfgmodeldescrip=d4).annotate(
         modelnumA=F('modelnum'), heightA=F('height'), widthA=F('width'))
     g = list(e.values_list('modelnum', flat=True).distinct())
@@ -6044,7 +6356,7 @@ def furndescript(request):
     context = {
         "form": form,
         "d": d,
-        "d5": d5,
+#        "d5": d5,
 
     }
     return render(request, 'mha/equipselection1.html', context)
@@ -6066,22 +6378,30 @@ def load_furnmodnum(request):
 
 
 def furnmodnum(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
-
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
+    aa = Bidding.objects.values_list('bidid', flat=True).last()
+    TotalJobCost.objects.filter(bidid=a, descripid=2).delete()
     form = EquipmentSelect1(request.POST)
     b = request.POST['id_furnmodnum']
     c = FilterFurnModelnum.objects.filter(id=b).values_list('furnmodelnumfilter', flat=True)
     c1 = FilterFurnModelnum.objects.filter(id=b).values_list('furnheight', flat=True)
     c2 = FilterFurnModelnum.objects.filter(id=b).values_list('furnwidth', flat=True)
-    d = EquipSelection.objects.filter(jobid=a).update(furnmodnum=c, furnheight=c1, furnwidth=c2)
+    d = EquipSelection.objects.filter(bidid=a).update(furnmodnum=c, furnheight=c1, furnwidth=c2)
     d1 = c.first()
     d2 = Equipment2.objects.filter(modelnum=d1).values_list('mfg', flat=True)
     d2a = Equipment2.objects.filter(modelnum=d1).values_list('warr', flat=True)
-    d3 = SelectedEquip.objects.filter(id=2).update(mfg=d2, modelnum=d1, warr=d2a)
+    d2b = Equipment2.objects.filter(modelnum=d1).values_list('cost', flat=True)
+    d2c = Equipment2.objects.filter(modelnum=d1).values_list('eff', flat=True)
+    d2d = Equipment2.objects.filter(modelnum=d1).values_list('mfgmodeldescrip', flat=True)
+    d3 = SelectedEquip.objects.filter(equipid=2, bidid=a).update(quanity=1, eff=d2c, mfg=d2, modelnum=d1, mfgmodeldescrip=d2d, warr=d2a)
+    d4 = Bidding.objects.filter(bidid=aa).update(cost2total=d2b, quanity2=1)
+    d5 = TotalJobCost.objects.create(bidid=a, jobcost=d2b, descripid=2)
     context = {
         "form": form,
         "d": d,
         "d3": d3,
+        "d4": d4,
+        "d5": d5,
 
     }
     return render(request, 'mha/equipselection1.html', context)
@@ -6092,8 +6412,7 @@ def furnmodnum2(request):
     form = EquipmentSelect1(request.POST)
     c3 = EquipSelection.objects.values_list('furnwidth', flat=True).last()
     c4 = EquipSelection.objects.values_list('furnconfig', flat=True).last()
-    e = Equipment2.objects.filter(type='Evap. Coil', width=c3, config=c4).annotate(
-        mfgmodeldescripA=F('mfgmodeldescrip'))
+    e = Equipment2.objects.filter(type='Evap. Coil', width=c3, config=c4).annotate(mfgmodeldescripA=F('mfgmodeldescrip'))
     g7 = list(e.values_list('mfgmodeldescrip', flat=True))
     g = list(e.values_list('btu', flat=True))
     g2 = list(e.values_list('modelnum', flat=True))
@@ -6505,14 +6824,15 @@ def load_coiltype(request):
 
 
 def coiltype(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
     FilterCoilConfig.objects.all().delete()
     form = EquipmentSelect1(request.POST)
+#    SelectedEquip.objects.filter(equipid=3, bidid=a).delete()
     b = request.POST['id_coiltype']
     c = FilterCoiltype.objects.filter(id=b).values_list('coiltypefilter', flat=True)
-    d = EquipSelection.objects.filter(jobid=a).update(coiltype=c, coilwidth=0.00, coilheight=0.00, furncoilheight=0.00)
+    d = EquipSelection.objects.filter(bidid=a).update(coiltype=c, coilwidth=0.00, coilheight=0.00, furncoilheight=0.00)
     d1 = EquipSelection.objects.values_list('coiltype', flat=True).last()
-    d2 = SelectedEquip.objects.filter(id=3).update(type='Evap. Coil', mfgmodeldescrip=c)
+    d2 = SelectedEquip.objects.filter(equipid=3, bidid=a).update(type='Evap. Coil')
     e = FilterCoilAll.objects.filter(coiltype=d1).annotate(coilconfigA=F('coilconfig'))
     g = list(e.values_list('coilconfig', flat=True).distinct())
     try:
@@ -6561,12 +6881,12 @@ def load_coilconfig(request):
 
 
 def coilconfig(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
     form = EquipmentSelect1(request.POST)
     FilterCoilbtu.objects.all().delete()
     b = request.POST['id_coilconfig']
     c = FilterCoilConfig.objects.filter(id=b).values_list('coilconfigfilter', flat=True)
-    d = EquipSelection.objects.filter(jobid=a).update(coilconfig=c, coilwidth='0.00',
+    d = EquipSelection.objects.filter(bidid=a).update(coilconfig=c, coilwidth='0.00',
                                                       coilheight='0.00', furncoilheight='0.00')
     d1 = EquipSelection.objects.values_list('coiltype', flat=True).last()
     d2 = EquipSelection.objects.values_list('coilconfig', flat=True).last()
@@ -6612,16 +6932,16 @@ def load_coilbtu(request):
 
 
 def coilbtu(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
     FilterCoilModelnum.objects.all().delete()
     form = EquipmentSelect1(request.POST)
     b = request.POST['id_coilbtu']
     c = FilterCoilAll.objects.filter(id=b).values_list('coilbtu', flat=True)
-    d = EquipSelection.objects.filter(jobid=a).update(coilbtu=c, coilwidth=0.00, coilheight=0.00, furncoilheight=0.00)
+    d = EquipSelection.objects.filter(bidid=a).update(coilbtu=c, coilwidth=0.00, coilheight=0.00, furncoilheight=0.00)
     d1 = EquipSelection.objects.values_list('coiltype', flat=True).last()
     d2 = EquipSelection.objects.values_list('coilconfig', flat=True).last()
     d3 = EquipSelection.objects.values_list('coilbtu', flat=True).last()
-    d4 = SelectedEquip.objects.filter(id=3).update(btu=c)
+
     e = FilterCoilAll.objects.filter(coiltype=d1, coilconfig=d2, coilbtu=d3).annotate(coilmodnumA=F('coilmodnum'))
     g = list(e.values_list('coilmodnum', flat=True).distinct())
     g1 = list(e.values_list('coilheight', flat=True).distinct())
@@ -6645,7 +6965,7 @@ def coilbtu(request):
     context = {
         "form": form,
         "d": d,
-        "d4": d4,
+
 
     }
     return render(request, 'mha/equipselection1.html', context)
@@ -6667,24 +6987,32 @@ def load_coilmodnum(request):
 
 
 def coilmodnum(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
+    aa = Bidding.objects.values_list('bidid', flat=True).last()
     FilterThermostat.objects.all().delete()
+#    TotalJobCost.objects.filter(bidid=a, descripid=3).delete()
     form = EquipmentSelect1(request.POST)
     b = request.POST['id_coilmodnum']
     c = FilterCoilModelnum.objects.filter(id=b).values_list('coilmodelnumfilter', flat=True)
     c1 = FilterCoilModelnum.objects.filter(id=b).values_list('coilheight', flat=True)
     c2 = FilterCoilModelnum.objects.filter(id=b).values_list('coilwidth', flat=True)
-    d = EquipSelection.objects.filter(jobid=a).update(coilmodnum=c, coilheight=c1, coilwidth=c2)
+    d = EquipSelection.objects.filter(bidid=a).update(coilmodnum=c, coilheight=c1, coilwidth=c2)
 
     d1 = c.first()
     d2 = Equipment2.objects.filter(modelnum=d1).values_list('mfg', flat=True)
     d2a = Equipment2.objects.filter(modelnum=d1).values_list('warr', flat=True)
-    d3 = SelectedEquip.objects.filter(id=3).update(mfg=d2, modelnum=d1, warr=d2a)
+    d2b = Equipment2.objects.filter(modelnum=d1).values_list('cost', flat=True)
+    d2c = Equipment2.objects.filter(modelnum=d1).values_list('eff', flat=True)
+    d2d = Equipment2.objects.filter(modelnum=d1).values_list('btu', flat=True)
+    d2e = Equipment2.objects.filter(modelnum=d1).values_list('mfgmodeldescrip', flat=True)
+    d3 = SelectedEquip.objects.filter(equipid=3, bidid=a).update(quanity=1, eff=d2c, mfg=d2, modelnum=d1, mfgmodeldescrip=d2e, btu=d2d, warr=d2a)
+    d4 = Bidding.objects.filter(bidid=aa).update(cost3total=d2b, quanity3=1)
+    d5 = TotalJobCost.objects.create(bidid=a, jobcost=d2b, descripid=3)
 
     e = EquipSelection.objects.values_list('furnheight', flat=True).last()
     f = EquipSelection.objects.values_list('coilheight', flat=True).last()
     g = e + f
-    h = EquipSelection.objects.filter(jobid=a).update(furncoilheight=g)
+    h = EquipSelection.objects.filter(bidid=a).update(furncoilheight=g)
 
     j = Equipment2.objects.filter(type='Thermostat').annotate(modelnumA=F('modelnum'))
     j1 = list(j.values_list('mfg', flat=True).distinct())
@@ -6725,6 +7053,8 @@ def coilmodnum(request):
         "form": form,
         "d": d,
         "d3": d3,
+        "d4": d4,
+        "d5": d5,
         "h": h,
         "k": k,
         "k1": k1,
@@ -6760,12 +7090,12 @@ def load_coilwidth(request):
 
 
 def furncoilheight(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
     form = EquipmentSelect1(request.POST)
     c = EquipSelection.objects.values_list('furnheight', flat=True).last()
     c1 = EquipSelection.objects.values_list('coilheight', flat=True).last()
     c2 = c + c1
-    d = EquipSelection.objects.filter(jobid=a).update(furncoilheight=c2)
+    d = EquipSelection.objects.filter(bidid=a).update(furncoilheight=c2)
     context = {
         "form": form,
         "d": d,
@@ -6800,14 +7130,15 @@ def load_thermomfg(request):
 
 
 def thermomfg(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
     FilterThermostatModnum.objects.all().delete()
     form = EquipmentSelect1(request.POST)
+#    SelectedEquip.objects.filter(equipid=4, bidid=a).delete()
     b = request.POST['id_thermostat']
     c = FilterThermostat.objects.filter(id=b).values_list('thermomfg')
-    d = EquipSelection.objects.filter(jobid=a).update(thermostat=c)
+    d = EquipSelection.objects.filter(bidid=a).update(thermostat=c)
     d1 = EquipSelection.objects.values_list('thermostat', flat=True).last()
-    d3 = SelectedEquip.objects.filter(id=4).update(type='Thermostat', mfg=d1)
+    d3 = SelectedEquip.objects.filter(equipid=4, bidid=a).update(type='Thermostat', mfg=d1)
 
     e = Equipment2.objects.filter(mfg=d1).annotate(modelnumA=F('modelnum'))
     g = list(e.values_list('modelnum', flat=True).distinct())
@@ -6874,70 +7205,77 @@ def load_thermomodnum(request):
 
 
 def thermostatmodnum(request):
-    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    a = EquipSelection.objects.values_list('bidid', flat=True).last()
+    aa = Bidding.objects.values_list('bidid', flat=True).last()
+    TotalJobCost.objects.filter(bidid=a, descripid=4).delete()
     form = EquipmentSelect1(request.POST)
     b = request.POST['id_thermostatmodnum']
     c = FilterThermostatModnum.objects.filter(id=b).values_list('thermomodnum', flat=True)
     c1 = FilterThermostatModnum.objects.filter(id=b).values_list('smart')
-    d = EquipSelection.objects.filter(jobid=a).update(thermostatmodnum=c, smart=c1)
+    d = EquipSelection.objects.filter(bidid=a).update(thermostatmodnum=c, smart=c1)
 
-    a3 = EquipSelection.objects.filter(jobid=a).values_list('furneff', flat=True).first()
+    a3 = EquipSelection.objects.filter(bidid=a).values_list('furneff', flat=True).first()
     b3 = NicorRebate1.objects.values_list('rebate1eff', flat=True).first()
-    c3 = EquipSelection.objects.filter(jobid=a).values_list('smart', flat=True).first()
+    c3 = EquipSelection.objects.filter(bidid=a).values_list('smart', flat=True).first()
 
     d1 = c.first()
     d2a = Equipment2.objects.filter(modelnum=d1).values_list('warr', flat=True)
-    d2 = SelectedEquip.objects.filter(id=4).update(mfgmodeldescrip=d1, modelnum=d1, btu='N/A', warr=d2a)
-
+    d2b = Equipment2.objects.filter(modelnum=d1).values_list('cost', flat=True)
+    d2c = Equipment2.objects.filter(modelnum=d1).values_list('eff', flat=True)
+    d2d = Equipment2.objects.filter(modelnum=d1).values_list('mfgmodeldescrip', flat=True)
+    d2 = SelectedEquip.objects.filter(equipid=4, bidid=aa).update(quanity=1, mfgmodeldescrip=d2d, modelnum=d1, btu='N/A', eff=d2c, warr=d2a)
+    d4 = Bidding.objects.filter(bidid=aa).update(cost4total=d2b, quanity4=1)
+    d5 = TotalJobCost.objects.create(bidid=a, jobcost=d2b, descripid=4)
     d3 = NicorRebate3.objects.values_list('rebate3eff', flat=True).first()
     e3 = RebateInfo.objects.values_list('furntherm97', flat=True).first()
     if a3 == b3 and c3 == d3:
-        EquipSelection.objects.filter(jobid=a).update(vendor1rebate=e3)
+        EquipSelection.objects.filter(bidid=a).update(vendor1rebate=e3)
     else:
 
-        a2 = EquipSelection.objects.filter(jobid=a).values_list('furneff', flat=True).first()
+        a2 = EquipSelection.objects.filter(bidid=a).values_list('furneff', flat=True).first()
         b2 = NicorRebate2.objects.values_list('rebate2eff', flat=True).first()
-        c2 = EquipSelection.objects.filter(jobid=a).values_list('smart', flat=True).first()
+        c2 = EquipSelection.objects.filter(bidid=a).values_list('smart', flat=True).first()
         d2 = NicorRebate3.objects.values_list('rebate3eff', flat=True).first()
         e2 = RebateInfo.objects.values_list('furntherm95', flat=True).first()
         if a2 == b2 and c2 == d2:
-            EquipSelection.objects.filter(jobid=a).update(vendor1rebate=e2)
+            EquipSelection.objects.filter(bidid=a).update(vendor1rebate=e2)
         else:
-            aa = EquipSelection.objects.filter(jobid=a).values_list('furneff', flat=True).first()
+            aa = EquipSelection.objects.filter(bidid=a).values_list('furneff', flat=True).first()
             bb = NicorRebate1.objects.values_list('rebate1eff', flat=True).first()
             cc = RebateInfo.objects.values_list('furn97', flat=True).first()
-            dd = EquipSelection.objects.filter(jobid=a).values_list('smart', flat=True).first()
+            dd = EquipSelection.objects.filter(bidid=a).values_list('smart', flat=True).first()
             if aa == bb:
-                EquipSelection.objects.filter(jobid=a).update(vendor1rebate=cc)
+                EquipSelection.objects.filter(bidid=a).update(vendor1rebate=cc)
             else:
 
                 b1 = NicorRebate2.objects.values_list('rebate2eff', flat=True).first()
                 c1 = RebateInfo.objects.values_list('furn95', flat=True).first()
                 if aa == b1:
-                    EquipSelection.objects.filter(jobid=a).update(vendor1rebate=c1)
+                    EquipSelection.objects.filter(bidid=a).update(vendor1rebate=c1)
                 else:
                     b2 = NicorRebate3.objects.values_list('rebate3eff', flat=True).first()
                     c2 = RebateInfo.objects.values_list('smartthermnicor', flat=True).first()
                     if dd == b2:
-                        EquipSelection.objects.filter(jobid=a).update(vendor1rebate=c2)
+                        EquipSelection.objects.filter(bidid=a).update(vendor1rebate=c2)
                     else:
-                        EquipSelection.objects.filter(jobid=a).update(vendor1rebate=0.00)
-    dd3 = EquipSelection.objects.filter(jobid=a).values_list('smart', flat=True).first()
+                        EquipSelection.objects.filter(bidid=a).update(vendor1rebate=0.00)
+    dd3 = EquipSelection.objects.filter(bidid=a).values_list('smart', flat=True).first()
     b3 = NicorRebate3.objects.values_list('rebate3eff', flat=True).first()
     c3 = RebateInfo.objects.values_list('smartthermcomed', flat=True).first()
     if dd3 == b3:
-        EquipSelection.objects.filter(jobid=a).update(vendor2rebate=c3)
+        EquipSelection.objects.filter(bidid=a).update(vendor2rebate=c3)
     else:
-        EquipSelection.objects.filter(jobid=a).update(vendor2rebate=0.00)
-    h = EquipSelection.objects.filter(jobid=a).values_list('vendor1rebate', flat=True).first()
-    i = EquipSelection.objects.filter(jobid=a).values_list('vendor2rebate', flat=True).first()
+        EquipSelection.objects.filter(bidid=a).update(vendor2rebate=0.00)
+    h = EquipSelection.objects.filter(bidid=a).values_list('vendor1rebate', flat=True).first()
+    i = EquipSelection.objects.filter(bidid=a).values_list('vendor2rebate', flat=True).first()
     j = h + i
-    k = EquipSelection.objects.filter(jobid=a).update(totalrebate=j)
+    k = EquipSelection.objects.filter(bidid=a).update(totalrebate=j)
     context = {
         "form": form,
         "d": d,
         "d1": d1,
         "d2": d2,
+        "d4": d4,
         "k": k,
     }
     return render(request, 'mha/equipselection1.html', context)
@@ -6973,26 +7311,192 @@ def load_totalrebate(request):
     return render(request, 'mha/totalrebate_1.html', context)
 
 
-def deleteequipselection(request, custid=None):
-    instance = CustomerInfo.objects.get(custid=custid)
-    form = EquipmentSelect1(request.POST or None, instance=instance)
+def deleteequipselection(request):
     a = EquipSelection.objects.values_list('jobid', flat=True).last()
-    b = EquipSelection.objects.filter(jobid=a).delete()
+    b = EquipSelection.objects.values_list('custid', flat=True).last()
+    instance = CustomerInfo.objects.get(custid=b)
+    c = EquipSelection.objects.filter(jobid=a).delete()
     context = {
-        "b": b,
-        "form": form,
+        "c": c,
     }
     return redirect(instance.get_absolute12_url(), context)
 
 
-def bidpage(request, jobid=None):
-    FilterEquipType.objects.all().delete()
 
-    instance = Bidding.objects.get(jobid=jobid)
+#def bidpage(request):
+#    FilterEquipType.objects.all().delete()
+#    a = Bidding.objects.values_list('jobid', flat=True).last()
+#    instance = Bidding.objects.get(jobid=a)
+#    form = BidSelect(request.POST or None, instance=instance)
+#    b = Bidding.objects.filter(jobid=a).values_list('custid', flat=True).last()
+#    queryset = CustomerInfo.objects.filter(id=b).values()
+#    queryset2 = EquipSelection.objects.filter(jobid=a).values()
+#    queryset3 = PackageInfo.objects.all()
+#    queryset4 = InstallPackage1.objects.all()
+#    queryset5 = InstallPackage2.objects.all()
+#    queryset6 = InstallPackage3.objects.all()
+#    queryset7 = InstallPackage4.objects.all()
+#    queryset8 = InstallPackage5.objects.all()
+#    queryset9 = InstallPackage6.objects.all()
+#    queryset10 = InstallPackage7.objects.all()
+#    queryset11 = InstallPackage8.objects.all()
+#    queryset12 = InstallPackage9.objects.all()
+#    queryset13 = InstallPackage10.objects.all()
+#    queryset14 = InstallPackage11.objects.all()
+#    queryset15 = InstallPackage12.objects.all()
+#    queryset16 = InstallPackage13.objects.all()
+#    queryset17 = InstallPackage14.objects.all()
+#    queryset18 = InstallPackage15.objects.all()
+#    queryset19 = InstallPackage16.objects.all()
+#    c = Equipment2.objects.all().annotate(typeA=F('type'))
+#    j1 = list(c.values_list('type', flat=True).distinct())
+#    try:
+#        k = FilterEquipType.objects.create(id=1, typeequip=j1[0])
+#    except Exception:
+#        k = 0
+#    try:
+#        k1 = FilterEquipType.objects.create(id=2, typeequip=j1[1])
+#    except Exception:
+#        k1 = 0
+#    try:
+#        k2 = FilterEquipType.objects.create(id=3, typeequip=j1[2])
+#    except Exception:
+#        k2 = 0
+#    try:
+#        k3 = FilterEquipType.objects.create(id=4, typeequip=j1[3])
+#    except Exception:
+#        k3 = 0
+#    try:
+#        k4 = FilterEquipType.objects.create(id=5, typeequip=j1[4])
+#    except Exception:
+#        k4 = 0
+#    try:
+#        k5 = FilterEquipType.objects.create(id=6, typeequip=j1[5])
+#    except Exception:
+#        k5 = 0
+#    try:
+#        k6 = FilterEquipType.objects.create(id=7, typeequip=j1[6])
+#    except Exception:
+#        k6 = 0
+#    try:
+#        k7 = FilterEquipType.objects.create(id=8, typeequip=j1[7])
+#    except Exception:
+#        k7 = 0
+#    try:
+#        k8 = FilterEquipType.objects.create(id=9, typeequip=j1[8])
+#    except Exception:
+#        k8 = 0
+#    try:
+#        k9 = FilterEquipType.objects.create(id=10, typeequip=j1[9])
+#    except Exception:
+#        k9 = 0
+#    try:
+#        k10 = FilterEquipType.objects.create(id=11, typeequip=j1[10])
+#    except Exception:
+#        k10 = 0
+#    try:
+#        k11 = FilterEquipType.objects.create(id=12, typeequip=j1[11])
+#    except Exception:
+#        k11 = 0
+#    try:
+#        k12 = FilterEquipType.objects.create(id=13, typeequip=j1[12])
+#    except Exception:
+#        k12 = 0
+#    try:
+#        k13 = FilterEquipType.objects.create(id=14, typeequip=j1[13])
+#    except Exception:
+#        k13 = 0
+#    try:
+#        k14 = FilterEquipType.objects.create(id=15, typeequip=j1[14])
+#    except Exception:
+#        k14 = 0
+#    try:
+#        k15 = FilterEquipType.objects.create(id=16, typeequip=j1[15])
+#    except Exception:
+#        k15 = 0
+#    try:
+#        k16 = FilterEquipType.objects.create(id=17, typeequip=j1[16])
+#    except Exception:
+#        k16 = 0
+#    try:
+#        k17 = FilterEquipType.objects.create(id=18, typeequip=j1[17])
+#    except Exception:
+#        k17 = 0
+#    try:
+#        k18 = FilterEquipType.objects.create(id=19, typeequip=j1[18])
+#    except Exception:
+#        k18 = 0
+#    try:
+#        k19 = FilterEquipType.objects.create(id=20, typeequip=j1[19])
+#    except Exception:
+#        k19 = 0
+#
+#    d = EquipSelection.objects.filter(jobid=a).values_list('outsideunittype', flat=True)
+#    d1 = Bidding.objects.filter(jobid=a).update(jobtype1=d)
+#    e = EquipSelection.objects.filter(jobid=a).values_list('condmodnum', flat=True)
+#    e1 = Bidding.objects.filter(jobid=a).update(descript1=e)
+#    f = EquipSelection.objects.filter(jobid=a).values_list('airhandlertype', flat=True)
+#    f1 = Bidding.objects.filter(jobid=a).update(jobtype2=f)
+#    g = EquipSelection.objects.filter(jobid=a).values_list('furnmodnum', flat=True)
+#    g1 = Bidding.objects.filter(jobid=a).update(descript2=g)
+#    h = 'Coil'
+#    h1 = Bidding.objects.filter(jobid=a).update(jobtype3=h)
+#    i = EquipSelection.objects.filter(jobid=a).values_list('coilmodnum', flat=True)
+#    i1 = Bidding.objects.filter(jobid=a).update(descript3=i)
+#    j = 'Thermostat'
+#    j1 = Bidding.objects.filter(jobid=a).update(jobtype4=j)
+#    k = EquipSelection.objects.filter(jobid=a).values_list('thermostatmodnum', flat=True)
+#    k1 = Bidding.objects.filter(jobid=a).update(descript4=k)
+#    l = EquipSelection.objects.filter(jobid=a).values_list('optionid', flat=True)
+#    l1 = EquipSelection.objects.filter(jobid=a).values_list('options', flat=True)
+#    m = CurrentJobInfo.objects.filter(jobid=a).update(optionid=l, options=l1)
+#    if form.is_valid():
+#        instance = form.save(commit=False)
+#        instance.save()
+#        return redirect(instance.get_absolute17_url())
+#
+#    context = {
+#        "instance": instance,
+#        "form": form,
+#        "object_list": queryset,
+#        "object_list2": queryset2,
+#        "object_list3": queryset3,
+#        "object_list4": queryset4,
+#        "object_list5": queryset5,
+#        "object_list6": queryset6,
+#        "object_list7": queryset7,
+#        "object_list8": queryset8,
+#        "object_list9": queryset9,
+#        "object_list10": queryset10,
+#        "object_list11": queryset11,
+#        "object_list12": queryset12,
+#        "object_list13": queryset13,
+#        "object_list14": queryset14,
+#        "object_list15": queryset15,
+#        "object_list16": queryset16,
+#        "object_list17": queryset17,
+#        "object_list18": queryset18,
+#        "object_list19": queryset19,
+#        "d1": d1,
+#        "e1": e1,
+#        "f1": f1,
+#        "g1": g1,
+#        "h1": h1,
+#        "i1": i1,
+#        "j1": j1,
+#        "k1": k1,
+#        "m": m,
+#    }
+#    return render(request, 'mha/bidpage.html', context)
+
+
+def bidpage(request, bidid=None):
+    FilterEquipType.objects.all().delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
-    b = Bidding.objects.filter(jobid=jobid).values_list('custid', flat=True).last()
+    b = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).last()
     queryset = CustomerInfo.objects.filter(id=b).values()
-    queryset2 = EquipSelection.objects.filter(jobid=jobid).values()
+    queryset2 = EquipSelection.objects.filter(bidid=bidid).values()
     queryset3 = PackageInfo.objects.all()
     queryset4 = InstallPackage1.objects.all()
     queryset5 = InstallPackage2.objects.all()
@@ -7093,22 +7597,28 @@ def bidpage(request, jobid=None):
     except Exception:
         k19 = 0
 
-    d = EquipSelection.objects.filter(jobid=jobid).values_list('outsideunittype', flat=True)
-    d1 = Bidding.objects.filter(jobid=jobid).update(jobtype1=d)
-    e = EquipSelection.objects.filter(jobid=jobid).values_list('condmodnum', flat=True)
-    e1 = Bidding.objects.filter(jobid=jobid).update(descript1=e)
-    f = EquipSelection.objects.filter(jobid=jobid).values_list('airhandlertype', flat=True)
-    f1 = Bidding.objects.filter(jobid=jobid).update(jobtype2=f)
-    g = EquipSelection.objects.filter(jobid=jobid).values_list('furnmodnum', flat=True)
-    g1 = Bidding.objects.filter(jobid=jobid).update(descript2=g)
+    d = EquipSelection.objects.filter(bidid=bidid).values_list('outsideunittype', flat=True)
+    d1 = Bidding.objects.filter(bidid=bidid).update(jobtype1=d)
+    e = EquipSelection.objects.filter(bidid=bidid).values_list('condmodnum', flat=True)
+    e1 = Bidding.objects.filter(bidid=bidid).update(descript1=e)
+
+    f = EquipSelection.objects.filter(bidid=bidid).values_list('airhandlertype', flat=True)
+    f1 = Bidding.objects.filter(bidid=bidid).update(jobtype2=f)
+    g = EquipSelection.objects.filter(bidid=bidid).values_list('furnmodnum', flat=True)
+    g1 = Bidding.objects.filter(bidid=bidid).update(descript2=g)
+
     h = 'Coil'
-    h1 = Bidding.objects.filter(jobid=jobid).update(jobtype3=h)
-    i = EquipSelection.objects.filter(jobid=jobid).values_list('coilmodnum', flat=True)
-    i1 = Bidding.objects.filter(jobid=jobid).update(descript3=i)
+    h1 = Bidding.objects.filter(bidid=bidid).update(jobtype3=h)
+    i = EquipSelection.objects.filter(bidid=bidid).values_list('coilmodnum', flat=True)
+    i1 = Bidding.objects.filter(bidid=bidid).update(descript3=i)
+
     j = 'Thermostat'
-    j1 = Bidding.objects.filter(jobid=jobid).update(jobtype4=j)
-    k = EquipSelection.objects.filter(jobid=jobid).values_list('thermostatmodnum', flat=True)
-    k1 = Bidding.objects.filter(jobid=jobid).update(descript4=k)
+    j1 = Bidding.objects.filter(bidid=bidid).update(jobtype4=j)
+    k = EquipSelection.objects.filter(bidid=bidid).values_list('thermostatmodnum', flat=True)
+    k1 = Bidding.objects.filter(bidid=bidid).update(descript4=k)
+
+
+
 
     if form.is_valid():
         instance = form.save(commit=False)
@@ -7139,20 +7649,28 @@ def bidpage(request, jobid=None):
         "object_list19": queryset19,
         "d1": d1,
         "e1": e1,
+
         "f1": f1,
         "g1": g1,
+
         "h1": h1,
         "i1": i1,
+
         "j1": j1,
         "k1": k1,
+
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_jobtype1(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+
+
+
+
+def load_jobtype1(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    jobtype1 = Bidding.objects.filter(jobid=jobid).values_list('jobtype1', flat=True).last()
+    jobtype1 = Bidding.objects.filter(bidid=bidid).values_list('jobtype1', flat=True).last()
     context = {
         "instance": instance,
         "jobtype1": jobtype1,
@@ -7161,10 +7679,10 @@ def load_jobtype1(request, jobid=None):
     return render(request, 'mha/jobtype1_1.html', context)
 
 
-def load_jobtype2(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_jobtype2(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    jobtype2 = Bidding.objects.filter(jobid=jobid).values_list('jobtype2', flat=True).last()
+    jobtype2 = Bidding.objects.filter(bidid=bidid).values_list('jobtype2', flat=True).last()
     context = {
         "instance": instance,
         "jobtype2": jobtype2,
@@ -7173,10 +7691,10 @@ def load_jobtype2(request, jobid=None):
     return render(request, 'mha/jobtype2_1.html', context)
 
 
-def load_jobtype3(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_jobtype3(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    jobtype3 = Bidding.objects.filter(jobid=jobid).values_list('jobtype3', flat=True).last()
+    jobtype3 = Bidding.objects.filter(bidid=bidid).values_list('jobtype3', flat=True).last()
     context = {
         "instance": instance,
         "jobtype3": jobtype3,
@@ -7185,10 +7703,10 @@ def load_jobtype3(request, jobid=None):
     return render(request, 'mha/jobtype3_1.html', context)
 
 
-def load_jobtype4(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_jobtype4(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    jobtype4 = Bidding.objects.filter(jobid=jobid).values_list('jobtype4', flat=True).last()
+    jobtype4 = Bidding.objects.filter(bidid=bidid).values_list('jobtype4', flat=True).last()
     context = {
         "instance": instance,
         "jobtype4": jobtype4,
@@ -7197,10 +7715,10 @@ def load_jobtype4(request, jobid=None):
     return render(request, 'mha/jobtype4_1.html', context)
 
 
-def load_descrip1(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descrip1(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript1 = Bidding.objects.filter(jobid=jobid).values_list('descript1', flat=True)
+    descript1 = Bidding.objects.filter(bidid=bidid).values_list('descript1', flat=True).last()
     context = {
         "instance": instance,
         "descript1": descript1,
@@ -7209,10 +7727,22 @@ def load_descrip1(request, jobid=None):
     return render(request, 'mha/descrip1_1.html', context)
 
 
-def load_descrip2(request, jobid=None):
+def load_quanity1(request, jobid=None):
     instance = Bidding.objects.get(jobid=jobid)
     form = BidSelect(request.POST or None)
-    descript2 = Bidding.objects.filter(jobid=jobid).values_list('descript2', flat=True)
+    quanity1 = Bidding.objects.filter(jobid=jobid).values_list('quanity1', flat=True).last()
+    context = {
+        "instance": instance,
+        "quanity1": quanity1,
+        "form": form,
+    }
+    return render(request, 'mha/quan1_1.html', context)
+
+
+def load_descrip2(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
+    form = BidSelect(request.POST or None)
+    descript2 = Bidding.objects.filter(bidid=bidid).values_list('descript2', flat=True).last()
     context = {
         "instance": instance,
         "descript2": descript2,
@@ -7221,10 +7751,10 @@ def load_descrip2(request, jobid=None):
     return render(request, 'mha/descrip2_1.html', context)
 
 
-def load_descrip3(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descrip3(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript3 = Bidding.objects.filter(jobid=jobid).values_list('descript3', flat=True)
+    descript3 = Bidding.objects.filter(bidid=bidid).values_list('descript3', flat=True).last()
     context = {
         "instance": instance,
         "descript3": descript3,
@@ -7233,10 +7763,10 @@ def load_descrip3(request, jobid=None):
     return render(request, 'mha/descrip3_1.html', context)
 
 
-def load_descrip4(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descrip4(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript4 = Bidding.objects.filter(jobid=jobid).values_list('descript4', flat=True)
+    descript4 = Bidding.objects.filter(bidid=bidid).values_list('descript4', flat=True).last()
     context = {
         "instance": instance,
         "descript4": descript4,
@@ -7245,13 +7775,13 @@ def load_descrip4(request, jobid=None):
     return render(request, 'mha/descrip4_1.html', context)
 
 
-def jobtype5(request, jobid=None):
+def jobtype5(request, bidid=None):
     FilterTypeDescrip.objects.all().delete()
-    instance = Bidding.objects.get(jobid=jobid)
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_jobtype5']
     b = FilterEquipType.objects.filter(id=a).values_list("typeequip", flat=True).first()
-    Bidding.objects.filter(jobid=jobid).update(jobtype5b=b, quanity5=0)
+    Bidding.objects.filter(bidid=bidid).update(jobtype5b=b, quanity5=0)
     e1 = Equipment2.objects.filter(type=b).annotate(modelnumA=F('modelnum'))
 
     d3 = SelectedEquip.objects.filter(id=5).update(type=b)
@@ -7339,10 +7869,10 @@ def jobtype5(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_jobtype5b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_jobtype5b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    jobtype5b = Bidding.objects.values_list('jobtype5b', flat=True).get(jobid=jobid)
+    jobtype5b = Bidding.objects.values_list('jobtype5b', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "jobtype5b": jobtype5b,
@@ -7351,10 +7881,10 @@ def load_jobtype5b(request, jobid=None):
     return render(request, 'mha/jobtype5b_1.html', context)
 
 
-def load_jobtype5(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_jobtype5(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    jobtype5 = Bidding.objects.values_list('jobtype5', flat=True).get(jobid=jobid)
+    jobtype5 = Bidding.objects.values_list('jobtype5', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "jobtype5": jobtype5,
@@ -7363,8 +7893,8 @@ def load_jobtype5(request, jobid=None):
     return render(request, 'mha/jobtype5_1.html', context)
 
 
-def jobdescrip5(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def jobdescrip5(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript5']
     b = FilterTypeDescrip.objects.filter(id=a).values_list("modnum", flat=True)
@@ -7373,8 +7903,10 @@ def jobdescrip5(request, jobid=None):
     d2 = Equipment2.objects.filter(modelnum=d).values_list("btu")
     d3 = Equipment2.objects.filter(modelnum=d).values_list("mfgmodeldescrip")
     d4 = Equipment2.objects.filter(modelnum=d).values_list("warr")
-    d5 = SelectedEquip.objects.filter(id=5).update(modelnum=d, mfg=d1, mfgmodeldescrip=d3, btu=d2, warr=d4)
-    Bidding.objects.filter(jobid=jobid).update(descript5=b)
+    d4a = Equipment2.objects.filter(modelnum=d).values_list("eff") or 0
+    d4b = Equipment2.objects.filter(modelnum=d).values_list("type")
+    d5 = SelectedEquip.objects.filter(equipid=5, bidid=bidid).update(type=d4b, modelnum=d, mfg=d1, mfgmodeldescrip=d3, btu=d2, eff=d4a, warr=d4)
+    Bidding.objects.filter(bidid=bidid).update(descript5=b)
     context = {
         "instance": instance,
         "form": form,
@@ -7383,10 +7915,10 @@ def jobdescrip5(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_jobdescrip5b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_jobdescrip5b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript5b = Bidding.objects.values_list('descript5b', flat=True).get(jobid=jobid)
+    descript5b = Bidding.objects.values_list('descript5b', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript5b": descript5b,
@@ -7395,10 +7927,10 @@ def load_jobdescrip5b(request, jobid=None):
     return render(request, 'mha/descript5b_1.html', context)
 
 
-def load_jobdescrip5(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_jobdescrip5(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript5 = Bidding.objects.filter(jobid=jobid).values_list('descript5', flat=True)
+    descript5 = Bidding.objects.filter(bidid=bidid).values_list('descript5', flat=True)
     context = {
         "instance": instance,
         "descript5": descript5,
@@ -7407,10 +7939,10 @@ def load_jobdescrip5(request, jobid=None):
     return render(request, 'mha/descrip5_1.html', context)
 
 
-def load_quanity5(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity5(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity5 = Bidding.objects.filter(jobid=jobid).values_list('quanity5', flat=True)
+    quanity5 = Bidding.objects.filter(bidid=bidid).values_list('quanity5', flat=True)
     context = {
         "instance": instance,
         "quanity5": quanity5,
@@ -7419,10 +7951,12 @@ def load_quanity5(request, jobid=None):
     return render(request, 'mha/quan5_1.html', context)
 
 
-def delete5(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete5(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity5=0, descript5="", jobtype5b="", cost5total=0)
+    Bidding.objects.filter(bidid=bidid).update(quanity5=0, descript5="", jobtype5b="", cost5total=0)
+    SelectedEquip.objects.filter(equipid=5, bidid=bidid).update(quanity= None, type="", modelnum="", mfg="", mfgmodeldescrip="", btu="", eff="", warr="", cost=0.00)
+#    SelectedEquip.objects.filter(equipid=5, bidid=bidid).delete()
     TotalJobCost.objects.filter(descripid=5).delete()
     context = {
         "instance": instance,
@@ -7431,13 +7965,13 @@ def delete5(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def jobtype6(request, jobid=None):
+def jobtype6(request, bidid=None):
     FilterTypeDescrip.objects.all().delete()
-    instance = Bidding.objects.get(jobid=jobid)
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_jobtype6']
     b = FilterEquipType.objects.filter(id=a).values_list("typeequip", flat=True).first()
-    Bidding.objects.filter(jobid=jobid).update(jobtype6b=b, quanity6=0)
+    Bidding.objects.filter(bidid=bidid).update(jobtype6b=b, quanity6=0)
     e1 = Equipment2.objects.filter(type=b).annotate(modelnumA=F('modelnum'))
     d3 = SelectedEquip.objects.filter(id=6).update(type=b)
     g17 = list(e1.values_list('mfg', flat=True))
@@ -7523,10 +8057,10 @@ def jobtype6(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_jobtype6b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_jobtype6b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    jobtype6b = Bidding.objects.values_list('jobtype6b', flat=True).get(jobid=jobid)
+    jobtype6b = Bidding.objects.values_list('jobtype6b', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "jobtype6b": jobtype6b,
@@ -7535,10 +8069,10 @@ def load_jobtype6b(request, jobid=None):
     return render(request, 'mha/jobtype6b_1.html', context)
 
 
-def load_jobtype6(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_jobtype6(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    jobtype6 = Bidding.objects.values_list('jobtype6', flat=True).get(jobid=jobid)
+    jobtype6 = Bidding.objects.values_list('jobtype6', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "jobtype6": jobtype6,
@@ -7547,8 +8081,8 @@ def load_jobtype6(request, jobid=None):
     return render(request, 'mha/jobtype6_1.html', context)
 
 
-def jobdescrip6(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def jobdescrip6(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript6']
     b = FilterTypeDescrip.objects.filter(id=a).values_list("modnum", flat=True)
@@ -7557,8 +8091,10 @@ def jobdescrip6(request, jobid=None):
     d2 = Equipment2.objects.filter(modelnum=d).values_list("btu")
     d3 = Equipment2.objects.filter(modelnum=d).values_list("mfgmodeldescrip")
     d4 = Equipment2.objects.filter(modelnum=d).values_list("warr")
-    d5 = SelectedEquip.objects.filter(id=6).update(modelnum=d, mfg=d1, mfgmodeldescrip=d3, btu=d2, warr=d4)
-    Bidding.objects.filter(jobid=jobid).update(descript5=b)
+    d4a = Equipment2.objects.filter(modelnum=d).values_list("type")
+    d4b = Equipment2.objects.filter(modelnum=d).values_list("eff")
+    d5 = SelectedEquip.objects.filter(equipid=6, bidid=bidid).update(type=d4a, modelnum=d, mfg=d1, mfgmodeldescrip=d3, btu=d2, eff=d4b, warr=d4)
+    Bidding.objects.filter(bidid=bidid).update(descript5=b)
     context = {
         "instance": instance,
         "form": form,
@@ -7567,10 +8103,10 @@ def jobdescrip6(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_jobdescrip6b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_jobdescrip6b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript6b = Bidding.objects.values_list('descript6b', flat=True).get(jobid=jobid)
+    descript6b = Bidding.objects.values_list('descript6b', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript6b": descript6b,
@@ -7579,10 +8115,10 @@ def load_jobdescrip6b(request, jobid=None):
     return render(request, 'mha/descript6b_1.html', context)
 
 
-def load_jobdescrip6(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_jobdescrip6(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript6 = Bidding.objects.filter(jobid=jobid).values_list('descript6', flat=True)
+    descript6 = Bidding.objects.filter(bidid=bidid).values_list('descript6', flat=True)
     context = {
         "instance": instance,
         "descript6": descript6,
@@ -7591,10 +8127,10 @@ def load_jobdescrip6(request, jobid=None):
     return render(request, 'mha/descrip6_1.html', context)
 
 
-def load_quanity6(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity6(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity6 = Bidding.objects.filter(jobid=jobid).values_list('quanity6', flat=True)
+    quanity6 = Bidding.objects.filter(bidid=bidid).values_list('quanity6', flat=True)
     context = {
         "instance": instance,
         "quanity6": quanity6,
@@ -7603,10 +8139,13 @@ def load_quanity6(request, jobid=None):
     return render(request, 'mha/quan6_1.html', context)
 
 
-def delete6(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete6(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity6=0, descript6="", jobtype6b="", cost6total=0)
+    Bidding.objects.filter(bidid=bidid).update(quanity6=0, descript6="", jobtype6b="", cost6total=0)
+    SelectedEquip.objects.filter(equipid=6, bidid=bidid).update(quanity=None, type="", modelnum="", mfg="",
+                                                                mfgmodeldescrip="", btu="", eff="", warr="", cost=0.00)
+#    SelectedEquip.objects.filter(equipid=6, bidid=bidid).delete()
     TotalJobCost.objects.filter(descripid=6).delete()
     context = {
         "instance": instance,
@@ -7615,13 +8154,13 @@ def delete6(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def jobtype7(request, jobid=None):
+def jobtype7(request, bidid=None):
     FilterTypeDescrip.objects.all().delete()
-    instance = Bidding.objects.get(jobid=jobid)
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_jobtype7']
     b = FilterEquipType.objects.filter(id=a).values_list("typeequip", flat=True).first()
-    Bidding.objects.filter(jobid=jobid).update(jobtype7b=b, quanity7=0)
+    Bidding.objects.filter(bidid=bidid).update(jobtype7b=b, quanity7=0)
     e1 = Equipment2.objects.filter(type=b).annotate(modelnumA=F('modelnum'))
     d3 = SelectedEquip.objects.filter(id=7).update(type=b)
     g17 = list(e1.values_list('mfg', flat=True))
@@ -7707,10 +8246,10 @@ def jobtype7(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_jobtype7b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_jobtype7b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    jobtype7b = Bidding.objects.values_list('jobtype7b', flat=True).get(jobid=jobid)
+    jobtype7b = Bidding.objects.values_list('jobtype7b', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "jobtype7b": jobtype7b,
@@ -7719,10 +8258,10 @@ def load_jobtype7b(request, jobid=None):
     return render(request, 'mha/jobtype7b_1.html', context)
 
 
-def load_jobtype7(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_jobtype7(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    jobtype7 = Bidding.objects.values_list('jobtype7', flat=True).get(jobid=jobid)
+    jobtype7 = Bidding.objects.values_list('jobtype7', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "jobtype7": jobtype7,
@@ -7731,8 +8270,8 @@ def load_jobtype7(request, jobid=None):
     return render(request, 'mha/jobtype7_1.html', context)
 
 
-def jobdescrip7(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def jobdescrip7(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript7']
     b = FilterTypeDescrip.objects.filter(id=a).values_list("modnum", flat=True)
@@ -7741,14 +8280,16 @@ def jobdescrip7(request, jobid=None):
     d2 = Equipment2.objects.filter(modelnum=d).values_list("btu")
     d3 = Equipment2.objects.filter(modelnum=d).values_list("mfgmodeldescrip")
     d4 = Equipment2.objects.filter(modelnum=d).values_list("warr")
-    d5 = SelectedEquip.objects.filter(id=7).update(modelnum=d, mfg=d1, mfgmodeldescrip=d3, btu=d2, warr=d4)
-    Bidding.objects.filter(jobid=jobid).update(descript5=b)
+    d4a = Equipment2.objects.filter(modelnum=d).values_list("eff")
+    d4b = Equipment2.objects.filter(modelnum=d).values_list("type")
+    d5 = SelectedEquip.objects.filter(equipid=7, bidid=bidid).update(type=d4b, modelnum=d, mfg=d1, mfgmodeldescrip=d3, btu=d2, eff=d4a, warr=d4)
+    Bidding.objects.filter(bidid=bidid).update(descript5=b)
     context = {
         "instance": instance,
         "form": form,
         "d5": d5,
     }
-    Bidding.objects.filter(jobid=jobid).update(descript7=b)
+    Bidding.objects.filter(bidid=bidid).update(descript7=b)
     context = {
         "instance": instance,
         "form": form,
@@ -7756,10 +8297,10 @@ def jobdescrip7(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_jobdescrip7b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_jobdescrip7b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript7b = Bidding.objects.values_list('descript7b', flat=True).get(jobid=jobid)
+    descript7b = Bidding.objects.values_list('descript7b', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript7b": descript7b,
@@ -7768,10 +8309,10 @@ def load_jobdescrip7b(request, jobid=None):
     return render(request, 'mha/descript7b_1.html', context)
 
 
-def load_jobdescrip7(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_jobdescrip7(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript7 = Bidding.objects.filter(jobid=jobid).values_list('descript7', flat=True)
+    descript7 = Bidding.objects.filter(bidid=bidid).values_list('descript7', flat=True)
     context = {
         "instance": instance,
         "descript7": descript7,
@@ -7780,10 +8321,10 @@ def load_jobdescrip7(request, jobid=None):
     return render(request, 'mha/descrip7_1.html', context)
 
 
-def load_quanity7(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity7(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity7 = Bidding.objects.filter(jobid=jobid).values_list('quanity7', flat=True)
+    quanity7 = Bidding.objects.filter(bidid=bidid).values_list('quanity7', flat=True)
     context = {
         "instance": instance,
         "quanity7": quanity7,
@@ -7792,10 +8333,13 @@ def load_quanity7(request, jobid=None):
     return render(request, 'mha/quan7_1.html', context)
 
 
-def delete7(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete7(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity7=0, descript7="", jobtype7b="", cost7total=0)
+    Bidding.objects.filter(bidid=bidid).update(quanity7=0, descript7="", jobtype7b="", cost7total=0)
+#    SelectedEquip.objects.filter(equipid=7, bidid=bidid).delete()
+    SelectedEquip.objects.filter(equipid=7, bidid=bidid).update(quanity=None, type="", modelnum="", mfg="",
+                                                                mfgmodeldescrip="", btu="", eff="", warr="", cost=0.00)
     TotalJobCost.objects.filter(descripid=7).delete()
     context = {
         "instance": instance,
@@ -7875,180 +8419,194 @@ def deletenewvendor(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def quan1(request, jobid=None):
+def quan1(request, bidid=None):
     FilterEquipType.objects.all().delete()
-    TotalJobCost.objects.filter(descripid=1).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=1).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity1']
-    Bidding.objects.filter(jobid=jobid).update(quanity1=a)
-    b = Bidding.objects.filter(jobid=jobid).values_list('descript1', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity1=a)
+    b = Bidding.objects.filter(bidid=bidid).values_list('descript1', flat=True).first()
     c = Equipment2.objects.filter(modelnum=b).values_list('cost', flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).values_list('quanity1', flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).values_list('quanity1', flat=True).first()
     e = c * d
-    f = Bidding.objects.filter(jobid=jobid).update(cost1total=e)
+    f = Bidding.objects.filter(bidid=bidid).update(cost1total=e)
     g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
     h = g + 1
-    i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=1, jobcost=e)
+    i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=1, jobcost=e)
+    j = SelectedEquip.objects.filter(equipid=1, bidid=bidid).update(quanity=a, cost=e)
     context = {
         "instance": instance,
         "form": form,
         'f': f,
         'i': i,
+        'j': j,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def quan2(request, jobid=None):
+def quan2(request, bidid=None):
     FilterEquipType.objects.all().delete()
-    TotalJobCost.objects.filter(descripid=2).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=2).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity2']
-    Bidding.objects.filter(jobid=jobid).update(quanity2=a)
-    b = Bidding.objects.filter(jobid=jobid).values_list('descript2', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity2=a)
+    b = Bidding.objects.filter(bidid=bidid).values_list('descript2', flat=True).first()
     c = Equipment2.objects.filter(modelnum=b).values_list('cost', flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).values_list('quanity2', flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).values_list('quanity2', flat=True).first()
     e = c * d
-    f = Bidding.objects.filter(jobid=jobid).update(cost2total=e)
+    f = Bidding.objects.filter(bidid=bidid).update(cost2total=e)
     g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
     h = g + 1
-    i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=2, jobcost=e)
+    i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=2, jobcost=e)
+    j = SelectedEquip.objects.filter(equipid=2, bidid=bidid).update(quanity=a, cost=e)
     context = {
         "instance": instance,
         "form": form,
         'f': f,
         'i': i,
+        'j': j,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def quan3(request, jobid=None):
+def quan3(request, bidid=None):
     FilterEquipType.objects.all().delete()
-    TotalJobCost.objects.filter(descripid=3).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=3).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity3']
-    Bidding.objects.filter(jobid=jobid).update(quanity3=a)
-    b = Bidding.objects.filter(jobid=jobid).values_list('descript3', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity3=a)
+    b = Bidding.objects.filter(bidid=bidid).values_list('descript3', flat=True).first()
     c = Equipment2.objects.filter(modelnum=b).values_list('cost', flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).values_list('quanity3', flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).values_list('quanity3', flat=True).first()
     e = c * d
-    f = Bidding.objects.filter(jobid=jobid).update(cost3total=e)
+    f = Bidding.objects.filter(bidid=bidid).update(cost3total=e)
     g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
     h = g + 1
-    i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=3, jobcost=e)
+    i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=3, jobcost=e)
+    j = SelectedEquip.objects.filter(equipid=3, bidid=bidid).update(quanity=a, cost=e)
     context = {
         "instance": instance,
         "form": form,
         'f': f,
         'i': i,
+        'j': j,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def quan4(request, jobid=None):
+def quan4(request, bidid=None):
     FilterEquipType.objects.all().delete()
-    TotalJobCost.objects.filter(descripid=4).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=4).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity4']
-    Bidding.objects.filter(jobid=jobid).update(quanity4=a)
-    b = Bidding.objects.filter(jobid=jobid).values_list('descript4', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity4=a)
+    b = Bidding.objects.filter(bidid=bidid).values_list('descript4', flat=True).first()
     c = Equipment2.objects.filter(modelnum=b).values_list('cost', flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).values_list('quanity4', flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).values_list('quanity4', flat=True).first()
     e = c * d
-    f = Bidding.objects.filter(jobid=jobid).update(cost4total=e)
+    f = Bidding.objects.filter(bidid=bidid).update(cost4total=e)
     g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
     h = g + 1
-    i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=4, jobcost=e)
+    i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=4, jobcost=e)
+    j = SelectedEquip.objects.filter(equipid=4, bidid=bidid).update(quanity=a, cost=e)
     context = {
         "instance": instance,
         "form": form,
         'f': f,
         'i': i,
+        'j': j,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def quan5(request, jobid=None):
+def quan5(request, bidid=None):
     FilterEquipType.objects.all().delete()
-    TotalJobCost.objects.filter(descripid=5).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=5).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity5']
-    Bidding.objects.filter(jobid=jobid).update(quanity5=a)
-    b = Bidding.objects.filter(jobid=jobid).values_list('descript5', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity5=a)
+    b = Bidding.objects.filter(bidid=bidid).values_list('descript5', flat=True).first()
     c = Equipment2.objects.filter(modelnum=b).values_list('cost', flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).values_list('quanity5', flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).values_list('quanity5', flat=True).first()
     e = c * d
-    f = Bidding.objects.filter(jobid=jobid).update(cost5total=e)
+    f = Bidding.objects.filter(bidid=bidid).update(cost5total=e)
     g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
     h = g + 1
-    i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=5, jobcost=e)
+    i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=5, jobcost=e)
+    j = SelectedEquip.objects.filter(equipid=5, bidid=bidid).update(quanity=a, cost=e)
     context = {
         "instance": instance,
         "form": form,
         'f': f,
         'i': i,
+        'j': j,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def quan6(request, jobid=None):
+def quan6(request, bidid=None):
     FilterEquipType.objects.all().delete()
-    TotalJobCost.objects.filter(descripid=6).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=6).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity6']
-    Bidding.objects.filter(jobid=jobid).update(quanity6=a)
-    b = Bidding.objects.filter(jobid=jobid).values_list('descript6', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity6=a)
+    b = Bidding.objects.filter(bidid=bidid).values_list('descript6', flat=True).first()
     c = Equipment2.objects.filter(modelnum=b).values_list('cost', flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).values_list('quanity6', flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).values_list('quanity6', flat=True).first()
     e = c * d
-    f = Bidding.objects.filter(jobid=jobid).update(cost6total=e)
+    f = Bidding.objects.filter(bidid=bidid).update(cost6total=e)
     g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
     h = g + 1
-    i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=6, jobcost=e)
+    i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=6, jobcost=e)
+    j = SelectedEquip.objects.filter(equipid=6, bidid=bidid).update(quanity=a, cost=e)
     context = {
         "instance": instance,
         "form": form,
         'f': f,
         'i': i,
+        'j': j,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def quan7(request, jobid=None):
+def quan7(request, bidid=None):
     FilterEquipType.objects.all().delete()
-    TotalJobCost.objects.filter(descripid=7).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=7).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity7']
-    Bidding.objects.filter(jobid=jobid).update(quanity7=a)
-    b = Bidding.objects.filter(jobid=jobid).values_list('descript7', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity7=a)
+    b = Bidding.objects.filter(bidid=bidid).values_list('descript7', flat=True).first()
     c = Equipment2.objects.filter(modelnum=b).values_list('cost', flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).values_list('quanity7', flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).values_list('quanity7', flat=True).first()
     e = c * d
-    f = Bidding.objects.filter(jobid=jobid).update(cost7total=e)
+    f = Bidding.objects.filter(bidid=bidid).update(cost7total=e)
     g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
     h = g + 1
-    i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=7, jobcost=e)
+    i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=7, jobcost=e)
+    j = SelectedEquip.objects.filter(equipid=7, bidid=bidid).update(quanity=a, cost=e)
     context = {
         "instance": instance,
         "form": form,
         'f': f,
         'i': i,
+        'j': j,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def descript8(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript8(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript8'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript8b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript8b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -8056,10 +8614,10 @@ def descript8(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript8(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript8(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript8 = Bidding.objects.values_list('descript8', flat=True).get(jobid=jobid)
+    descript8 = Bidding.objects.values_list('descript8', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript8": descript8,
@@ -8068,10 +8626,10 @@ def load_descript8(request, jobid=None):
     return render(request, 'mha/descript8_1.html', context)
 
 
-def load_descript8b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript8b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript8b = Bidding.objects.values_list('descript8b', flat=True).get(jobid=jobid) or ""
+    descript8b = Bidding.objects.values_list('descript8b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript8b": descript8b,
@@ -8080,50 +8638,61 @@ def load_descript8b(request, jobid=None):
     return render(request, 'mha/descript8b_1.html', context)
 
 
-def quant8(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=8).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant8(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=8).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=8).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity8']
-    Bidding.objects.filter(jobid=jobid).update(quanity8=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity8=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript8b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript8b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity8', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity8', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=8, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=8, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=8, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity8=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript8b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity8=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript8b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity8', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity8', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost8total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost8total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=8, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=8, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=8, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity8(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity8(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity8 = Bidding.objects.filter(jobid=jobid).values_list('quanity8', flat=True)
+    quanity8 = Bidding.objects.filter(bidid=bidid).values_list('quanity8', flat=True)
     context = {
         "instance": instance,
         "quanity8": quanity8,
@@ -8132,11 +8701,12 @@ def load_quanity8(request, jobid=None):
     return render(request, 'mha/quan8_1.html', context)
 
 
-def delete8(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete8(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity8=0, descript8b="", cost8total=0)
-    TotalJobCost.objects.filter(descripid=8).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity8=0, descript8b="", cost8total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=8).delete()
+    MatCost.objects.filter(bidid=bidid, descript=8).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -8144,12 +8714,12 @@ def delete8(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript9(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript9(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript9'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript9b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript9b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -8157,10 +8727,10 @@ def descript9(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript9(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript9(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript9 = Bidding.objects.values_list('descript9', flat=True).get(jobid=jobid)
+    descript9 = Bidding.objects.values_list('descript9', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript9": descript9,
@@ -8169,10 +8739,10 @@ def load_descript9(request, jobid=None):
     return render(request, 'mha/descript9_1.html', context)
 
 
-def load_descript9b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript9b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript9b = Bidding.objects.values_list('descript9b', flat=True).get(jobid=jobid) or ""
+    descript9b = Bidding.objects.values_list('descript9b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript9b": descript9b,
@@ -8181,50 +8751,61 @@ def load_descript9b(request, jobid=None):
     return render(request, 'mha/descript9b_1.html', context)
 
 
-def quant9(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=9).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant9(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=9).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=9).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity9']
-    Bidding.objects.filter(jobid=jobid).update(quanity9=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity9=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript9b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript9b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity9', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity9', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=9, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=9, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=9, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity9=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript9b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity9=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript9b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity9', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity9', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost9total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost9total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=9, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=9, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=9, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity9(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity9(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity9 = Bidding.objects.filter(jobid=jobid).values_list('quanity9', flat=True)
+    quanity9 = Bidding.objects.filter(bidid=bidid).values_list('quanity9', flat=True)
     context = {
         "instance": instance,
         "quanity9": quanity9,
@@ -8233,11 +8814,12 @@ def load_quanity9(request, jobid=None):
     return render(request, 'mha/quan9_1.html', context)
 
 
-def delete9(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete9(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity9=0, descript9b="", cost9total=0)
-    TotalJobCost.objects.filter(descripid=9).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity9=0, descript9b="", cost9total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=9).delete()
+    MatCost.objects.filter(bidid=bidid, descript=9).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -8245,12 +8827,12 @@ def delete9(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript10(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript10(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript10'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript10b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript10b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -8258,10 +8840,10 @@ def descript10(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript10(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript10(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript10 = Bidding.objects.values_list('descript10', flat=True).get(jobid=jobid)
+    descript10 = Bidding.objects.values_list('descript10', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript10": descript10,
@@ -8270,10 +8852,10 @@ def load_descript10(request, jobid=None):
     return render(request, 'mha/descript10_1.html', context)
 
 
-def load_descript10b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript10b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript10b = Bidding.objects.values_list('descript10b', flat=True).get(jobid=jobid) or ""
+    descript10b = Bidding.objects.values_list('descript10b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript10b": descript10b,
@@ -8282,50 +8864,61 @@ def load_descript10b(request, jobid=None):
     return render(request, 'mha/descript10b_1.html', context)
 
 
-def quant10(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=10).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant10(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=10).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=10).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity10']
-    Bidding.objects.filter(jobid=jobid).update(quanity10=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity10=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript10b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript10b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity10', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity10', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=10, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=10, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=10, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity10=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript10b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity10=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript10b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity10', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity10', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost10total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost10total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=10, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=10, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=10, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity10(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity10(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity10 = Bidding.objects.filter(jobid=jobid).values_list('quanity10', flat=True)
+    quanity10 = Bidding.objects.filter(bidid=bidid).values_list('quanity10', flat=True)
     context = {
         "instance": instance,
         "quanity10": quanity10,
@@ -8334,11 +8927,12 @@ def load_quanity10(request, jobid=None):
     return render(request, 'mha/quan10_1.html', context)
 
 
-def delete10(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete10(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity10=0, descript10b="", cost10total=0)
-    TotalJobCost.objects.filter(descripid=10).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity10=0, descript10b="", cost10total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=10).delete()
+    MatCost.objects.filter(bidid=bidid, descript=10).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -8346,12 +8940,12 @@ def delete10(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript11(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript11(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript11'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript11b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript11b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -8359,10 +8953,10 @@ def descript11(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript11(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript11(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript11 = Bidding.objects.values_list('descript11', flat=True).get(jobid=jobid)
+    descript11 = Bidding.objects.values_list('descript11', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript11": descript11,
@@ -8371,10 +8965,10 @@ def load_descript11(request, jobid=None):
     return render(request, 'mha/descript11_1.html', context)
 
 
-def load_descript11b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript11b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript11b = Bidding.objects.values_list('descript11b', flat=True).get(jobid=jobid) or ""
+    descript11b = Bidding.objects.values_list('descript11b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript11b": descript11b,
@@ -8383,50 +8977,61 @@ def load_descript11b(request, jobid=None):
     return render(request, 'mha/descript11b_1.html', context)
 
 
-def quant11(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=11).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant11(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=11).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=11).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity11']
-    Bidding.objects.filter(jobid=jobid).update(quanity11=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity11=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript11b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript11b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity11', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity11', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=11, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=11, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=11, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity11=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript11b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity11=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript11b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity11', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity11', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost11total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost11total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=11, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=11, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=11, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity11(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity11(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity11 = Bidding.objects.filter(jobid=jobid).values_list('quanity11', flat=True)
+    quanity11 = Bidding.objects.filter(bidid=bidid).values_list('quanity11', flat=True)
     context = {
         "instance": instance,
         "quanity11": quanity11,
@@ -8435,11 +9040,12 @@ def load_quanity11(request, jobid=None):
     return render(request, 'mha/quan11_1.html', context)
 
 
-def delete11(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete11(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity11=0, descript11b="", cost11total=0)
-    TotalJobCost.objects.filter(descripid=11).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity11=0, descript11b="", cost11total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=11).delete()
+    MatCost.objects.filter(bidid=bidid, descript=11).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -8447,12 +9053,12 @@ def delete11(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript12(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript12(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript12'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript12b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript12b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -8460,10 +9066,10 @@ def descript12(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript12(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript12(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript12 = Bidding.objects.values_list('descript12', flat=True).get(jobid=jobid)
+    descript12 = Bidding.objects.values_list('descript12', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript12": descript12,
@@ -8472,10 +9078,10 @@ def load_descript12(request, jobid=None):
     return render(request, 'mha/descript12_1.html', context)
 
 
-def load_descript12b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript12b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript12b = Bidding.objects.values_list('descript12b', flat=True).get(jobid=jobid) or ""
+    descript12b = Bidding.objects.values_list('descript12b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript12b": descript12b,
@@ -8484,50 +9090,61 @@ def load_descript12b(request, jobid=None):
     return render(request, 'mha/descript12b_1.html', context)
 
 
-def quant12(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=12).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant12(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=12).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=12).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity12']
-    Bidding.objects.filter(jobid=jobid).update(quanity12=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity12=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript12b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript12b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity12', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity12', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=12, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=12, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=12, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity12=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript12b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity12=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript12b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity12', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity12', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost12total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost12total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=12, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=12, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=12, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity12(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity12(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity12 = Bidding.objects.filter(jobid=jobid).values_list('quanity12', flat=True)
+    quanity12 = Bidding.objects.filter(bidid=bidid).values_list('quanity12', flat=True)
     context = {
         "instance": instance,
         "quanity12": quanity12,
@@ -8536,11 +9153,12 @@ def load_quanity12(request, jobid=None):
     return render(request, 'mha/quan12_1.html', context)
 
 
-def delete12(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete12(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity12=0, descript12b="", cost12total=0)
-    TotalJobCost.objects.filter(descripid=12).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity12=0, descript12b="", cost12total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=12).delete()
+    MatCost.objects.filter(bidid=bidid, descript=12).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -8548,12 +9166,12 @@ def delete12(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript13(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript13(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript13'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript13b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript13b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -8561,10 +9179,10 @@ def descript13(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript13(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript13(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript13 = Bidding.objects.values_list('descript13', flat=True).get(jobid=jobid)
+    descript13 = Bidding.objects.values_list('descript13', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript13": descript13,
@@ -8573,10 +9191,10 @@ def load_descript13(request, jobid=None):
     return render(request, 'mha/descript13_1.html', context)
 
 
-def load_descript13b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript13b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript13b = Bidding.objects.values_list('descript13b', flat=True).get(jobid=jobid) or ""
+    descript13b = Bidding.objects.values_list('descript13b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript13b": descript13b,
@@ -8585,50 +9203,61 @@ def load_descript13b(request, jobid=None):
     return render(request, 'mha/descript13b_1.html', context)
 
 
-def quant13(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=13).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant13(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=13).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=13).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity13']
-    Bidding.objects.filter(jobid=jobid).update(quanity13=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity13=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript13b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript13b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity13', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity13', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=13, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=13, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=13, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity13=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript13b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity13=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript13b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity13', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity13', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost13total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost13total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=13, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=13, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=13, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity13(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity13(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity13 = Bidding.objects.filter(jobid=jobid).values_list('quanity13', flat=True)
+    quanity13 = Bidding.objects.filter(bidid=bidid).values_list('quanity13', flat=True)
     context = {
         "instance": instance,
         "quanity13": quanity13,
@@ -8637,11 +9266,12 @@ def load_quanity13(request, jobid=None):
     return render(request, 'mha/quan13_1.html', context)
 
 
-def delete13(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete13(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity13=0, descript13b="", cost13total=0)
-    TotalJobCost.objects.filter(descripid=13).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity13=0, descript13b="", cost13total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=13).delete()
+    MatCost.objects.filter(bidid=bidid, descript=13).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -8649,12 +9279,12 @@ def delete13(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript14(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript14(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript14'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript14b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript14b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -8662,10 +9292,10 @@ def descript14(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript14(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript14(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript14 = Bidding.objects.values_list('descript14', flat=True).get(jobid=jobid)
+    descript14 = Bidding.objects.values_list('descript14', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript14": descript14,
@@ -8674,10 +9304,10 @@ def load_descript14(request, jobid=None):
     return render(request, 'mha/descript14_1.html', context)
 
 
-def load_descript14b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript14b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript14b = Bidding.objects.values_list('descript14b', flat=True).get(jobid=jobid) or ""
+    descript14b = Bidding.objects.values_list('descript14b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript14b": descript14b,
@@ -8686,50 +9316,61 @@ def load_descript14b(request, jobid=None):
     return render(request, 'mha/descript14b_1.html', context)
 
 
-def quant14(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=14).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant14(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=14).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=14).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity14']
-    Bidding.objects.filter(jobid=jobid).update(quanity14=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity14=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript14b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript14b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity14', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity14', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=14, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=14, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=14, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity14=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript14b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity14=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript14b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity14', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity14', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost14total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost14total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=14, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=14, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=14, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity14(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity14(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity14 = Bidding.objects.filter(jobid=jobid).values_list('quanity14', flat=True)
+    quanity14 = Bidding.objects.filter(bidid=bidid).values_list('quanity14', flat=True)
     context = {
         "instance": instance,
         "quanity14": quanity14,
@@ -8738,11 +9379,12 @@ def load_quanity14(request, jobid=None):
     return render(request, 'mha/quan14_1.html', context)
 
 
-def delete14(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete14(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity14=0, descript14b="", cost14total=0)
-    TotalJobCost.objects.filter(descripid=14).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity14=0, descript14b="", cost14total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=14).delete()
+    MatCost.objects.filter(bidid=bidid, descript=14).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -8750,12 +9392,12 @@ def delete14(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript15(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript15(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript15'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript15b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript15b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -8763,10 +9405,10 @@ def descript15(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript15(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript15(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript15 = Bidding.objects.values_list('descript15', flat=True).get(jobid=jobid)
+    descript15 = Bidding.objects.values_list('descript15', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript15": descript15,
@@ -8775,10 +9417,10 @@ def load_descript15(request, jobid=None):
     return render(request, 'mha/descript15_1.html', context)
 
 
-def load_descript15b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript15b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript15b = Bidding.objects.values_list('descript15b', flat=True).get(jobid=jobid) or ""
+    descript15b = Bidding.objects.values_list('descript15b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript15b": descript15b,
@@ -8787,50 +9429,61 @@ def load_descript15b(request, jobid=None):
     return render(request, 'mha/descript15b_1.html', context)
 
 
-def quant15(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=15).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant15(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=15).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=15).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity15']
-    Bidding.objects.filter(jobid=jobid).update(quanity15=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity15=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript15b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript15b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity15', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity15', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=15, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=15, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=15, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity15=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript15b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity15=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript15b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity15', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity15', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost15total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost15total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=15, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=15, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=15, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity15(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity15(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity15 = Bidding.objects.filter(jobid=jobid).values_list('quanity15', flat=True)
+    quanity15 = Bidding.objects.filter(bidid=bidid).values_list('quanity15', flat=True)
     context = {
         "instance": instance,
         "quanity15": quanity15,
@@ -8839,11 +9492,12 @@ def load_quanity15(request, jobid=None):
     return render(request, 'mha/quan15_1.html', context)
 
 
-def delete15(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete15(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity15=0, descript15b="", cost15total=0)
-    TotalJobCost.objects.filter(descripid=15).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity15=0, descript15b="", cost15total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=15).delete()
+    MatCost.objects.filter(bidid=bidid, descript=15).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -8851,12 +9505,12 @@ def delete15(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript16(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript16(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript16'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript16b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript16b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -8864,10 +9518,10 @@ def descript16(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript16(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript16(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript16 = Bidding.objects.values_list('descript16', flat=True).get(jobid=jobid)
+    descript16 = Bidding.objects.values_list('descript16', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript16": descript16,
@@ -8876,10 +9530,10 @@ def load_descript16(request, jobid=None):
     return render(request, 'mha/descript16_1.html', context)
 
 
-def load_descript16b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript16b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript16b = Bidding.objects.values_list('descript16b', flat=True).get(jobid=jobid) or ""
+    descript16b = Bidding.objects.values_list('descript16b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript16b": descript16b,
@@ -8888,50 +9542,61 @@ def load_descript16b(request, jobid=None):
     return render(request, 'mha/descript16b_1.html', context)
 
 
-def quant16(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=16).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant16(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=16).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=16).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity16']
-    Bidding.objects.filter(jobid=jobid).update(quanity16=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity16=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript16b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript16b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity16', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity16', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=16, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=16, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=16, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity16=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript16b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity16=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript16b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity16', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity16', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost16total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost16total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=16, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=16, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=16, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity16(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity16(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity16 = Bidding.objects.filter(jobid=jobid).values_list('quanity16', flat=True)
+    quanity16 = Bidding.objects.filter(bidid=bidid).values_list('quanity16', flat=True)
     context = {
         "instance": instance,
         "quanity16": quanity16,
@@ -8940,11 +9605,12 @@ def load_quanity16(request, jobid=None):
     return render(request, 'mha/quan16_1.html', context)
 
 
-def delete16(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete16(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity16=0, descript16b="", cost16total=0)
-    TotalJobCost.objects.filter(descripid=16).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity16=0, descript16b="", cost16total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=16).delete()
+    MatCost.objects.filter(bidid=bidid, descript=16).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -8952,12 +9618,12 @@ def delete16(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript17(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript17(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript17'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript17b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript17b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -8965,10 +9631,10 @@ def descript17(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript17(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript17(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript17 = Bidding.objects.values_list('descript17', flat=True).get(jobid=jobid)
+    descript17 = Bidding.objects.values_list('descript17', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript17": descript17,
@@ -8977,10 +9643,10 @@ def load_descript17(request, jobid=None):
     return render(request, 'mha/descript17_1.html', context)
 
 
-def load_descript17b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript17b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript17b = Bidding.objects.values_list('descript17b', flat=True).get(jobid=jobid) or ""
+    descript17b = Bidding.objects.values_list('descript17b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript17b": descript17b,
@@ -8989,50 +9655,61 @@ def load_descript17b(request, jobid=None):
     return render(request, 'mha/descript17b_1.html', context)
 
 
-def quant17(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=17).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant17(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=17).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=17).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity17']
-    Bidding.objects.filter(jobid=jobid).update(quanity17=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity17=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript17b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript17b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity17', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity17', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=17, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=17, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=17, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity17=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript17b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity17=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript17b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity17', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity17', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost17total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost17total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=17, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=17, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=17, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity17(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity17(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity17 = Bidding.objects.filter(jobid=jobid).values_list('quanity17', flat=True)
+    quanity17 = Bidding.objects.filter(bidid=bidid).values_list('quanity17', flat=True)
     context = {
         "instance": instance,
         "quanity17": quanity17,
@@ -9041,11 +9718,12 @@ def load_quanity17(request, jobid=None):
     return render(request, 'mha/quan17_1.html', context)
 
 
-def delete17(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete17(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity17=0, descript17b="", cost17total=0)
-    TotalJobCost.objects.filter(descripid=17).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity17=0, descript17b="", cost17total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=17).delete()
+    MatCost.objects.filter(bidid=bidid, descript=17).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -9053,12 +9731,12 @@ def delete17(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript18(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript18(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript18'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript18b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript18b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -9066,10 +9744,10 @@ def descript18(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript18(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript18(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript18 = Bidding.objects.values_list('descript18', flat=True).get(jobid=jobid)
+    descript18 = Bidding.objects.values_list('descript18', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript18": descript18,
@@ -9078,10 +9756,10 @@ def load_descript18(request, jobid=None):
     return render(request, 'mha/descript18_1.html', context)
 
 
-def load_descript18b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript18b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript18b = Bidding.objects.values_list('descript18b', flat=True).get(jobid=jobid) or ""
+    descript18b = Bidding.objects.values_list('descript18b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript18b": descript18b,
@@ -9090,50 +9768,61 @@ def load_descript18b(request, jobid=None):
     return render(request, 'mha/descript18b_1.html', context)
 
 
-def quant18(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=18).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant18(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=18).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=18).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity18']
-    Bidding.objects.filter(jobid=jobid).update(quanity18=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity18=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript18b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript18b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity18', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity18', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=18, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=18, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=18, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity18=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript18b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity18=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript18b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity18', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity18', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost18total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost18total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=18, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=18, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=18, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity18(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity18(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity18 = Bidding.objects.filter(jobid=jobid).values_list('quanity18', flat=True)
+    quanity18 = Bidding.objects.filter(bidid=bidid).values_list('quanity18', flat=True)
     context = {
         "instance": instance,
         "quanity18": quanity18,
@@ -9142,11 +9831,12 @@ def load_quanity18(request, jobid=None):
     return render(request, 'mha/quan18_1.html', context)
 
 
-def delete18(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete18(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity18=0, descript18b="", cost18total=0)
-    TotalJobCost.objects.filter(descripid=18).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity18=0, descript18b="", cost18total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=18).delete()
+    MatCost.objects.filter(bidid=bidid, descript=18).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -9154,12 +9844,12 @@ def delete18(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript19(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript19(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript19'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript19b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript19b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -9167,10 +9857,10 @@ def descript19(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript19(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript19(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript19 = Bidding.objects.values_list('descript19', flat=True).get(jobid=jobid)
+    descript19 = Bidding.objects.values_list('descript19', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript19": descript19,
@@ -9179,10 +9869,10 @@ def load_descript19(request, jobid=None):
     return render(request, 'mha/descript19_1.html', context)
 
 
-def load_descript19b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript19b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript19b = Bidding.objects.values_list('descript19b', flat=True).get(jobid=jobid) or ""
+    descript19b = Bidding.objects.values_list('descript19b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript19b": descript19b,
@@ -9191,50 +9881,61 @@ def load_descript19b(request, jobid=None):
     return render(request, 'mha/descript19b_1.html', context)
 
 
-def quant19(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=19).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant19(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=19).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=19).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity19']
-    Bidding.objects.filter(jobid=jobid).update(quanity19=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity19=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript19b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript19b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity19', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity19', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=19, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=19, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=19, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity19=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript19b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity19=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript19b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity19', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity19', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost19total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost19total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=19, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=19, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=19, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity19(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity19(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity19 = Bidding.objects.filter(jobid=jobid).values_list('quanity19', flat=True)
+    quanity19 = Bidding.objects.filter(bidid=bidid).values_list('quanity19', flat=True)
     context = {
         "instance": instance,
         "quanity19": quanity19,
@@ -9243,11 +9944,12 @@ def load_quanity19(request, jobid=None):
     return render(request, 'mha/quan19_1.html', context)
 
 
-def delete19(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete19(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity19=0, descript19b="", cost19total=0)
-    TotalJobCost.objects.filter(descripid=19).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity19=0, descript19b="", cost19total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=19).delete()
+    MatCost.objects.filter(bidid=bidid, descript=19).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -9255,12 +9957,12 @@ def delete19(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript20(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript20(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript20'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript20b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript20b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -9268,10 +9970,10 @@ def descript20(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript20(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript20(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript20 = Bidding.objects.values_list('descript20', flat=True).get(jobid=jobid)
+    descript20 = Bidding.objects.values_list('descript20', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript20": descript20,
@@ -9280,10 +9982,10 @@ def load_descript20(request, jobid=None):
     return render(request, 'mha/descript20_1.html', context)
 
 
-def load_descript20b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript20b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript20b = Bidding.objects.values_list('descript20b', flat=True).get(jobid=jobid) or ""
+    descript20b = Bidding.objects.values_list('descript20b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript20b": descript20b,
@@ -9292,50 +9994,61 @@ def load_descript20b(request, jobid=None):
     return render(request, 'mha/descript20b_1.html', context)
 
 
-def quant20(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=20).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant20(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=20).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=20).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity20']
-    Bidding.objects.filter(jobid=jobid).update(quanity20=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity20=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript20b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript20b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity20', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity20', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=20, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=20, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=20, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity20=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript20b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity20=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript20b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity20', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity20', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost20total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost20total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=20, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=20, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=20, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity20(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity20(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity20 = Bidding.objects.filter(jobid=jobid).values_list('quanity20', flat=True)
+    quanity20 = Bidding.objects.filter(bidid=bidid).values_list('quanity20', flat=True)
     context = {
         "instance": instance,
         "quanity20": quanity20,
@@ -9344,11 +10057,12 @@ def load_quanity20(request, jobid=None):
     return render(request, 'mha/quan20_1.html', context)
 
 
-def delete20(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete20(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity20=0, descript20b="", cost20total=0)
-    TotalJobCost.objects.filter(descripid=20).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity20=0, descript20b="", cost20total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=20).delete()
+    MatCost.objects.filter(bidid=bidid, descript=20).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -9356,12 +10070,12 @@ def delete20(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript21(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript21(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript21'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript21b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript21b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -9369,10 +10083,10 @@ def descript21(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript21(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript21(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript21 = Bidding.objects.values_list('descript21', flat=True).get(jobid=jobid)
+    descript21 = Bidding.objects.values_list('descript21', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript21": descript21,
@@ -9381,10 +10095,10 @@ def load_descript21(request, jobid=None):
     return render(request, 'mha/descript21_1.html', context)
 
 
-def load_descript21b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript21b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript21b = Bidding.objects.values_list('descript21b', flat=True).get(jobid=jobid) or ""
+    descript21b = Bidding.objects.values_list('descript21b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript21b": descript21b,
@@ -9393,50 +10107,61 @@ def load_descript21b(request, jobid=None):
     return render(request, 'mha/descript21b_1.html', context)
 
 
-def quant21(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=21).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant21(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=21).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=21).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity21']
-    Bidding.objects.filter(jobid=jobid).update(quanity21=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity21=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript21b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript21b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity21', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity21', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=21, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=21, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=21, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity21=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript21b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity21=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript21b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity21', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity21', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost21total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost21total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=21, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=21, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=21, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity21(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity21(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity21 = Bidding.objects.filter(jobid=jobid).values_list('quanity21', flat=True)
+    quanity21 = Bidding.objects.filter(bidid=bidid).values_list('quanity21', flat=True)
     context = {
         "instance": instance,
         "quanity21": quanity21,
@@ -9445,11 +10170,12 @@ def load_quanity21(request, jobid=None):
     return render(request, 'mha/quan21_1.html', context)
 
 
-def delete21(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete21(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity21=0, descript21b="", cost21total=0)
-    TotalJobCost.objects.filter(descripid=21).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity21=0, descript21b="", cost21total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=21).delete()
+    MatCost.objects.filter(bidid=bidid, descript=21).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -9457,12 +10183,12 @@ def delete21(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript22(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript22(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript22'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript22b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript22b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -9470,10 +10196,10 @@ def descript22(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript22(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript22(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript22 = Bidding.objects.values_list('descript22', flat=True).get(jobid=jobid)
+    descript22 = Bidding.objects.values_list('descript22', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript22": descript22,
@@ -9482,10 +10208,10 @@ def load_descript22(request, jobid=None):
     return render(request, 'mha/descript22_1.html', context)
 
 
-def load_descript22b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript22b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript22b = Bidding.objects.values_list('descript22b', flat=True).get(jobid=jobid) or ""
+    descript22b = Bidding.objects.values_list('descript22b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript22b": descript22b,
@@ -9494,50 +10220,61 @@ def load_descript22b(request, jobid=None):
     return render(request, 'mha/descript22b_1.html', context)
 
 
-def quant22(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=22).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant22(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=22).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=22).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity22']
-    Bidding.objects.filter(jobid=jobid).update(quanity22=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity22=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript22b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript22b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity22', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity22', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=22, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=22, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=22, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity22=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript22b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity22=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript22b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity22', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity22', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost22total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost22total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=22, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=22, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=22, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity22(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity22(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity22 = Bidding.objects.filter(jobid=jobid).values_list('quanity22', flat=True)
+    quanity22 = Bidding.objects.filter(bidid=bidid).values_list('quanity22', flat=True)
     context = {
         "instance": instance,
         "quanity22": quanity22,
@@ -9546,11 +10283,12 @@ def load_quanity22(request, jobid=None):
     return render(request, 'mha/quan22_1.html', context)
 
 
-def delete22(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete22(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity22=0, descript22b="", cost22total=0)
-    TotalJobCost.objects.filter(descripid=22).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity22=0, descript22b="", cost22total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=22).delete()
+    MatCost.objects.filter(bidid=bidid, descript=22).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -9558,12 +10296,12 @@ def delete22(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript23(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript23(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript23'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript23b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript23b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -9571,10 +10309,10 @@ def descript23(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript23(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript23(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript23 = Bidding.objects.values_list('descript23', flat=True).get(jobid=jobid)
+    descript23 = Bidding.objects.values_list('descript23', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript23": descript23,
@@ -9583,10 +10321,10 @@ def load_descript23(request, jobid=None):
     return render(request, 'mha/descript23_1.html', context)
 
 
-def load_descript23b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript23b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript23b = Bidding.objects.values_list('descript23b', flat=True).get(jobid=jobid) or ""
+    descript23b = Bidding.objects.values_list('descript23b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript23b": descript23b,
@@ -9595,50 +10333,61 @@ def load_descript23b(request, jobid=None):
     return render(request, 'mha/descript23b_1.html', context)
 
 
-def quant23(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=23).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant23(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=23).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=23).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity23']
-    Bidding.objects.filter(jobid=jobid).update(quanity23=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity23=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript23b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript23b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity23', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity23', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=23, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=23, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=23, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity23=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript23b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity23=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript23b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity23', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity23', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost23total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost23total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=23, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=23, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=23, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity23(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity23(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity23 = Bidding.objects.filter(jobid=jobid).values_list('quanity23', flat=True)
+    quanity23 = Bidding.objects.filter(bidid=bidid).values_list('quanity23', flat=True)
     context = {
         "instance": instance,
         "quanity23": quanity23,
@@ -9647,11 +10396,12 @@ def load_quanity23(request, jobid=None):
     return render(request, 'mha/quan23_1.html', context)
 
 
-def delete23(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete23(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity23=0, descript23b="", cost23total=0)
-    TotalJobCost.objects.filter(descripid=23).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity23=0, descript23b="", cost23total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=23).delete()
+    MatCost.objects.filter(bidid=bidid, descript=23).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -9659,12 +10409,12 @@ def delete23(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript24(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript24(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript24'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript24b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript24b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -9672,10 +10422,10 @@ def descript24(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript24(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript24(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript24 = Bidding.objects.values_list('descript24', flat=True).get(jobid=jobid)
+    descript24 = Bidding.objects.values_list('descript24', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript24": descript24,
@@ -9684,10 +10434,10 @@ def load_descript24(request, jobid=None):
     return render(request, 'mha/descript24_1.html', context)
 
 
-def load_descript24b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript24b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript24b = Bidding.objects.values_list('descript24b', flat=True).get(jobid=jobid) or ""
+    descript24b = Bidding.objects.values_list('descript24b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript24b": descript24b,
@@ -9696,50 +10446,61 @@ def load_descript24b(request, jobid=None):
     return render(request, 'mha/descript24b_1.html', context)
 
 
-def quant24(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=24).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant24(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=24).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=24).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity24']
-    Bidding.objects.filter(jobid=jobid).update(quanity24=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity24=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript24b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript24b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity24', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity24', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=24, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=24, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=24, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity24=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript24b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity24=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript24b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity24', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity24', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost24total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost24total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=24, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=24, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=24, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity24(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity24(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity24 = Bidding.objects.filter(jobid=jobid).values_list('quanity24', flat=True)
+    quanity24 = Bidding.objects.filter(bidid=bidid).values_list('quanity24', flat=True)
     context = {
         "instance": instance,
         "quanity24": quanity24,
@@ -9748,11 +10509,12 @@ def load_quanity24(request, jobid=None):
     return render(request, 'mha/quan24_1.html', context)
 
 
-def delete24(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete24(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity24=0, descript24b="", cost24total=0)
-    TotalJobCost.objects.filter(descripid=24).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity24=0, descript24b="", cost24total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=24).delete()
+    MatCost.objects.filter(bidid=bidid, descript=24).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -9760,12 +10522,12 @@ def delete24(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript25(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript25(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript25'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript25b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript25b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -9773,10 +10535,10 @@ def descript25(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript25(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript25(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript25 = Bidding.objects.values_list('descript25', flat=True).get(jobid=jobid)
+    descript25 = Bidding.objects.values_list('descript25', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript25": descript25,
@@ -9785,10 +10547,10 @@ def load_descript25(request, jobid=None):
     return render(request, 'mha/descript25_1.html', context)
 
 
-def load_descript25b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript25b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript25b = Bidding.objects.values_list('descript25b', flat=True).get(jobid=jobid) or ""
+    descript25b = Bidding.objects.values_list('descript25b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript25b": descript25b,
@@ -9797,50 +10559,61 @@ def load_descript25b(request, jobid=None):
     return render(request, 'mha/descript25b_1.html', context)
 
 
-def quant25(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=25).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant25(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=25).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=25).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity25']
-    Bidding.objects.filter(jobid=jobid).update(quanity25=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity25=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript25b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript25b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity25', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity25', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=25, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=25, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=25, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity25=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript25b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity25=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript25b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity25', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity25', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost25total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost25total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=25, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=25, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=25, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity25(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity25(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity25 = Bidding.objects.filter(jobid=jobid).values_list('quanity25', flat=True)
+    quanity25 = Bidding.objects.filter(bidid=bidid).values_list('quanity25', flat=True)
     context = {
         "instance": instance,
         "quanity25": quanity25,
@@ -9849,11 +10622,12 @@ def load_quanity25(request, jobid=None):
     return render(request, 'mha/quan25_1.html', context)
 
 
-def delete25(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete25(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity25=0, descript25b="", cost25total=0)
-    TotalJobCost.objects.filter(descripid=25).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity25=0, descript25b="", cost25total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=25).delete()
+    MatCost.objects.filter(bidid=bidid, descript=25).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -9861,12 +10635,12 @@ def delete25(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript26(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript26(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript26'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript26b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript26b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -9874,10 +10648,10 @@ def descript26(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript26(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript26(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript26 = Bidding.objects.values_list('descript26', flat=True).get(jobid=jobid)
+    descript26 = Bidding.objects.values_list('descript26', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript26": descript26,
@@ -9886,10 +10660,10 @@ def load_descript26(request, jobid=None):
     return render(request, 'mha/descript26_1.html', context)
 
 
-def load_descript26b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript26b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript26b = Bidding.objects.values_list('descript26b', flat=True).get(jobid=jobid) or ""
+    descript26b = Bidding.objects.values_list('descript26b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript26b": descript26b,
@@ -9898,50 +10672,61 @@ def load_descript26b(request, jobid=None):
     return render(request, 'mha/descript26b_1.html', context)
 
 
-def quant26(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=26).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant26(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=26).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=26).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity26']
-    Bidding.objects.filter(jobid=jobid).update(quanity26=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity26=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript26b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript26b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity26', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity26', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=26, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=26, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=26, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity26=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript26b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity26=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript26b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity26', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity26', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost26total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost26total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=26, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=26, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=26, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity26(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity26(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity26 = Bidding.objects.filter(jobid=jobid).values_list('quanity26', flat=True)
+    quanity26 = Bidding.objects.filter(bidid=bidid).values_list('quanity26', flat=True)
     context = {
         "instance": instance,
         "quanity26": quanity26,
@@ -9950,11 +10735,12 @@ def load_quanity26(request, jobid=None):
     return render(request, 'mha/quan26_1.html', context)
 
 
-def delete26(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete26(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity26=0, descript26b="", cost26total=0)
-    TotalJobCost.objects.filter(descripid=26).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity26=0, descript26b="", cost26total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=26).delete()
+    MatCost.objects.filter(bidid=bidid, descript=26).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -9962,12 +10748,12 @@ def delete26(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript27(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript27(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript27'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript27b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript27b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -9975,10 +10761,10 @@ def descript27(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript27(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript27(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript27 = Bidding.objects.values_list('descript27', flat=True).get(jobid=jobid)
+    descript27 = Bidding.objects.values_list('descript27', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript27": descript27,
@@ -9987,10 +10773,10 @@ def load_descript27(request, jobid=None):
     return render(request, 'mha/descript27_1.html', context)
 
 
-def load_descript27b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript27b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript27b = Bidding.objects.values_list('descript27b', flat=True).get(jobid=jobid) or ""
+    descript27b = Bidding.objects.values_list('descript27b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript27b": descript27b,
@@ -9999,50 +10785,61 @@ def load_descript27b(request, jobid=None):
     return render(request, 'mha/descript27b_1.html', context)
 
 
-def quant27(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=27).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant27(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=27).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=27).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity27']
-    Bidding.objects.filter(jobid=jobid).update(quanity27=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity27=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript27b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript27b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity27', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity27', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=27, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=27, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=27, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity27=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript27b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity27=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript27b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity27', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity27', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost27total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost27total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=27, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=27, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=27, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity27(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity27(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity27 = Bidding.objects.filter(jobid=jobid).values_list('quanity27', flat=True)
+    quanity27 = Bidding.objects.filter(bidid=bidid).values_list('quanity27', flat=True)
     context = {
         "instance": instance,
         "quanity27": quanity27,
@@ -10051,11 +10848,12 @@ def load_quanity27(request, jobid=None):
     return render(request, 'mha/quan27_1.html', context)
 
 
-def delete27(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete27(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity27=0, descript27b="", cost27total=0)
-    TotalJobCost.objects.filter(descripid=27).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity27=0, descript27b="", cost27total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=27).delete()
+    MatCost.objects.filter(bidid=bidid, descript=27).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -10063,12 +10861,12 @@ def delete27(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript28(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript28(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript28'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript28b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript28b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -10076,10 +10874,10 @@ def descript28(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript28(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript28(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript28 = Bidding.objects.values_list('descript28', flat=True).get(jobid=jobid)
+    descript28 = Bidding.objects.values_list('descript28', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript28": descript28,
@@ -10088,10 +10886,10 @@ def load_descript28(request, jobid=None):
     return render(request, 'mha/descript28_1.html', context)
 
 
-def load_descript28b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript28b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript28b = Bidding.objects.values_list('descript28b', flat=True).get(jobid=jobid) or ""
+    descript28b = Bidding.objects.values_list('descript28b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript28b": descript28b,
@@ -10100,50 +10898,61 @@ def load_descript28b(request, jobid=None):
     return render(request, 'mha/descript28b_1.html', context)
 
 
-def quant28(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=28).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant28(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=28).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=28).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity28']
-    Bidding.objects.filter(jobid=jobid).update(quanity28=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity28=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript28b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript28b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity28', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity28', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=28, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=28, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=28, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity28=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript28b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity28=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript28b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity28', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity28', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost28total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost28total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=28, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=28, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=28, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity28(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity28(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity28 = Bidding.objects.filter(jobid=jobid).values_list('quanity28', flat=True)
+    quanity28 = Bidding.objects.filter(bidid=bidid).values_list('quanity28', flat=True)
     context = {
         "instance": instance,
         "quanity28": quanity28,
@@ -10152,11 +10961,12 @@ def load_quanity28(request, jobid=None):
     return render(request, 'mha/quan28_1.html', context)
 
 
-def delete28(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete28(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity28=0, descript28b="", cost28total=0)
-    TotalJobCost.objects.filter(descripid=28).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity28=0, descript28b="", cost28total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=28).delete()
+    MatCost.objects.filter(bidid=bidid, descript=28).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -10164,12 +10974,12 @@ def delete28(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript29(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript29(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript29'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript29b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript29b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -10177,10 +10987,10 @@ def descript29(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript29(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript29(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript29 = Bidding.objects.values_list('descript29', flat=True).get(jobid=jobid)
+    descript29 = Bidding.objects.values_list('descript29', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript29": descript29,
@@ -10189,10 +10999,10 @@ def load_descript29(request, jobid=None):
     return render(request, 'mha/descript29_1.html', context)
 
 
-def load_descript29b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript29b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript29b = Bidding.objects.values_list('descript29b', flat=True).get(jobid=jobid) or ""
+    descript29b = Bidding.objects.values_list('descript29b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript29b": descript29b,
@@ -10201,50 +11011,61 @@ def load_descript29b(request, jobid=None):
     return render(request, 'mha/descript29b_1.html', context)
 
 
-def quant29(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=29).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant29(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=29).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=29).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity29']
-    Bidding.objects.filter(jobid=jobid).update(quanity29=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity29=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript29b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript29b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity29', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity29', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=29, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=29, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=29, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity29=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript29b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity29=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript29b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity29', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity29', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost29total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost29total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=29, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=29, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=29, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity29(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity29(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity29 = Bidding.objects.filter(jobid=jobid).values_list('quanity29', flat=True)
+    quanity29 = Bidding.objects.filter(bidid=bidid).values_list('quanity29', flat=True)
     context = {
         "instance": instance,
         "quanity29": quanity29,
@@ -10253,11 +11074,12 @@ def load_quanity29(request, jobid=None):
     return render(request, 'mha/quan29_1.html', context)
 
 
-def delete29(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete29(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity29=0, descript29b="", cost29total=0)
-    TotalJobCost.objects.filter(descripid=29).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity29=0, descript29b="", cost29total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=29).delete()
+    MatCost.objects.filter(bidid=bidid, descript=29).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -10265,12 +11087,12 @@ def delete29(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript30(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript30(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript30'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript30b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript30b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -10278,10 +11100,10 @@ def descript30(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript30(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript30(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript30 = Bidding.objects.values_list('descript30', flat=True).get(jobid=jobid)
+    descript30 = Bidding.objects.values_list('descript30', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript30": descript30,
@@ -10290,10 +11112,10 @@ def load_descript30(request, jobid=None):
     return render(request, 'mha/descript30_1.html', context)
 
 
-def load_descript30b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript30b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript30b = Bidding.objects.values_list('descript30b', flat=True).get(jobid=jobid) or ""
+    descript30b = Bidding.objects.values_list('descript30b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript30b": descript30b,
@@ -10302,50 +11124,61 @@ def load_descript30b(request, jobid=None):
     return render(request, 'mha/descript30b_1.html', context)
 
 
-def quant30(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=30).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant30(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=30).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=30).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity30']
-    Bidding.objects.filter(jobid=jobid).update(quanity30=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity30=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript30b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript30b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity30', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity30', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=30, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=30, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=30, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity30=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript30b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity30=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript30b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity30', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity30', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost30total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost30total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=30, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=30, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=30, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity30(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity30(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity30 = Bidding.objects.filter(jobid=jobid).values_list('quanity30', flat=True)
+    quanity30 = Bidding.objects.filter(bidid=bidid).values_list('quanity30', flat=True)
     context = {
         "instance": instance,
         "quanity30": quanity30,
@@ -10354,11 +11187,12 @@ def load_quanity30(request, jobid=None):
     return render(request, 'mha/quan30_1.html', context)
 
 
-def delete30(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete30(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity30=0, descript30b="", cost30total=0)
-    TotalJobCost.objects.filter(descripid=30).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity30=0, descript30b="", cost30total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=30).delete()
+    MatCost.objects.filter(bidid=bidid, descript=30).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -10366,12 +11200,12 @@ def delete30(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript31(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript31(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript31'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript31b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript31b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -10379,10 +11213,10 @@ def descript31(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript31(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript31(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript31 = Bidding.objects.values_list('descript31', flat=True).get(jobid=jobid)
+    descript31 = Bidding.objects.values_list('descript31', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript31": descript31,
@@ -10391,10 +11225,10 @@ def load_descript31(request, jobid=None):
     return render(request, 'mha/descript31_1.html', context)
 
 
-def load_descript31b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript31b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript31b = Bidding.objects.values_list('descript31b', flat=True).get(jobid=jobid) or ""
+    descript31b = Bidding.objects.values_list('descript31b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript31b": descript31b,
@@ -10403,50 +11237,61 @@ def load_descript31b(request, jobid=None):
     return render(request, 'mha/descript31b_1.html', context)
 
 
-def quant31(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=31).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant31(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=31).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=31).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity31']
-    Bidding.objects.filter(jobid=jobid).update(quanity31=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity31=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript31b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript31b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity31', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity31', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=31, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=31, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=31, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity31=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript31b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity31=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript31b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity31', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity31', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost31total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost31total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=31, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=31, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=31, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity31(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity31(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity31 = Bidding.objects.filter(jobid=jobid).values_list('quanity31', flat=True)
+    quanity31 = Bidding.objects.filter(bidid=bidid).values_list('quanity31', flat=True)
     context = {
         "instance": instance,
         "quanity31": quanity31,
@@ -10455,11 +11300,12 @@ def load_quanity31(request, jobid=None):
     return render(request, 'mha/quan31_1.html', context)
 
 
-def delete31(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete31(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity31=0, descript31b="", cost31total=0)
-    TotalJobCost.objects.filter(descripid=31).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity31=0, descript31b="", cost31total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=31).delete()
+    MatCost.objects.filter(bidid=bidid, descript=31).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -10467,12 +11313,12 @@ def delete31(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript32(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript32(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript32'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript32b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript32b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -10480,10 +11326,10 @@ def descript32(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript32(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript32(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript32 = Bidding.objects.values_list('descript32', flat=True).get(jobid=jobid)
+    descript32 = Bidding.objects.values_list('descript32', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript32": descript32,
@@ -10492,10 +11338,10 @@ def load_descript32(request, jobid=None):
     return render(request, 'mha/descript32_1.html', context)
 
 
-def load_descript32b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript32b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript32b = Bidding.objects.values_list('descript32b', flat=True).get(jobid=jobid) or ""
+    descript32b = Bidding.objects.values_list('descript32b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript32b": descript32b,
@@ -10504,50 +11350,61 @@ def load_descript32b(request, jobid=None):
     return render(request, 'mha/descript32b_1.html', context)
 
 
-def quant32(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=32).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant32(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=32).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=32).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity32']
-    Bidding.objects.filter(jobid=jobid).update(quanity32=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity32=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript32b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript32b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity32', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity32', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=32, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=32, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=32, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity32=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript32b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity32=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript32b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity32', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity32', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost32total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost32total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=32, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=32, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=32, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity32(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity32(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity32 = Bidding.objects.filter(jobid=jobid).values_list('quanity32', flat=True)
+    quanity32 = Bidding.objects.filter(bidid=bidid).values_list('quanity32', flat=True)
     context = {
         "instance": instance,
         "quanity32": quanity32,
@@ -10556,11 +11413,12 @@ def load_quanity32(request, jobid=None):
     return render(request, 'mha/quan32_1.html', context)
 
 
-def delete32(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete32(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity32=0, descript32b="", cost32total=0)
-    TotalJobCost.objects.filter(descripid=32).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity32=0, descript32b="", cost32total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=32).delete()
+    MatCost.objects.filter(bidid=bidid, descript=32).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -10568,12 +11426,12 @@ def delete32(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript33(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript33(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript33'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript33b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript33b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -10581,10 +11439,10 @@ def descript33(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript33(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript33(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript33 = Bidding.objects.values_list('descript33', flat=True).get(jobid=jobid)
+    descript33 = Bidding.objects.values_list('descript33', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript33": descript33,
@@ -10593,10 +11451,10 @@ def load_descript33(request, jobid=None):
     return render(request, 'mha/descript33_1.html', context)
 
 
-def load_descript33b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript33b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript33b = Bidding.objects.values_list('descript33b', flat=True).get(jobid=jobid) or ""
+    descript33b = Bidding.objects.values_list('descript33b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript33b": descript33b,
@@ -10605,50 +11463,61 @@ def load_descript33b(request, jobid=None):
     return render(request, 'mha/descript33b_1.html', context)
 
 
-def quant33(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=33).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant33(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=33).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=33).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity33']
-    Bidding.objects.filter(jobid=jobid).update(quanity33=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity33=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript33b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript33b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity33', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity33', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=33, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=33, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=33, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity33=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript33b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity33=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript33b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity33', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity33', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost33total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost33total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=33, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=33, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=33, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity33(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity33(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity33 = Bidding.objects.filter(jobid=jobid).values_list('quanity33', flat=True)
+    quanity33 = Bidding.objects.filter(bidid=bidid).values_list('quanity33', flat=True)
     context = {
         "instance": instance,
         "quanity33": quanity33,
@@ -10657,11 +11526,12 @@ def load_quanity33(request, jobid=None):
     return render(request, 'mha/quan33_1.html', context)
 
 
-def delete33(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete33(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity33=0, descript33b="", cost33total=0)
-    TotalJobCost.objects.filter(descripid=33).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity33=0, descript33b="", cost33total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=33).delete()
+    MatCost.objects.filter(bidid=bidid, descript=33).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -10669,12 +11539,12 @@ def delete33(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript34(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript34(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript34'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript34b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript34b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -10682,10 +11552,10 @@ def descript34(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript34(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript34(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript34 = Bidding.objects.values_list('descript34', flat=True).get(jobid=jobid)
+    descript34 = Bidding.objects.values_list('descript34', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript34": descript34,
@@ -10694,10 +11564,10 @@ def load_descript34(request, jobid=None):
     return render(request, 'mha/descript34_1.html', context)
 
 
-def load_descript34b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript34b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript34b = Bidding.objects.values_list('descript34b', flat=True).get(jobid=jobid) or ""
+    descript34b = Bidding.objects.values_list('descript34b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript34b": descript34b,
@@ -10706,50 +11576,61 @@ def load_descript34b(request, jobid=None):
     return render(request, 'mha/descript34b_1.html', context)
 
 
-def quant34(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=34).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant34(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=34).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=34).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity34']
-    Bidding.objects.filter(jobid=jobid).update(quanity34=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity34=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript34b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript34b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity34', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity34', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=34, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=34, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=34, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity34=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript34b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity34=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript34b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity34', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity34', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost34total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost34total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=34, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=34, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=34, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity34(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity34(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity34 = Bidding.objects.filter(jobid=jobid).values_list('quanity34', flat=True)
+    quanity34 = Bidding.objects.filter(bidid=bidid).values_list('quanity34', flat=True)
     context = {
         "instance": instance,
         "quanity34": quanity34,
@@ -10758,11 +11639,12 @@ def load_quanity34(request, jobid=None):
     return render(request, 'mha/quan34_1.html', context)
 
 
-def delete34(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete34(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity34=0, descript34b="", cost34total=0)
-    TotalJobCost.objects.filter(descripid=34).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity34=0, descript34b="", cost34total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=34).delete()
+    MatCost.objects.filter(bidid=bidid, descript=34).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -10770,12 +11652,12 @@ def delete34(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript35(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript35(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript35'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript35b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript35b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -10783,10 +11665,10 @@ def descript35(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript35(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript35(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript35 = Bidding.objects.values_list('descript35', flat=True).get(jobid=jobid)
+    descript35 = Bidding.objects.values_list('descript35', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript35": descript35,
@@ -10795,10 +11677,10 @@ def load_descript35(request, jobid=None):
     return render(request, 'mha/descript35_1.html', context)
 
 
-def load_descript35b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript35b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript35b = Bidding.objects.values_list('descript35b', flat=True).get(jobid=jobid) or ""
+    descript35b = Bidding.objects.values_list('descript35b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript35b": descript35b,
@@ -10807,50 +11689,61 @@ def load_descript35b(request, jobid=None):
     return render(request, 'mha/descript35b_1.html', context)
 
 
-def quant35(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=35).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant35(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=35).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=35).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity35']
-    Bidding.objects.filter(jobid=jobid).update(quanity35=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity35=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript35b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript35b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity35', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity35', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=35, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=35, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=35, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity35=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript35b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity35=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript35b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity35', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity35', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost35total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost35total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=35, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=35, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=35, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity35(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity35(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity35 = Bidding.objects.filter(jobid=jobid).values_list('quanity35', flat=True)
+    quanity35 = Bidding.objects.filter(bidid=bidid).values_list('quanity35', flat=True)
     context = {
         "instance": instance,
         "quanity35": quanity35,
@@ -10859,11 +11752,12 @@ def load_quanity35(request, jobid=None):
     return render(request, 'mha/quan35_1.html', context)
 
 
-def delete35(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete35(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity35=0, descript35b="", cost35total=0)
-    TotalJobCost.objects.filter(descripid=35).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity35=0, descript35b="", cost35total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=35).delete()
+    MatCost.objects.filter(bidid=bidid, descript=35).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -10871,12 +11765,12 @@ def delete35(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript36(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript36(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript36'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript36b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript36b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -10884,10 +11778,10 @@ def descript36(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript36(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript36(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript36 = Bidding.objects.values_list('descript36', flat=True).get(jobid=jobid)
+    descript36 = Bidding.objects.values_list('descript36', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript36": descript36,
@@ -10896,10 +11790,10 @@ def load_descript36(request, jobid=None):
     return render(request, 'mha/descript36_1.html', context)
 
 
-def load_descript36b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript36b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript36b = Bidding.objects.values_list('descript36b', flat=True).get(jobid=jobid) or ""
+    descript36b = Bidding.objects.values_list('descript36b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript36b": descript36b,
@@ -10908,50 +11802,61 @@ def load_descript36b(request, jobid=None):
     return render(request, 'mha/descript36b_1.html', context)
 
 
-def quant36(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=36).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant36(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=36).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=36).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity36']
-    Bidding.objects.filter(jobid=jobid).update(quanity36=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity36=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript36b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript36b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity36', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity36', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=36, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=36, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=36, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity36=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript36b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity36=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript36b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity36', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity36', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost36total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost36total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=36, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=36, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=36, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity36(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity36(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity36 = Bidding.objects.filter(jobid=jobid).values_list('quanity36', flat=True)
+    quanity36 = Bidding.objects.filter(bidid=bidid).values_list('quanity36', flat=True)
     context = {
         "instance": instance,
         "quanity36": quanity36,
@@ -10960,11 +11865,12 @@ def load_quanity36(request, jobid=None):
     return render(request, 'mha/quan36_1.html', context)
 
 
-def delete36(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete36(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity36=0, descript36b="", cost36total=0)
-    TotalJobCost.objects.filter(descripid=36).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity36=0, descript36b="", cost36total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=36).delete()
+    MatCost.objects.filter(bidid=bidid, descript=36).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -10972,12 +11878,12 @@ def delete36(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript37(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript37(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript37'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript37b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript37b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -10985,10 +11891,10 @@ def descript37(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript37(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript37(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript37 = Bidding.objects.values_list('descript37', flat=True).get(jobid=jobid)
+    descript37 = Bidding.objects.values_list('descript37', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript37": descript37,
@@ -10997,10 +11903,10 @@ def load_descript37(request, jobid=None):
     return render(request, 'mha/descript37_1.html', context)
 
 
-def load_descript37b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript37b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript37b = Bidding.objects.values_list('descript37b', flat=True).get(jobid=jobid) or ""
+    descript37b = Bidding.objects.values_list('descript37b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript37b": descript37b,
@@ -11009,50 +11915,61 @@ def load_descript37b(request, jobid=None):
     return render(request, 'mha/descript37b_1.html', context)
 
 
-def quant37(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=37).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant37(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=37).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=37).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity37']
-    Bidding.objects.filter(jobid=jobid).update(quanity37=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity37=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript37b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript37b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity37', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity37', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=37, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=37, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=37, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity37=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript37b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity37=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript37b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity37', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity37', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost37total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost37total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=37, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=37, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=37, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity37(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity37(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity37 = Bidding.objects.filter(jobid=jobid).values_list('quanity37', flat=True)
+    quanity37 = Bidding.objects.filter(bidid=bidid).values_list('quanity37', flat=True)
     context = {
         "instance": instance,
         "quanity37": quanity37,
@@ -11061,11 +11978,12 @@ def load_quanity37(request, jobid=None):
     return render(request, 'mha/quan37_1.html', context)
 
 
-def delete37(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete37(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity37=0, descript37b="", cost37total=0)
-    TotalJobCost.objects.filter(descripid=37).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity37=0, descript37b="", cost37total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=37).delete()
+    MatCost.objects.filter(bidid=bidid, descript=37).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -11073,12 +11991,12 @@ def delete37(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript38(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript38(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript38'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript38b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript38b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -11086,10 +12004,10 @@ def descript38(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript38(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript38(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript38 = Bidding.objects.values_list('descript38', flat=True).get(jobid=jobid)
+    descript38 = Bidding.objects.values_list('descript38', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript38": descript38,
@@ -11098,10 +12016,10 @@ def load_descript38(request, jobid=None):
     return render(request, 'mha/descript38_1.html', context)
 
 
-def load_descript38b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript38b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript38b = Bidding.objects.values_list('descript38b', flat=True).get(jobid=jobid) or ""
+    descript38b = Bidding.objects.values_list('descript38b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript38b": descript38b,
@@ -11110,50 +12028,61 @@ def load_descript38b(request, jobid=None):
     return render(request, 'mha/descript38b_1.html', context)
 
 
-def quant38(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=38).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant38(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=38).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=38).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity38']
-    Bidding.objects.filter(jobid=jobid).update(quanity38=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity38=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript38b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript38b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity38', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity38', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=38, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=38, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=38, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity38=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript38b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity38=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript38b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity38', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity38', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost38total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost38total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=38, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=38, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=38, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity38(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity38(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity38 = Bidding.objects.filter(jobid=jobid).values_list('quanity38', flat=True)
+    quanity38 = Bidding.objects.filter(bidid=bidid).values_list('quanity38', flat=True)
     context = {
         "instance": instance,
         "quanity38": quanity38,
@@ -11162,11 +12091,12 @@ def load_quanity38(request, jobid=None):
     return render(request, 'mha/quan38_1.html', context)
 
 
-def delete38(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete38(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity38=0, descript38b="", cost38total=0)
-    TotalJobCost.objects.filter(descripid=38).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity38=0, descript38b="", cost38total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=38).delete()
+    MatCost.objects.filter(bidid=bidid, descript=38).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -11174,12 +12104,12 @@ def delete38(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript39(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript39(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript39'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript39b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript39b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -11187,10 +12117,10 @@ def descript39(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript39(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript39(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript39 = Bidding.objects.values_list('descript39', flat=True).get(jobid=jobid)
+    descript39 = Bidding.objects.values_list('descript39', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript39": descript39,
@@ -11199,10 +12129,10 @@ def load_descript39(request, jobid=None):
     return render(request, 'mha/descript39_1.html', context)
 
 
-def load_descript39b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript39b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript39b = Bidding.objects.values_list('descript39b', flat=True).get(jobid=jobid) or ""
+    descript39b = Bidding.objects.values_list('descript39b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript39b": descript39b,
@@ -11211,50 +12141,61 @@ def load_descript39b(request, jobid=None):
     return render(request, 'mha/descript39b_1.html', context)
 
 
-def quant39(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=39).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant39(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=39).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=39).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity39']
-    Bidding.objects.filter(jobid=jobid).update(quanity39=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity39=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript39b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript39b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity39', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity39', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=39, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=39, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=39, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity39=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript39b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity39=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript39b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity39', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity39', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost39total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost39total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=39, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=39, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=39, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity39(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity39(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity39 = Bidding.objects.filter(jobid=jobid).values_list('quanity39', flat=True)
+    quanity39 = Bidding.objects.filter(bidid=bidid).values_list('quanity39', flat=True)
     context = {
         "instance": instance,
         "quanity39": quanity39,
@@ -11263,11 +12204,12 @@ def load_quanity39(request, jobid=None):
     return render(request, 'mha/quan39_1.html', context)
 
 
-def delete39(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete39(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity39=0, descript39b="", cost39total=0)
-    TotalJobCost.objects.filter(descripid=39).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity39=0, descript39b="", cost39total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=39).delete()
+    MatCost.objects.filter(bidid=bidid, descript=39).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -11275,12 +12217,12 @@ def delete39(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descript46(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descript46(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript46'] or 0
     b = MatTypeBid.objects.filter(id=a).values_list("type")
-    Bidding.objects.filter(jobid=jobid).update(descript46b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript46b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -11288,10 +12230,10 @@ def descript46(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def load_descript46(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript46(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript46 = Bidding.objects.values_list('descript46', flat=True).get(jobid=jobid)
+    descript46 = Bidding.objects.values_list('descript46', flat=True).get(bidid=bidid)
     context = {
         "instance": instance,
         "descript46": descript46,
@@ -11300,10 +12242,10 @@ def load_descript46(request, jobid=None):
     return render(request, 'mha/descript46_1.html', context)
 
 
-def load_descript46b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript46b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript46b = Bidding.objects.values_list('descript46b', flat=True).get(jobid=jobid) or ""
+    descript46b = Bidding.objects.values_list('descript46b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript46b": descript46b,
@@ -11312,50 +12254,61 @@ def load_descript46b(request, jobid=None):
     return render(request, 'mha/descript46b_1.html', context)
 
 
-def quant46(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=46).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quant46(request, bidid=None):
+    MatCost.objects.filter(bidid=bidid, descript=46).delete()
+    TotalJobCost.objects.filter(bidid=bidid, descripid=46).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity46']
-    Bidding.objects.filter(jobid=jobid).update(quanity46=a)
-    aa = Bidding.objects.filter(jobid=jobid).values_list('mattype', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity46=a)
+    aa = Bidding.objects.filter(bidid=bidid).values_list('mattype', flat=True).first()
     if aa == '2':
-        bb = Bidding.objects.filter(jobid=jobid).values_list('descript46b', flat=True).first()
+        bb = Bidding.objects.filter(bidid=bidid).values_list('descript46b', flat=True).first()
         cc = MatTypeBid.objects.filter(type=bb).values_list('unitcost', flat=True).first()
-        dd = Bidding.objects.filter(jobid=jobid).values_list('quanity46', flat=True).first()
+        dd = Bidding.objects.filter(bidid=bidid).values_list('quanity46', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         ee = cc * dd
         ff = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         gg = ff + 1
-        hh = TotalJobCost.objects.create(id=gg, jobid=jobid, descripid=46, jobcost=ee)
+        hh = TotalJobCost.objects.create(id=gg, bidid=bidid, descripid=46, jobcost=ee)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=46, matcost=ee)
         context = {
             "instance": instance,
             "form": form,
             'hh': hh,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
     else:
-        Bidding.objects.filter(jobid=jobid).update(quanity46=a)
-        b = Bidding.objects.filter(jobid=jobid).values_list('descript46b', flat=True).first()
+        Bidding.objects.filter(bidid=bidid).update(quanity46=a)
+        b = Bidding.objects.filter(bidid=bidid).values_list('descript46b', flat=True).first()
         c = Material.objects.filter(descrip=b).values_list('cost', flat=True).first()
-        d = Bidding.objects.filter(jobid=jobid).values_list('quanity46', flat=True).first()
+        d = Bidding.objects.filter(bidid=bidid).values_list('quanity46', flat=True).first()
+        dd1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+        dd2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+        dd3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
         e = c * d
-        f = Bidding.objects.filter(jobid=jobid).update(cost46total=e)
+        f = Bidding.objects.filter(bidid=bidid).update(cost46total=e)
         g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
         h = g + 1
-        i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=46, jobcost=e)
+        i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=46, jobcost=e)
+        ii = MatCost.objects.create(conid=dd1, custid=dd2, jobid=dd3, bidid=bidid, descript=46, matcost=e)
         context = {
             "instance": instance,
             "form": form,
             'f': f,
             'i': i,
+            'ii': ii,
         }
         return render(request, 'mha/bidpage.html', context)
 
 
-def load_quanity46(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity46(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity46 = Bidding.objects.filter(jobid=jobid).values_list('quanity46', flat=True)
+    quanity46 = Bidding.objects.filter(bidid=bidid).values_list('quanity46', flat=True)
     context = {
         "instance": instance,
         "quanity46": quanity46,
@@ -11364,11 +12317,12 @@ def load_quanity46(request, jobid=None):
     return render(request, 'mha/quan46_1.html', context)
 
 
-def delete46(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete46(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity46=0, descript46b="", cost46total=0)
-    TotalJobCost.objects.filter(descripid=46).delete()
+    Bidding.objects.filter(bidid=bidid).update(quanity46=0, descript46b="", cost46total=0)
+    TotalJobCost.objects.filter(bidid=bidid, descripid=46).delete()
+    MatCost.objects.filter(bidid=bidid, descript=46).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -11376,12 +12330,12 @@ def delete46(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def descrip40(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descrip40(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript40']
     b = OutsideResource.objects.filter(id=a).values_list("osrdescrip")
-    Bidding.objects.filter(jobid=jobid).update(descript40b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript40b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -11389,12 +12343,12 @@ def descrip40(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def descrip40b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descrip40b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript40']
     #    b = OutsideResource.objects.filter(id=a).values_list("osrdescrip")
-    c = Bidding.objects.filter(jobid=jobid).update(descript40=a)
+    c = Bidding.objects.filter(bidid=bidid).update(descript40=a)
     context = {
         "instance": instance,
         "form": form,
@@ -11403,34 +12357,41 @@ def descrip40b(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def quan40(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=40).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quan40(request, bidid=None):
+    TotalJobCost.objects.filter(bidid=bidid, descripid=40).delete()
+    OSRCost.objects.filter(bidid=bidid, descript=40).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity40']
-    Bidding.objects.filter(jobid=jobid).update(quanity40=a)
-    b = Bidding.objects.filter(jobid=jobid).values_list('descript40b', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity40=a)
+    b = Bidding.objects.filter(bidid=bidid).values_list('descript40b', flat=True).first()
     c = OutsideResource.objects.filter(osrdescrip=b).values_list('osrunitprice', flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).values_list('quanity40', flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).values_list('quanity40', flat=True).first()
+    d1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+    d2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+    d3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
     e = c * d
-    f = Bidding.objects.filter(jobid=jobid).update(cost40total=e)
+    f = Bidding.objects.filter(bidid=bidid).update(cost40total=e)
     g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
     h = g + 1
-    i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=40, jobcost=e)
+    i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=40, jobcost=e)
+    ii = OSRCost.objects.create(conid=d1, custid=d2, jobid=d3, bidid=bidid, descript=40, OSRcost=e)
     context = {
         "instance": instance,
         "form": form,
         'f': f,
         'i': i,
+        'ii': ii,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def delete40(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete40(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity40=0, descript40="", descript40b="", cost40total=0)
+    Bidding.objects.filter(bidid=bidid).update(quanity40=0, descript40="", descript40b="", cost40total=0)
     TotalJobCost.objects.filter(descripid=40).delete()
+    OSRCost.objects.filter(bidid=bidid, descript=40).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -11438,10 +12399,10 @@ def delete40(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def load_descript40(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript40(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript40 = Bidding.objects.filter(jobid=jobid).values_list('descript40', flat=True)
+    descript40 = Bidding.objects.filter(bidid=bidid).values_list('descript40', flat=True)
     context = {
         "instance": instance,
         "descript40": descript40,
@@ -11450,10 +12411,10 @@ def load_descript40(request, jobid=None):
     return render(request, 'mha/descript40_1.html', context)
 
 
-def load_descript40b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript40b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript40b = Bidding.objects.values_list('descript40b', flat=True).get(jobid=jobid) or ""
+    descript40b = Bidding.objects.values_list('descript40b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript40b": descript40b,
@@ -11462,10 +12423,10 @@ def load_descript40b(request, jobid=None):
     return render(request, 'mha/descript40b_1.html', context)
 
 
-def load_quanity40(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity40(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity40 = Bidding.objects.filter(jobid=jobid).values_list('quanity40', flat=True)
+    quanity40 = Bidding.objects.filter(bidid=bidid).values_list('quanity40', flat=True)
     context = {
         "instance": instance,
         "quanity40": quanity40,
@@ -11474,12 +12435,12 @@ def load_quanity40(request, jobid=None):
     return render(request, 'mha/quan40_1.html', context)
 
 
-def descrip41(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descrip41(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript41']
     b = OutsideResource.objects.filter(id=a).values_list("osrdescrip")
-    Bidding.objects.filter(jobid=jobid).update(descript41b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript41b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -11487,12 +12448,12 @@ def descrip41(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def descrip41b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descrip41b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript41']
     #    b = OutsideResource.objects.filter(id=a).values_list("osrdescrip")
-    c = Bidding.objects.filter(jobid=jobid).update(descript41=a)
+    c = Bidding.objects.filter(bidid=bidid).update(descript41=a)
     context = {
         "instance": instance,
         "form": form,
@@ -11501,34 +12462,41 @@ def descrip41b(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def quan41(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=41).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quan41(request, bidid=None):
+    TotalJobCost.objects.filter(bidid=bidid, descripid=41).delete()
+    OSRCost.objects.filter(bidid=bidid, descript=41).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity41']
-    Bidding.objects.filter(jobid=jobid).update(quanity41=a)
-    b = Bidding.objects.filter(jobid=jobid).values_list('descript41b', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity41=a)
+    b = Bidding.objects.filter(bidid=bidid).values_list('descript41b', flat=True).first()
     c = OutsideResource.objects.filter(osrdescrip=b).values_list('osrunitprice', flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).values_list('quanity41', flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).values_list('quanity41', flat=True).first()
+    d1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+    d2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+    d3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
     e = c * d
-    f = Bidding.objects.filter(jobid=jobid).update(cost41total=e)
+    f = Bidding.objects.filter(bidid=bidid).update(cost41total=e)
     g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
     h = g + 1
-    i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=41, jobcost=e)
+    i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=41, jobcost=e)
+    ii = OSRCost.objects.create(conid=d1, custid=d2, jobid=d3, bidid=bidid, descript=41, OSRcost=e)
     context = {
         "instance": instance,
         "form": form,
         'f': f,
         'i': i,
+        'ii': ii,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def delete41(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete41(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity41=0, descript41="", descript41b="", cost41total=0)
+    Bidding.objects.filter(bidid=bidid).update(quanity41=0, descript41="", descript41b="", cost41total=0)
     TotalJobCost.objects.filter(descripid=41).delete()
+    OSRCost.objects.filter(bidid=bidid, descript=41).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -11536,10 +12504,10 @@ def delete41(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def load_descript41(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript41(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript41 = Bidding.objects.filter(jobid=jobid).values_list('descript41', flat=True)
+    descript41 = Bidding.objects.filter(bidid=bidid).values_list('descript41', flat=True)
     context = {
         "instance": instance,
         "descript41": descript41,
@@ -11548,10 +12516,10 @@ def load_descript41(request, jobid=None):
     return render(request, 'mha/descript41_1.html', context)
 
 
-def load_descript41b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript41b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript41b = Bidding.objects.values_list('descript41b', flat=True).get(jobid=jobid) or ""
+    descript41b = Bidding.objects.values_list('descript41b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript41b": descript41b,
@@ -11560,10 +12528,10 @@ def load_descript41b(request, jobid=None):
     return render(request, 'mha/descript41b_1.html', context)
 
 
-def load_quanity41(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity41(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity41 = Bidding.objects.filter(jobid=jobid).values_list('quanity41', flat=True)
+    quanity41 = Bidding.objects.filter(bidid=bidid).values_list('quanity41', flat=True)
     context = {
         "instance": instance,
         "quanity41": quanity41,
@@ -11572,12 +12540,12 @@ def load_quanity41(request, jobid=None):
     return render(request, 'mha/quan41_1.html', context)
 
 
-def descrip42(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descrip42(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript42']
     b = OutsideResource.objects.filter(id=a).values_list("osrdescrip")
-    Bidding.objects.filter(jobid=jobid).update(descript42b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript42b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -11585,12 +12553,12 @@ def descrip42(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def descrip42b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descrip42b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript42']
     #    b = OutsideResource.objects.filter(id=a).values_list("osrdescrip")
-    c = Bidding.objects.filter(jobid=jobid).update(descript42=a)
+    c = Bidding.objects.filter(bidid=bidid).update(descript42=a)
     context = {
         "instance": instance,
         "form": form,
@@ -11599,34 +12567,41 @@ def descrip42b(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def quan42(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=42).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quan42(request, bidid=None):
+    TotalJobCost.objects.filter(bidid=bidid, descripid=42).delete()
+    OSRCost.objects.filter(bidid=bidid, descript=42).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity42']
-    Bidding.objects.filter(jobid=jobid).update(quanity42=a)
-    b = Bidding.objects.filter(jobid=jobid).values_list('descript42b', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity42=a)
+    b = Bidding.objects.filter(bidid=bidid).values_list('descript42b', flat=True).first()
     c = OutsideResource.objects.filter(osrdescrip=b).values_list('osrunitprice', flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).values_list('quanity42', flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).values_list('quanity42', flat=True).first()
+    d1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+    d2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+    d3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
     e = c * d
-    f = Bidding.objects.filter(jobid=jobid).update(cost42total=e)
+    f = Bidding.objects.filter(bidid=bidid).update(cost42total=e)
     g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
     h = g + 1
-    i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=42, jobcost=e)
+    i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=42, jobcost=e)
+    ii = OSRCost.objects.create(conid=d1, custid=d2, jobid=d3, bidid=bidid, descript=42, OSRcost=e)
     context = {
         "instance": instance,
         "form": form,
         'f': f,
         'i': i,
+        'ii': ii,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def delete42(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete42(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity42=0, descript42="", descript42b="", cost42total=0)
+    Bidding.objects.filter(bidid=bidid).update(quanity42=0, descript42="", descript42b="", cost42total=0)
     TotalJobCost.objects.filter(descripid=42).delete()
+    OSRCost.objects.filter(bidid=bidid, descript=42).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -11634,10 +12609,10 @@ def delete42(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def load_descript42(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript42(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript42 = Bidding.objects.filter(jobid=jobid).values_list('descript42', flat=True)
+    descript42 = Bidding.objects.filter(bidid=bidid).values_list('descript42', flat=True)
     context = {
         "instance": instance,
         "descript42": descript42,
@@ -11646,10 +12621,10 @@ def load_descript42(request, jobid=None):
     return render(request, 'mha/descript42_1.html', context)
 
 
-def load_descript42b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript42b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript42b = Bidding.objects.values_list('descript42b', flat=True).get(jobid=jobid) or ""
+    descript42b = Bidding.objects.values_list('descript42b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript42b": descript42b,
@@ -11658,10 +12633,10 @@ def load_descript42b(request, jobid=None):
     return render(request, 'mha/descript42b_1.html', context)
 
 
-def load_quanity42(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity42(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity42 = Bidding.objects.filter(jobid=jobid).values_list('quanity42', flat=True)
+    quanity42 = Bidding.objects.filter(bidid=bidid).values_list('quanity42', flat=True)
     context = {
         "instance": instance,
         "quanity42": quanity42,
@@ -11670,12 +12645,12 @@ def load_quanity42(request, jobid=None):
     return render(request, 'mha/quan42_1.html', context)
 
 
-def descrip43(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descrip43(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript43']
     b = OutsideResource.objects.filter(id=a).values_list("osrdescrip")
-    Bidding.objects.filter(jobid=jobid).update(descript43b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript43b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -11683,12 +12658,12 @@ def descrip43(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def descrip43b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descrip43b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript43']
     #    b = OutsideResource.objects.filter(id=a).values_list("osrdescrip")
-    c = Bidding.objects.filter(jobid=jobid).update(descript43=a)
+    c = Bidding.objects.filter(bidid=bidid).update(descript43=a)
     context = {
         "instance": instance,
         "form": form,
@@ -11697,34 +12672,41 @@ def descrip43b(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def quan43(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=43).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quan43(request, bidid=None):
+    TotalJobCost.objects.filter(bidid=bidid, descripid=43).delete()
+    OSRCost.objects.filter(bidid=bidid, descript=43).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity43']
-    Bidding.objects.filter(jobid=jobid).update(quanity43=a)
-    b = Bidding.objects.filter(jobid=jobid).values_list('descript43b', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity43=a)
+    b = Bidding.objects.filter(bidid=bidid).values_list('descript43b', flat=True).first()
     c = OutsideResource.objects.filter(osrdescrip=b).values_list('osrunitprice', flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).values_list('quanity43', flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).values_list('quanity43', flat=True).first()
+    d1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+    d2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+    d3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
     e = c * d
-    f = Bidding.objects.filter(jobid=jobid).update(cost43total=e)
+    f = Bidding.objects.filter(bidid=bidid).update(cost43total=e)
     g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
     h = g + 1
-    i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=43, jobcost=e)
+    i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=43, jobcost=e)
+    ii = OSRCost.objects.create(conid=d1, custid=d2, jobid=d3, bidid=bidid, descript=43, OSRcost=e)
     context = {
         "instance": instance,
         "form": form,
         'f': f,
         'i': i,
+        'ii': ii,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def delete43(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete43(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity43=0, descript43="", descript43b="", cost43total=0)
+    Bidding.objects.filter(bidid=bidid).update(quanity43=0, descript43="", descript43b="", cost43total=0)
     TotalJobCost.objects.filter(descripid=43).delete()
+    OSRCost.objects.filter(bidid=bidid, descript=43).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -11732,10 +12714,10 @@ def delete43(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def load_descript43(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript43(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript43 = Bidding.objects.filter(jobid=jobid).values_list('descript43', flat=True)
+    descript43 = Bidding.objects.filter(bidid=bidid).values_list('descript43', flat=True)
     context = {
         "instance": instance,
         "descript43": descript43,
@@ -11744,10 +12726,10 @@ def load_descript43(request, jobid=None):
     return render(request, 'mha/descript43_1.html', context)
 
 
-def load_descript43b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript43b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript43b = Bidding.objects.values_list('descript43b', flat=True).get(jobid=jobid) or ""
+    descript43b = Bidding.objects.values_list('descript43b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript43b": descript43b,
@@ -11756,10 +12738,10 @@ def load_descript43b(request, jobid=None):
     return render(request, 'mha/descript43b_1.html', context)
 
 
-def load_quanity43(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity43(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity43 = Bidding.objects.filter(jobid=jobid).values_list('quanity43', flat=True)
+    quanity43 = Bidding.objects.filter(bidid=bidid).values_list('quanity43', flat=True)
     context = {
         "instance": instance,
         "quanity43": quanity43,
@@ -11768,12 +12750,12 @@ def load_quanity43(request, jobid=None):
     return render(request, 'mha/quan43_1.html', context)
 
 
-def descrip44(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descrip44(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript44']
     b = OutsideResource.objects.filter(id=a).values_list("osrdescrip")
-    Bidding.objects.filter(jobid=jobid).update(descript44b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript44b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -11781,12 +12763,12 @@ def descrip44(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def descrip44b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descrip44b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript44']
     #    b = OutsideResource.objects.filter(id=a).values_list("osrdescrip")
-    c = Bidding.objects.filter(jobid=jobid).update(descript44=a)
+    c = Bidding.objects.filter(bidid=bidid).update(descript44=a)
     context = {
         "instance": instance,
         "form": form,
@@ -11795,34 +12777,41 @@ def descrip44b(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def quan44(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=44).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quan44(request, bidid=None):
+    TotalJobCost.objects.filter(bidid=bidid, descripid=44).delete()
+    OSRCost.objects.filter(bidid=bidid, descript=44).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity44']
-    Bidding.objects.filter(jobid=jobid).update(quanity44=a)
-    b = Bidding.objects.filter(jobid=jobid).values_list('descript44b', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity44=a)
+    b = Bidding.objects.filter(bidid=bidid).values_list('descript44b', flat=True).first()
     c = OutsideResource.objects.filter(osrdescrip=b).values_list('osrunitprice', flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).values_list('quanity44', flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).values_list('quanity44', flat=True).first()
+    d1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+    d2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+    d3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
     e = c * d
-    f = Bidding.objects.filter(jobid=jobid).update(cost44total=e)
+    f = Bidding.objects.filter(bidid=bidid).update(cost44total=e)
     g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
     h = g + 1
-    i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=44, jobcost=e)
+    i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=44, jobcost=e)
+    ii = OSRCost.objects.create(conid=d1, custid=d2, jobid=d3, bidid=bidid, descript=44, OSRcost=e)
     context = {
         "instance": instance,
         "form": form,
         'f': f,
         'i': i,
+        'ii': ii,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def delete44(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete44(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity44=0, descript44="", descript44b="", cost44total=0)
+    Bidding.objects.filter(bidid=bidid).update(quanity44=0, descript44="", descript44b="", cost44total=0)
     TotalJobCost.objects.filter(descripid=44).delete()
+    OSRCost.objects.filter(bidid=bidid, descript=44).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -11830,10 +12819,10 @@ def delete44(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def load_descript44(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript44(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript44 = Bidding.objects.filter(jobid=jobid).values_list('descript44', flat=True)
+    descript44 = Bidding.objects.filter(bidid=bidid).values_list('descript44', flat=True)
     context = {
         "instance": instance,
         "descript44": descript44,
@@ -11842,10 +12831,10 @@ def load_descript44(request, jobid=None):
     return render(request, 'mha/descript44_1.html', context)
 
 
-def load_descript44b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript44b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript44b = Bidding.objects.values_list('descript44b', flat=True).get(jobid=jobid) or ""
+    descript44b = Bidding.objects.values_list('descript44b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript44b": descript44b,
@@ -11854,10 +12843,10 @@ def load_descript44b(request, jobid=None):
     return render(request, 'mha/descript44b_1.html', context)
 
 
-def load_quanity44(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity44(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity44 = Bidding.objects.filter(jobid=jobid).values_list('quanity44', flat=True)
+    quanity44 = Bidding.objects.filter(bidid=bidid).values_list('quanity44', flat=True)
     context = {
         "instance": instance,
         "quanity44": quanity44,
@@ -11866,12 +12855,12 @@ def load_quanity44(request, jobid=None):
     return render(request, 'mha/quan44_1.html', context)
 
 
-def descrip45(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descrip45(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript45']
     b = OutsideResource.objects.filter(id=a).values_list("osrdescrip")
-    Bidding.objects.filter(jobid=jobid).update(descript45b=b)
+    Bidding.objects.filter(bidid=bidid).update(descript45b=b)
     context = {
         "instance": instance,
         "form": form,
@@ -11879,12 +12868,12 @@ def descrip45(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def descrip45b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def descrip45b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_descript45']
     #    b = OutsideResource.objects.filter(id=a).values_list("osrdescrip")
-    c = Bidding.objects.filter(jobid=jobid).update(descript45=a)
+    c = Bidding.objects.filter(bidid=bidid).update(descript45=a)
     context = {
         "instance": instance,
         "form": form,
@@ -11893,34 +12882,41 @@ def descrip45b(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def quan45(request, jobid=None):
-    TotalJobCost.objects.filter(descripid=45).delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def quan45(request, bidid=None):
+    TotalJobCost.objects.filter(bidid=bidid, descripid=45).delete()
+    OSRCost.objects.filter(bidid=bidid, descript=45).delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity45']
-    Bidding.objects.filter(jobid=jobid).update(quanity45=a)
-    b = Bidding.objects.filter(jobid=jobid).values_list('descript45b', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity45=a)
+    b = Bidding.objects.filter(bidid=bidid).values_list('descript45b', flat=True).first()
     c = OutsideResource.objects.filter(osrdescrip=b).values_list('osrunitprice', flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).values_list('quanity45', flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).values_list('quanity45', flat=True).first()
+    d1 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).first()
+    d2 = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).first()
+    d3 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).first()
     e = c * d
-    f = Bidding.objects.filter(jobid=jobid).update(cost45total=e)
+    f = Bidding.objects.filter(bidid=bidid).update(cost45total=e)
     g = TotalJobCost.objects.values_list("id", flat=True).last() or 0
     h = g + 1
-    i = TotalJobCost.objects.create(id=h, jobid=jobid, descripid=45, jobcost=e)
+    i = TotalJobCost.objects.create(id=h, bidid=bidid, descripid=45, jobcost=e)
+    ii = OSRCost.objects.create(conid=d1, custid=d2, jobid=d3, bidid=bidid, descript=45, OSRcost=e)
     context = {
         "instance": instance,
         "form": form,
         'f': f,
         'i': i,
+        'ii': ii,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def delete45(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def delete45(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    Bidding.objects.filter(jobid=jobid).update(quanity45=0, descript45="", descript45b="", cost45total=0)
+    Bidding.objects.filter(bidid=bidid).update(quanity45=0, descript45="", descript45b="", cost45total=0)
     TotalJobCost.objects.filter(descripid=45).delete()
+    OSRCost.objects.filter(bidid=bidid, descript=45).delete()
     context = {
         "instance": instance,
         "form": form,
@@ -11928,10 +12924,10 @@ def delete45(request, jobid=None):
     return redirect(instance.get_absolute27_url(), context)
 
 
-def load_descript45(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript45(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript45 = Bidding.objects.filter(jobid=jobid).values_list('descript45', flat=True)
+    descript45 = Bidding.objects.filter(bidid=bidid).values_list('descript45', flat=True)
     context = {
         "instance": instance,
         "descript45": descript45,
@@ -11940,10 +12936,10 @@ def load_descript45(request, jobid=None):
     return render(request, 'mha/descript45_1.html', context)
 
 
-def load_descript45b(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_descript45b(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    descript45b = Bidding.objects.values_list('descript45b', flat=True).get(jobid=jobid) or ""
+    descript45b = Bidding.objects.values_list('descript45b', flat=True).get(bidid=bidid) or ""
     context = {
         "instance": instance,
         "descript45b": descript45b,
@@ -11952,10 +12948,10 @@ def load_descript45b(request, jobid=None):
     return render(request, 'mha/descript45b_1.html', context)
 
 
-def load_quanity45(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def load_quanity45(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
-    quanity45 = Bidding.objects.filter(jobid=jobid).values_list('quanity45', flat=True)
+    quanity45 = Bidding.objects.filter(bidid=bidid).values_list('quanity45', flat=True)
     context = {
         "instance": instance,
         "quanity45": quanity45,
@@ -11964,17 +12960,17 @@ def load_quanity45(request, jobid=None):
     return render(request, 'mha/quan45_1.html', context)
 
 
-def quan46(request, jobid=None):
+def quan46(request, bidid=None):
     FilterEquipType.objects.all().delete()
-    instance = Bidding.objects.get(jobid=jobid)
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_quanity46']
-    Bidding.objects.filter(jobid=jobid).update(quanity46=a)
-    b = Bidding.objects.filter(jobid=jobid).values_list('descript46', flat=True).first()
+    Bidding.objects.filter(bidid=bidid).update(quanity46=a)
+    b = Bidding.objects.filter(bidid=bidid).values_list('descript46', flat=True).first()
     c = Equipment2.objects.filter(modelnum=b).values_list('cost', flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).values_list('quanity46', flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).values_list('quanity46', flat=True).first()
     e = c * d
-    f = Bidding.objects.filter(jobid=jobid).update(cost46total=e)
+    f = Bidding.objects.filter(bidid=bidid).update(cost46total=e)
 
     context = {
         "instance": instance,
@@ -11984,12 +12980,12 @@ def quan46(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def materialtype(request, jobid=None):
+def materialtype(request, bidid=None):
     MatTypeBid.objects.all().delete()
-    instance = Bidding.objects.get(jobid=jobid)
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None)
     a = request.POST['id_mattype']
-    b = Bidding.objects.filter(jobid=jobid).update(mattype=a)
+    b = Bidding.objects.filter(bidid=bidid).update(mattype=a)
     c = MaterialType.objects.filter(id=a).values_list('type', flat=True).first()
     if c == 'Packages':
         c1 = Package.objects.annotate(packageA=F('package'))
@@ -12240,13 +13236,13 @@ def materialtype(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def techlevel(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def techlevel(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_techlevel']
-    b = Bidding.objects.filter(jobid=jobid).update(techlevel=a)
+    b = Bidding.objects.filter(bidid=bidid).update(techlevel=a)
     c = TechLevel.objects.filter(id=a).values_list("rate", flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).update(techrate=c)
+    d = Bidding.objects.filter(bidid=bidid).update(techrate=c)
 
     context = {
         "instance": instance,
@@ -12257,17 +13253,22 @@ def techlevel(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def techlevelhrs(request, jobid=None):
-    TotalJobCost.objects.filter(descripid='TechHrs1').delete()
-    instance = Bidding.objects.get(jobid=jobid)
+def techlevelhrs(request, bidid=None):
+    TotalJobCost.objects.filter(bidid=bidid, descripid='TechHrs1').delete()
+    laborCost.objects.filter(bidid=bidid, descript='TechHrs1').delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_techhrs']
     c = TechHours.objects.filter(id=a).values_list("hrstech", flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).update(techhrs=c)
-    e = Bidding.objects.filter(jobid=jobid).values_list("techrate", flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).update(techhrs=c)
+    e = Bidding.objects.filter(bidid=bidid).values_list("techrate", flat=True).first()
+    e1 = Bidding.objects.filter(bidid=bidid).values_list("conid", flat=True).first()
+    e2 = Bidding.objects.filter(bidid=bidid).values_list("custid", flat=True).first()
+    e3 = Bidding.objects.filter(bidid=bidid).values_list("jobid", flat=True).first()
     f = c * e
-    g = Bidding.objects.filter(jobid=jobid).update(directlaborcost1=f)
-    h = TotalJobCost.objects.create(jobid=jobid, descripid='TechHrs1', jobcost=f)
+    g = Bidding.objects.filter(bidid=bidid).update(directlaborcost1=f)
+    h = TotalJobCost.objects.create(bidid=bidid, descripid='TechHrs1', jobcost=f)
+    i = laborCost.objects.create(conid=e1, custid=e2, jobid=e3, bidid=bidid, descript='TechHrs1', laborcost=f)
 
     context = {
         "instance": instance,
@@ -12275,17 +13276,18 @@ def techlevelhrs(request, jobid=None):
         "d": d,
         "g": g,
         "h": h,
+        "i": i,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def techlevel2(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def techlevel2(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_techlevel2']
-    b = Bidding.objects.filter(jobid=jobid).update(techlevel2=a)
+    b = Bidding.objects.filter(bidid=bidid).update(techlevel2=a)
     c = TechLevel.objects.filter(id=a).values_list("rate", flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).update(techrate2=c)
+    d = Bidding.objects.filter(bidid=bidid).update(techrate2=c)
 
     context = {
         "instance": instance,
@@ -12296,16 +13298,22 @@ def techlevel2(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def techlevelhrs2(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def techlevelhrs2(request, bidid=None):
+    TotalJobCost.objects.filter(bidid=bidid, descripid='TechHrs2').delete()
+    laborCost.objects.filter(bidid=bidid, descript='TechHrs2').delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_techhrs2']
     c = TechHours.objects.filter(id=a).values_list("hrstech", flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).update(techhrs2=c)
-    e = Bidding.objects.filter(jobid=jobid).values_list("techrate2", flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).update(techhrs2=c)
+    e = Bidding.objects.filter(bidid=bidid).values_list("techrate2", flat=True).first()
+    e1 = Bidding.objects.filter(bidid=bidid).values_list("conid", flat=True).first()
+    e2 = Bidding.objects.filter(bidid=bidid).values_list("custid", flat=True).first()
+    e3 = Bidding.objects.filter(bidid=bidid).values_list("jobid", flat=True).first()
     f = c * e
-    g = Bidding.objects.filter(jobid=jobid).update(directlaborcost2=f)
-    h = TotalJobCost.objects.create(jobid=jobid, descripid='TechHrs2', jobcost=f)
+    g = Bidding.objects.filter(bidid=bidid).update(directlaborcost2=f)
+    h = TotalJobCost.objects.create(bidid=bidid, descripid='TechHrs2', jobcost=f)
+    i = laborCost.objects.create(conid=e1, custid=e2, jobid=e3, bidid=bidid, descript='TechHrs2', laborcost=f)
 
     context = {
         "instance": instance,
@@ -12313,17 +13321,18 @@ def techlevelhrs2(request, jobid=None):
         "d": d,
         "g": g,
         "h": h,
+        "i": i,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def techlevel3(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def techlevel3(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_techlevel3']
-    b = Bidding.objects.filter(jobid=jobid).update(techlevel3=a)
+    b = Bidding.objects.filter(bidid=bidid).update(techlevel3=a)
     c = TechLevel.objects.filter(id=a).values_list("rate", flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).update(techrate3=c)
+    d = Bidding.objects.filter(bidid=bidid).update(techrate3=c)
 
     context = {
         "instance": instance,
@@ -12334,16 +13343,22 @@ def techlevel3(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def techlevelhrs3(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def techlevelhrs3(request, bidid=None):
+    TotalJobCost.objects.filter(bidid=bidid, descripid='TechHrs3').delete()
+    laborCost.objects.filter(bidid=bidid, descript='TechHrs3').delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_techhrs3']
     c = TechHours.objects.filter(id=a).values_list("hrstech", flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).update(techhrs3=c)
-    e = Bidding.objects.filter(jobid=jobid).values_list("techrate3", flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).update(techhrs3=c)
+    e = Bidding.objects.filter(bidid=bidid).values_list("techrate3", flat=True).first()
+    e1 = Bidding.objects.filter(bidid=bidid).values_list("conid", flat=True).first()
+    e2 = Bidding.objects.filter(bidid=bidid).values_list("custid", flat=True).first()
+    e3 = Bidding.objects.filter(bidid=bidid).values_list("jobid", flat=True).first()
     f = c * e
-    g = Bidding.objects.filter(jobid=jobid).update(directlaborcost3=f)
-    h = TotalJobCost.objects.create(jobid=jobid, descripid='TechHrs3', jobcost=f)
+    g = Bidding.objects.filter(bidid=bidid).update(directlaborcost3=f)
+    h = TotalJobCost.objects.create(bidid=bidid, descripid='TechHrs3', jobcost=f)
+    i = laborCost.objects.create(conid=e1, custid=e2, jobid=e3, bidid=bidid, descript='TechHrs3', laborcost=f)
 
     context = {
         "instance": instance,
@@ -12351,17 +13366,18 @@ def techlevelhrs3(request, jobid=None):
         "d": d,
         "g": g,
         "h": h,
+        "i": i,
     }
     return render(request, 'mha/bidpage.html', context)
 
 
-def techlevel4(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def techlevel4(request, bidid=None):
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_techlevel4']
-    b = Bidding.objects.filter(jobid=jobid).update(techlevel4=a)
+    b = Bidding.objects.filter(bidid=bidid).update(techlevel4=a)
     c = TechLevel.objects.filter(id=a).values_list("rate", flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).update(techrate4=c)
+    d = Bidding.objects.filter(bidid=bidid).update(techrate4=c)
 
     context = {
         "instance": instance,
@@ -12372,16 +13388,22 @@ def techlevel4(request, jobid=None):
     return render(request, 'mha/bidpage.html', context)
 
 
-def techlevelhrs4(request, jobid=None):
-    instance = Bidding.objects.get(jobid=jobid)
+def techlevelhrs4(request, bidid=None):
+    TotalJobCost.objects.filter(bidid=bidid, descripid='TechHrs4').delete()
+    laborCost.objects.filter(bidid=bidid, descript='TechHrs4').delete()
+    instance = Bidding.objects.get(bidid=bidid)
     form = BidSelect(request.POST or None, instance=instance)
     a = request.POST['id_techhrs4']
     c = TechHours.objects.filter(id=a).values_list("hrstech", flat=True).first()
-    d = Bidding.objects.filter(jobid=jobid).update(techhrs4=c)
-    e = Bidding.objects.filter(jobid=jobid).values_list("techrate4", flat=True).first()
+    d = Bidding.objects.filter(bidid=bidid).update(techhrs4=c)
+    e = Bidding.objects.filter(bidid=bidid).values_list("techrate4", flat=True).first()
+    e1 = Bidding.objects.filter(bidid=bidid).values_list("conid", flat=True).first()
+    e2 = Bidding.objects.filter(bidid=bidid).values_list("custid", flat=True).first()
+    e3 = Bidding.objects.filter(bidid=bidid).values_list("jobid", flat=True).first()
     f = c * e
-    g = Bidding.objects.filter(jobid=jobid).update(directlaborcost4=f)
-    h = TotalJobCost.objects.create(jobid=jobid, descripid='TechHrs1', jobcost=f)
+    g = Bidding.objects.filter(bidid=bidid).update(directlaborcost4=f)
+    h = TotalJobCost.objects.create(bidid=bidid, descripid='TechHrs4', jobcost=f)
+    i = laborCost.objects.create(conid=e1, custid=e2, jobid=e3, bidid=bidid, descript='TechHrs4', laborcost=f)
 
     context = {
         "instance": instance,
@@ -12389,6 +13411,7 @@ def techlevelhrs4(request, jobid=None):
         "d": d,
         "g": g,
         "h": h,
+        "i": i,
     }
     return render(request, 'mha/bidpage.html', context)
 
@@ -15273,10 +16296,124 @@ def print(request, jobid=None):
     return render(request, 'mha/contract.html', context)
 
 
-def contract(request, jobid=None):
-    instance = get_object_or_404(Contract, jobid=jobid)
+def contract(request, bidid=None):
+    instance = get_object_or_404(Contract, bidid=bidid)
     form = ContractForm(request.POST or None, instance=instance)
-    a = Contract.objects.filter(jobid=jobid).values_list('custid', flat=True).last()
+    JobCost.objects.filter(bidid=bidid).delete()
+    a = Bidding.objects.filter(bidid=bidid).values_list('custid', flat=True).last()
+    a2 = Bidding.objects.filter(bidid=bidid).values_list('conid', flat=True).last()
+    a3 = Bidding.objects.filter(bidid=bidid).values_list('bidid', flat=True).last()
+    a4 = Bidding.objects.filter(bidid=bidid).values_list('jobid', flat=True).last()
+    a5 = JobCost.objects.create(conid=a2, custid=a, bidid=a3, jobid=a4)
+
+
+    queryset = CustomerInfo.objects.filter(id=a).all()
+    queryset1 = ContractorInfo.objects.filter(id=a4).all()
+    queryset2 = SelectedEquip.objects.filter(equipid=1, bidid=bidid).all()
+    queryset2a = Bidding.objects.filter(bidid=bidid).values_list('quanity1', flat=True)
+    queryset3 = SelectedEquip.objects.filter(equipid=2, bidid=bidid).all()
+    queryset4 = SelectedEquip.objects.filter(equipid=3, bidid=bidid).all()
+    queryset5 = SelectedEquip.objects.filter(equipid=4, bidid=bidid).all()
+    queryset6 = SelectedEquip.objects.filter(equipid=5, bidid=bidid).all()
+    queryset7 = SelectedEquip.objects.filter(equipid=6, bidid=bidid).all()
+    queryset8 = SelectedEquip.objects.filter(equipid=7, bidid=bidid).all()
+    queryset9 = EquipSelection.objects.filter(bidid=bidid).all()
+    queryset10 = Contract.objects.filter(bidid=bidid).all()
+
+    a6 = MatCost.objects.filter(bidid=bidid).aggregate(mat_cost=Sum('matcost'))
+    a7 = a6['mat_cost']
+    b6 = SelectedEquip.objects.filter(bidid=bidid).aggregate(mat_cost=Sum('cost'))
+    b7 = b6['mat_cost']
+    b8 = a7 + b7
+    a8 = Tax.objects.values_list('taxrate', flat=True).last()
+    a9 = JobCost.objects.filter(bidid=bidid).update(matcost=b8, taxrate=a8)
+    a10 = b8 * a8
+    a11 = JobCost.objects.filter(bidid=bidid).update(salestax=a10)
+    a12 = b8 + a10
+    a13 = JobCost.objects.filter(bidid=bidid).update(totalmatcost=a12)
+
+    a14 = laborCost.objects.filter(bidid=bidid).aggregate(labor_cost=Sum('laborcost'))
+    a15 = a14['labor_cost']
+    a16 = JobCost.objects.filter(bidid=bidid).update(directlaborcost=a15)
+    a17 = Calculation.objects.values_list('ohlabor', flat=True).last()
+    a18 = JobCost.objects.filter(bidid=bidid).update(ohlabor=a17)
+    a19 = a15 * a17
+    a20 = a15 + a19
+    a21 = JobCost.objects.filter(bidid=bidid).update(totallaborcost=a20)
+    a22 = a12 + a20
+    a23 = JobCost.objects.filter(bidid=bidid).update(netjobcost=a22)
+    a24 = Calculation.objects.values_list('netprofit', flat=True).last()
+    a25 = JobCost.objects.filter(bidid=bidid).update(netprofit=a24)
+    a26 = JobCost.objects.values_list('netprofit', flat=True).last()
+    a27 = a22 * a26
+    a28 = JobCost.objects.filter(bidid=bidid).update(netprofitcost=a27)
+    a29 = a22 + a27
+    a30 = JobCost.objects.filter(bidid=bidid).update(netjobcost2=a29)
+    a31 = OSRCost.objects.filter(bidid=bidid).aggregate(OSR_cost=Sum('OSRcost'))
+    a32 = a31['OSR_cost']
+    a33 = JobCost.objects.filter(bidid=bidid).update(OSRcost=a32)
+    a34 = a32 + a29
+    a35 = JobCost.objects.filter(bidid=bidid).update(netjobcost3=a34)
+    a36 = EquipSelection.objects.filter(bidid=bidid).values_list('vendor1rebate', flat=True)
+    a37 = a36.first()
+    a38 = EquipSelection.objects.filter(bidid=bidid).values_list('vendor2rebate', flat=True)
+    a39 = a38.first()
+    a40 = JobCost.objects.filter(bidid=bidid).update(instantrebate1=a37, instantrebate2=a39)
+    a41 = a37 + a39
+    a42 = JobCost.objects.filter(bidid=bidid).update(rebateamouint=a41)
+    a43 = a34 - a41
+    a44 = JobCost.objects.filter(bidid=bidid).update(finaljobcost=a43)
+
+
+
+
+
+#    b = TotalJobCost.objects.filter(bidid=bidid).aggregate(total_price=Sum('jobcost'))
+#    c = b['total_price']
+#    d = EquipSelection.objects.filter(bidid=bidid).values_list('totalrebate', flat=True)
+#    e = d.first()
+#    f = c - e
+    g = Contract.objects.filter(bidid=bidid).update(costbeforrebate=a34, totalrebate=a41, totaljobcost=a43)
+#    grandtotalcost = num2words(f, to='currency', currency='USD')
+#    h = CurrentJobInfo.objects.filter(bidid=bidid).update(locationcost=c, rebatetotal=e, loccostafterrebate=f)
+
+    bb = multiformA.objects.filter(bidid=bidid, options='Option A').values_list('cost', flat=True)
+#    cb = bb[0]
+#    queryset13 = float(cb)
+#    queryset11A = multiformA.objects.filter(bidid=bidid).all()
+    context = {
+        "instance": instance,
+        "form": form,
+        "object_list": queryset,
+        "object_list1": queryset1,
+        "object_list2": queryset2,
+        "object_list3": queryset3,
+        "object_list4": queryset4,
+        "object_list5": queryset5,
+        "object_list6": queryset6,
+        "object_list7": queryset7,
+        "object_list8": queryset8,
+        "object_list9": queryset9,
+        "object_list10": queryset10,
+#        "object_list13" : queryset13,
+#        "object_list11A": queryset11A,
+        "object_list112a": queryset2a,
+        "a5": a5,
+        "a11": a11,
+        "a13": a13,
+        "g": g,
+#        "h": h,
+        "a9": a9,
+#        "grandtotalcost": grandtotalcost,
+    }
+    return render(request, 'mha/contract.html', context)
+
+
+def contractA(request, bidid=None):
+    multiformB.objects.filter(bidid=bidid).delete()
+    instance = get_object_or_404(Contract, bidid=bidid)
+    form = ContractForm(request.POST or None, instance=instance)
+    a = Contract.objects.filter(bidid=bidid).values_list('custid', flat=True).last()
     queryset = CustomerInfo.objects.filter(id=a).all()
     queryset2 = SelectedEquip.objects.filter(id=1).all()
     queryset3 = SelectedEquip.objects.filter(id=2).all()
@@ -15285,15 +16422,109 @@ def contract(request, jobid=None):
     queryset6 = SelectedEquip.objects.filter(id=5).all()
     queryset7 = SelectedEquip.objects.filter(id=6).all()
     queryset8 = SelectedEquip.objects.filter(id=7).all()
-    queryset9 = EquipSelection.objects.filter(jobid=jobid).all()
-    queryset10 = Contract.objects.filter(jobid=jobid).all()
-    b = TotalJobCost.objects.filter(jobid=jobid).aggregate(total_price=Sum('jobcost'))
+    queryset9 = EquipSelection.objects.filter(bidid=bidid).all()
+    queryset10 = Contract.objects.filter(bidid=bidid).all()
+    b = TotalJobCost.objects.filter(bidid=bidid).aggregate(total_price=Sum('jobcost'))
     c = b['total_price']
-    d = EquipSelection.objects.filter(jobid=jobid).values_list('totalrebate', flat=True)
+    d = EquipSelection.objects.filter(bidid=bidid).values_list('totalrebate', flat=True)
     e = d.first()
     f = c - e
-    g = Contract.objects.filter(jobid=jobid).update(costbeforrebate=c, totalrebate=e, totaljobcost=f)
+    g = Contract.objects.filter(bidid=bidid).update(costbeforrebate=c, totalrebate=e, totaljobcost=f)
     grandtotalcost = num2words(f, to='currency', currency='USD')
+
+    h = CurrentJobInfo.objects.filter(bidid=bidid).update(locationcost=c, rebatetotal=e, loccostafterrebate=f)
+
+    aa = EquipSelection.objects.filter(bidid=bidid).values_list('custid', flat=True)
+    bb = EquipSelection.objects.filter(bidid=bidid).values_list('jobid', flat=True)
+    cc = EquipSelection.objects.filter(bidid=bidid).values_list('bidid', flat=True)
+    dd1 = EquipSelection.objects.filter(bidid=bidid).values_list('optionid', flat=True)
+    dd = EquipSelection.objects.filter(bidid=bidid).values_list('options', flat=True)
+
+    e1 = Bidding.objects.filter(bidid=bidid).values_list('quanity1', flat=True)
+    f1 = Bidding.objects.filter(bidid=bidid).values_list('jobtype1', flat=True)
+    g1 = Bidding.objects.filter(bidid=bidid).values_list('descript1', flat=True)
+    gg1 = g1.first()
+    i1 = Equipment2.objects.filter(modelnum=gg1).values_list('mfg', flat=True).first()
+    j1 = Equipment2.objects.filter(modelnum=gg1).values_list('mfgmodeldescrip', flat=True)
+    k1 = Equipment2.objects.filter(modelnum=gg1).values_list('eff', flat=True)
+    l1 = Equipment2.objects.filter(modelnum=gg1).values_list('btu', flat=True)
+    m1 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n1 = multiformB.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e1, type=f1, mfg=i1, modelnum=g1,
+                                  description=j1, eff=k1, btu=l1, cost=m1)
+
+    e2 = Bidding.objects.filter(bidid=bidid).values_list('quanity2', flat=True)
+    f2 = Bidding.objects.filter(bidid=bidid).values_list('jobtype2', flat=True)
+    g2 = Bidding.objects.filter(bidid=bidid).values_list('descript2', flat=True)
+    gg2 = g2.first()
+    i2 = Equipment2.objects.filter(modelnum=gg2).values_list('mfg', flat=True).first()
+    j2 = Equipment2.objects.filter(modelnum=gg2).values_list('mfgmodeldescrip', flat=True)
+    k2 = Equipment2.objects.filter(modelnum=gg2).values_list('eff', flat=True)
+    l2 = Equipment2.objects.filter(modelnum=gg2).values_list('btu', flat=True)
+    m2 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n2 = multiformB.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e2, type=f2, mfg=i2, modelnum=g2,
+                                  description=j2, eff=k2, btu=l2, cost=m2)
+
+    e3 = Bidding.objects.filter(bidid=bidid).values_list('quanity3', flat=True)
+    f3 = Bidding.objects.filter(bidid=bidid).values_list('jobtype3', flat=True)
+    g3 = Bidding.objects.filter(bidid=bidid).values_list('descript3', flat=True)
+    gg3 = g3.first()
+    i3 = Equipment2.objects.filter(modelnum=gg3).values_list('mfg', flat=True).first()
+    j3 = Equipment2.objects.filter(modelnum=gg3).values_list('mfgmodeldescrip', flat=True)
+    k3 = Equipment2.objects.filter(modelnum=gg3).values_list('eff', flat=True)
+    l3 = Equipment2.objects.filter(modelnum=gg3).values_list('btu', flat=True)
+    m3 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n3 = multiformB.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e3, type=f3, mfg=i3, modelnum=g3,
+                                  description=j3, eff=k3, btu=l3, cost=m3)
+
+    e4 = Bidding.objects.filter(bidid=bidid).values_list('quanity4', flat=True)
+    f4 = Bidding.objects.filter(bidid=bidid).values_list('jobtype4', flat=True)
+    g4 = Bidding.objects.filter(bidid=bidid).values_list('descript4', flat=True)
+    gg4 = g4.first()
+    i4 = Equipment2.objects.filter(modelnum=gg4).values_list('mfg', flat=True).first()
+    j4 = Equipment2.objects.filter(modelnum=gg4).values_list('mfgmodeldescrip', flat=True)
+    k4 = Equipment2.objects.filter(modelnum=gg4).values_list('eff', flat=True)
+    l4 = Equipment2.objects.filter(modelnum=gg4).values_list('btu', flat=True)
+    m4 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n4 = multiformB.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e4, type=f4, mfg=i4, modelnum=g4,
+                                  description=j4, eff=k4, btu=l4, cost=m4)
+
+    e5 = Bidding.objects.filter(bidid=bidid).values_list('quanity5', flat=True)
+    f5 = Bidding.objects.filter(bidid=bidid).values_list('jobtype5', flat=True)
+    g5 = Bidding.objects.filter(bidid=bidid).values_list('descript5', flat=True)
+    gg5 = g5.first()
+    i5 = Equipment2.objects.filter(modelnum=gg5).values_list('mfg', flat=True).first()
+    j5 = Equipment2.objects.filter(modelnum=gg5).values_list('mfgmodeldescrip', flat=True)
+    k5 = Equipment2.objects.filter(modelnum=gg5).values_list('eff', flat=True)
+    l5 = Equipment2.objects.filter(modelnum=gg5).values_list('btu', flat=True)
+    m5 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n5 = multiformB.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e5, type=f5, mfg=i5, modelnum=g5,
+                                  description=j5, eff=k5, btu=l5, cost=m5)
+
+    e6 = Bidding.objects.filter(bidid=bidid).values_list('quanity6', flat=True)
+    f6 = Bidding.objects.filter(bidid=bidid).values_list('jobtype6', flat=True)
+    g6 = Bidding.objects.filter(bidid=bidid).values_list('descript6', flat=True)
+    gg6 = g6.first()
+    i6 = Equipment2.objects.filter(modelnum=gg6).values_list('mfg', flat=True).first()
+    j6 = Equipment2.objects.filter(modelnum=gg6).values_list('mfgmodeldescrip', flat=True)
+    k6 = Equipment2.objects.filter(modelnum=gg6).values_list('eff', flat=True)
+    l6 = Equipment2.objects.filter(modelnum=gg6).values_list('btu', flat=True)
+    m6 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n6 = multiformB.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e6, type=f6, mfg=i6, modelnum=g6,
+                                  description=j6, eff=k6, btu=l6, cost=m6)
+
+    e7 = Bidding.objects.filter(bidid=bidid).values_list('quanity7', flat=True)
+    f7 = Bidding.objects.filter(bidid=bidid).values_list('jobtype7', flat=True)
+    g7 = Bidding.objects.filter(bidid=bidid).values_list('descript7', flat=True)
+    gg7 = g7.first()
+    i7 = Equipment2.objects.filter(modelnum=gg7).values_list('mfg', flat=True).first()
+    j7 = Equipment2.objects.filter(modelnum=gg7).values_list('mfgmodeldescrip', flat=True)
+    k7 = Equipment2.objects.filter(modelnum=gg7).values_list('eff', flat=True)
+    l7 = Equipment2.objects.filter(modelnum=gg7).values_list('btu', flat=True)
+    m7 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n7 = multiformB.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e7, type=f7, mfg=i7, modelnum=g7,
+                                  description=j7, eff=k7, btu=l7, cost=m7)
+
+
     context = {
         "instance": instance,
         "form": form,
@@ -15308,9 +16539,675 @@ def contract(request, jobid=None):
         "object_list9": queryset9,
         "object_list10": queryset10,
         "g": g,
+        "h": h,
+        "n1": n1,
+        "n2": n2,
+        "n3": n3,
+        "n4": n4,
+        "n5": n5,
+        "n6": n6,
+        "n7": n7,
         "grandtotalcost": grandtotalcost,
     }
     return render(request, 'mha/contract.html', context)
+
+
+def contractB(request, bidid=None):
+    multiformB.objects.filter(bidid=bidid).delete()
+    instance = get_object_or_404(Contract, bidid=bidid)
+    form = ContractForm(request.POST or None, instance=instance)
+    a = Contract.objects.filter(bidid=bidid).values_list('custid', flat=True).last()
+    queryset = CustomerInfo.objects.filter(id=a).all()
+    queryset2 = SelectedEquip.objects.filter(id=1).all()
+    queryset3 = SelectedEquip.objects.filter(id=2).all()
+    queryset4 = SelectedEquip.objects.filter(id=3).all()
+    queryset5 = SelectedEquip.objects.filter(id=4).all()
+    queryset6 = SelectedEquip.objects.filter(id=5).all()
+    queryset7 = SelectedEquip.objects.filter(id=6).all()
+    queryset8 = SelectedEquip.objects.filter(id=7).all()
+    queryset9 = EquipSelection.objects.filter(bidid=bidid).all()
+    queryset10 = Contract.objects.filter(bidid=bidid).all()
+    b = TotalJobCost.objects.filter(bidid=bidid).aggregate(total_price=Sum('jobcost'))
+    c = b['total_price']
+    d = EquipSelection.objects.filter(bidid=bidid).values_list('totalrebate', flat=True)
+    e = d.first()
+    f = c - e
+    g = Contract.objects.filter(bidid=bidid).update(costbeforrebate=c, totalrebate=e, totaljobcost=f)
+    grandtotalcost = num2words(f, to='currency', currency='USD')
+
+    h = CurrentJobInfo.objects.filter(bidid=bidid).update(locationcost=c, rebatetotal=e, loccostafterrebate=f)
+
+    aa = EquipSelection.objects.filter(bidid=bidid).values_list('custid', flat=True)
+    bb = EquipSelection.objects.filter(bidid=bidid).values_list('jobid', flat=True)
+    cc = EquipSelection.objects.filter(bidid=bidid).values_list('bidid', flat=True)
+    dd1 = EquipSelection.objects.filter(bidid=bidid).values_list('optionid', flat=True)
+    dd = EquipSelection.objects.filter(bidid=bidid).values_list('options', flat=True)
+
+    e1 = Bidding.objects.filter(bidid=bidid).values_list('quanity1', flat=True)
+    f1 = Bidding.objects.filter(bidid=bidid).values_list('jobtype1', flat=True)
+    g1 = Bidding.objects.filter(bidid=bidid).values_list('descript1', flat=True)
+    gg1 = g1.first()
+    i1 = Equipment2.objects.filter(modelnum=gg1).values_list('mfg', flat=True).first()
+    j1 = Equipment2.objects.filter(modelnum=gg1).values_list('mfgmodeldescrip', flat=True)
+    k1 = Equipment2.objects.filter(modelnum=gg1).values_list('eff', flat=True)
+    l1 = Equipment2.objects.filter(modelnum=gg1).values_list('btu', flat=True)
+    m1 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n1 = multiformB.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e1, type=f1, mfg=i1, modelnum=g1,
+                                  description=j1, eff=k1, btu=l1, cost=m1)
+
+    e2 = Bidding.objects.filter(bidid=bidid).values_list('quanity2', flat=True)
+    f2 = Bidding.objects.filter(bidid=bidid).values_list('jobtype2', flat=True)
+    g2 = Bidding.objects.filter(bidid=bidid).values_list('descript2', flat=True)
+    gg2 = g2.first()
+    i2 = Equipment2.objects.filter(modelnum=gg2).values_list('mfg', flat=True).first()
+    j2 = Equipment2.objects.filter(modelnum=gg2).values_list('mfgmodeldescrip', flat=True)
+    k2 = Equipment2.objects.filter(modelnum=gg2).values_list('eff', flat=True)
+    l2 = Equipment2.objects.filter(modelnum=gg2).values_list('btu', flat=True)
+    m2 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n2 = multiformB.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e2, type=f2, mfg=i2, modelnum=g2,
+                                  description=j2, eff=k2, btu=l2, cost=m2)
+
+    e3 = Bidding.objects.filter(bidid=bidid).values_list('quanity3', flat=True)
+    f3 = Bidding.objects.filter(bidid=bidid).values_list('jobtype3', flat=True)
+    g3 = Bidding.objects.filter(bidid=bidid).values_list('descript3', flat=True)
+    gg3 = g3.first()
+    i3 = Equipment2.objects.filter(modelnum=gg3).values_list('mfg', flat=True).first()
+    j3 = Equipment2.objects.filter(modelnum=gg3).values_list('mfgmodeldescrip', flat=True)
+    k3 = Equipment2.objects.filter(modelnum=gg3).values_list('eff', flat=True)
+    l3 = Equipment2.objects.filter(modelnum=gg3).values_list('btu', flat=True)
+    m3 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n3 = multiformB.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e3, type=f3, mfg=i3, modelnum=g3,
+                                  description=j3, eff=k3, btu=l3, cost=m3)
+
+    e4 = Bidding.objects.filter(bidid=bidid).values_list('quanity4', flat=True)
+    f4 = Bidding.objects.filter(bidid=bidid).values_list('jobtype4', flat=True)
+    g4 = Bidding.objects.filter(bidid=bidid).values_list('descript4', flat=True)
+    gg4 = g4.first()
+    i4 = Equipment2.objects.filter(modelnum=gg4).values_list('mfg', flat=True).first()
+    j4 = Equipment2.objects.filter(modelnum=gg4).values_list('mfgmodeldescrip', flat=True)
+    k4 = Equipment2.objects.filter(modelnum=gg4).values_list('eff', flat=True)
+    l4 = Equipment2.objects.filter(modelnum=gg4).values_list('btu', flat=True)
+    m4 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n4 = multiformB.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e4, type=f4, mfg=i4, modelnum=g4,
+                                  description=j4, eff=k4, btu=l4, cost=m4)
+
+    e5 = Bidding.objects.filter(bidid=bidid).values_list('quanity5', flat=True)
+    f5 = Bidding.objects.filter(bidid=bidid).values_list('jobtype5', flat=True)
+    g5 = Bidding.objects.filter(bidid=bidid).values_list('descript5', flat=True)
+    gg5 = g5.first()
+    i5 = Equipment2.objects.filter(modelnum=gg5).values_list('mfg', flat=True).first()
+    j5 = Equipment2.objects.filter(modelnum=gg5).values_list('mfgmodeldescrip', flat=True)
+    k5 = Equipment2.objects.filter(modelnum=gg5).values_list('eff', flat=True)
+    l5 = Equipment2.objects.filter(modelnum=gg5).values_list('btu', flat=True)
+    m5 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n5 = multiformB.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e5, type=f5, mfg=i5, modelnum=g5,
+                                  description=j5, eff=k5, btu=l5, cost=m5)
+
+    e6 = Bidding.objects.filter(bidid=bidid).values_list('quanity6', flat=True)
+    f6 = Bidding.objects.filter(bidid=bidid).values_list('jobtype6', flat=True)
+    g6 = Bidding.objects.filter(bidid=bidid).values_list('descript6', flat=True)
+    gg6 = g6.first()
+    i6 = Equipment2.objects.filter(modelnum=gg6).values_list('mfg', flat=True).first()
+    j6 = Equipment2.objects.filter(modelnum=gg6).values_list('mfgmodeldescrip', flat=True)
+    k6 = Equipment2.objects.filter(modelnum=gg6).values_list('eff', flat=True)
+    l6 = Equipment2.objects.filter(modelnum=gg6).values_list('btu', flat=True)
+    m6 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n6 = multiformB.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e6, type=f6, mfg=i6, modelnum=g6,
+                                  description=j6, eff=k6, btu=l6, cost=m6)
+
+    e7 = Bidding.objects.filter(bidid=bidid).values_list('quanity7', flat=True)
+    f7 = Bidding.objects.filter(bidid=bidid).values_list('jobtype7', flat=True)
+    g7 = Bidding.objects.filter(bidid=bidid).values_list('descript7', flat=True)
+    gg7 = g7.first()
+    i7 = Equipment2.objects.filter(modelnum=gg7).values_list('mfg', flat=True).first()
+    j7 = Equipment2.objects.filter(modelnum=gg7).values_list('mfgmodeldescrip', flat=True)
+    k7 = Equipment2.objects.filter(modelnum=gg7).values_list('eff', flat=True)
+    l7 = Equipment2.objects.filter(modelnum=gg7).values_list('btu', flat=True)
+    m7 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n7 = multiformB.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e7, type=f7, mfg=i7, modelnum=g7,
+                                  description=j7, eff=k7, btu=l7, cost=m7)
+
+
+    context = {
+        "instance": instance,
+        "form": form,
+        "object_list": queryset,
+        "object_list2": queryset2,
+        "object_list3": queryset3,
+        "object_list4": queryset4,
+        "object_list5": queryset5,
+        "object_list6": queryset6,
+        "object_list7": queryset7,
+        "object_list8": queryset8,
+        "object_list9": queryset9,
+        "object_list10": queryset10,
+        "g": g,
+        "h": h,
+        "n1": n1,
+        "n2": n2,
+        "n3": n3,
+        "n4": n4,
+        "n5": n5,
+        "n6": n6,
+        "n7": n7,
+        "grandtotalcost": grandtotalcost,
+    }
+    return render(request, 'mha/contractmulti.html', context)
+
+
+def contractC(request, bidid=None):
+    multiformC.objects.filter(bidid=bidid).delete()
+    instance = get_object_or_404(Contract, bidid=bidid)
+    form = ContractForm(request.POST or None, instance=instance)
+    a = Contract.objects.filter(bidid=bidid).values_list('custid', flat=True).last()
+    queryset = CustomerInfo.objects.filter(id=a).all()
+    queryset2 = SelectedEquip.objects.filter(id=1).all()
+    queryset3 = SelectedEquip.objects.filter(id=2).all()
+    queryset4 = SelectedEquip.objects.filter(id=3).all()
+    queryset5 = SelectedEquip.objects.filter(id=4).all()
+    queryset6 = SelectedEquip.objects.filter(id=5).all()
+    queryset7 = SelectedEquip.objects.filter(id=6).all()
+    queryset8 = SelectedEquip.objects.filter(id=7).all()
+    queryset9 = EquipSelection.objects.filter(bidid=bidid).all()
+    queryset10 = Contract.objects.filter(bidid=bidid).all()
+    b = TotalJobCost.objects.filter(bidid=bidid).aggregate(total_price=Sum('jobcost'))
+    c = b['total_price']
+    d = EquipSelection.objects.filter(bidid=bidid).values_list('totalrebate', flat=True)
+    e = d.first()
+    f = c - e
+    g = Contract.objects.filter(bidid=bidid).update(costbeforrebate=c, totalrebate=e, totaljobcost=f)
+    grandtotalcost = num2words(f, to='currency', currency='USD')
+
+    h = CurrentJobInfo.objects.filter(bidid=bidid).update(locationcost=c, rebatetotal=e, loccostafterrebate=f)
+
+    aa = EquipSelection.objects.filter(bidid=bidid).values_list('custid', flat=True)
+    bb = EquipSelection.objects.filter(bidid=bidid).values_list('jobid', flat=True)
+    cc = EquipSelection.objects.filter(bidid=bidid).values_list('bidid', flat=True)
+    dd1 = EquipSelection.objects.filter(bidid=bidid).values_list('optionid', flat=True)
+    dd = EquipSelection.objects.filter(bidid=bidid).values_list('options', flat=True)
+
+    e1 = Bidding.objects.filter(bidid=bidid).values_list('quanity1', flat=True)
+    f1 = Bidding.objects.filter(bidid=bidid).values_list('jobtype1', flat=True)
+    g1 = Bidding.objects.filter(bidid=bidid).values_list('descript1', flat=True)
+    gg1 = g1.first()
+    i1 = Equipment2.objects.filter(modelnum=gg1).values_list('mfg', flat=True).first()
+    j1 = Equipment2.objects.filter(modelnum=gg1).values_list('mfgmodeldescrip', flat=True)
+    k1 = Equipment2.objects.filter(modelnum=gg1).values_list('eff', flat=True)
+    l1 = Equipment2.objects.filter(modelnum=gg1).values_list('btu', flat=True)
+    m1 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n1 = multiformC.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e1, type=f1, mfg=i1, modelnum=g1,
+                                  description=j1, eff=k1, btu=l1, cost=m1)
+
+    e2 = Bidding.objects.filter(bidid=bidid).values_list('quanity2', flat=True)
+    f2 = Bidding.objects.filter(bidid=bidid).values_list('jobtype2', flat=True)
+    g2 = Bidding.objects.filter(bidid=bidid).values_list('descript2', flat=True)
+    gg2 = g2.first()
+    i2 = Equipment2.objects.filter(modelnum=gg2).values_list('mfg', flat=True).first()
+    j2 = Equipment2.objects.filter(modelnum=gg2).values_list('mfgmodeldescrip', flat=True)
+    k2 = Equipment2.objects.filter(modelnum=gg2).values_list('eff', flat=True)
+    l2 = Equipment2.objects.filter(modelnum=gg2).values_list('btu', flat=True)
+    m2 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n2 = multiformC.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e2, type=f2, mfg=i2, modelnum=g2,
+                                  description=j2, eff=k2, btu=l2, cost=m2)
+
+    e3 = Bidding.objects.filter(bidid=bidid).values_list('quanity3', flat=True)
+    f3 = Bidding.objects.filter(bidid=bidid).values_list('jobtype3', flat=True)
+    g3 = Bidding.objects.filter(bidid=bidid).values_list('descript3', flat=True)
+    gg3 = g3.first()
+    i3 = Equipment2.objects.filter(modelnum=gg3).values_list('mfg', flat=True).first()
+    j3 = Equipment2.objects.filter(modelnum=gg3).values_list('mfgmodeldescrip', flat=True)
+    k3 = Equipment2.objects.filter(modelnum=gg3).values_list('eff', flat=True)
+    l3 = Equipment2.objects.filter(modelnum=gg3).values_list('btu', flat=True)
+    m3 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n3 = multiformC.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e3, type=f3, mfg=i3, modelnum=g3,
+                                  description=j3, eff=k3, btu=l3, cost=m3)
+
+    e4 = Bidding.objects.filter(bidid=bidid).values_list('quanity4', flat=True)
+    f4 = Bidding.objects.filter(bidid=bidid).values_list('jobtype4', flat=True)
+    g4 = Bidding.objects.filter(bidid=bidid).values_list('descript4', flat=True)
+    gg4 = g4.first()
+    i4 = Equipment2.objects.filter(modelnum=gg4).values_list('mfg', flat=True).first()
+    j4 = Equipment2.objects.filter(modelnum=gg4).values_list('mfgmodeldescrip', flat=True)
+    k4 = Equipment2.objects.filter(modelnum=gg4).values_list('eff', flat=True)
+    l4 = Equipment2.objects.filter(modelnum=gg4).values_list('btu', flat=True)
+    m4 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n4 = multiformC.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e4, type=f4, mfg=i4, modelnum=g4,
+                                  description=j4, eff=k4, btu=l4, cost=m4)
+
+    e5 = Bidding.objects.filter(bidid=bidid).values_list('quanity5', flat=True)
+    f5 = Bidding.objects.filter(bidid=bidid).values_list('jobtype5', flat=True)
+    g5 = Bidding.objects.filter(bidid=bidid).values_list('descript5', flat=True)
+    gg5 = g5.first()
+    i5 = Equipment2.objects.filter(modelnum=gg5).values_list('mfg', flat=True).first()
+    j5 = Equipment2.objects.filter(modelnum=gg5).values_list('mfgmodeldescrip', flat=True)
+    k5 = Equipment2.objects.filter(modelnum=gg5).values_list('eff', flat=True)
+    l5 = Equipment2.objects.filter(modelnum=gg5).values_list('btu', flat=True)
+    m5 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n5 = multiformC.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e5, type=f5, mfg=i5, modelnum=g5,
+                                  description=j5, eff=k5, btu=l5, cost=m5)
+
+    e6 = Bidding.objects.filter(bidid=bidid).values_list('quanity6', flat=True)
+    f6 = Bidding.objects.filter(bidid=bidid).values_list('jobtype6', flat=True)
+    g6 = Bidding.objects.filter(bidid=bidid).values_list('descript6', flat=True)
+    gg6 = g6.first()
+    i6 = Equipment2.objects.filter(modelnum=gg6).values_list('mfg', flat=True).first()
+    j6 = Equipment2.objects.filter(modelnum=gg6).values_list('mfgmodeldescrip', flat=True)
+    k6 = Equipment2.objects.filter(modelnum=gg6).values_list('eff', flat=True)
+    l6 = Equipment2.objects.filter(modelnum=gg6).values_list('btu', flat=True)
+    m6 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n6 = multiformC.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e6, type=f6, mfg=i6, modelnum=g6,
+                                  description=j6, eff=k6, btu=l6, cost=m6)
+
+    e7 = Bidding.objects.filter(bidid=bidid).values_list('quanity7', flat=True)
+    f7 = Bidding.objects.filter(bidid=bidid).values_list('jobtype7', flat=True)
+    g7 = Bidding.objects.filter(bidid=bidid).values_list('descript7', flat=True)
+    gg7 = g7.first()
+    i7 = Equipment2.objects.filter(modelnum=gg7).values_list('mfg', flat=True).first()
+    j7 = Equipment2.objects.filter(modelnum=gg7).values_list('mfgmodeldescrip', flat=True)
+    k7 = Equipment2.objects.filter(modelnum=gg7).values_list('eff', flat=True)
+    l7 = Equipment2.objects.filter(modelnum=gg7).values_list('btu', flat=True)
+    m7 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n7 = multiformC.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e7, type=f7, mfg=i7, modelnum=g7,
+                                  description=j7, eff=k7, btu=l7, cost=m7)
+
+
+    context = {
+        "instance": instance,
+        "form": form,
+        "object_list": queryset,
+        "object_list2": queryset2,
+        "object_list3": queryset3,
+        "object_list4": queryset4,
+        "object_list5": queryset5,
+        "object_list6": queryset6,
+        "object_list7": queryset7,
+        "object_list8": queryset8,
+        "object_list9": queryset9,
+        "object_list10": queryset10,
+        "g": g,
+        "h": h,
+        "n1": n1,
+        "n2": n2,
+        "n3": n3,
+        "n4": n4,
+        "n5": n5,
+        "n6": n6,
+        "n7": n7,
+        "grandtotalcost": grandtotalcost,
+    }
+    return render(request, 'mha/contractmulti.html', context)
+
+
+def contractD(request, bidid=None):
+    multiformC.objects.filter(bidid=bidid).delete()
+    instance = get_object_or_404(Contract, bidid=bidid)
+    form = ContractForm(request.POST or None, instance=instance)
+    a = Contract.objects.filter(bidid=bidid).values_list('custid', flat=True).last()
+    queryset = CustomerInfo.objects.filter(id=a).all()
+    queryset2 = SelectedEquip.objects.filter(id=1).all()
+    queryset3 = SelectedEquip.objects.filter(id=2).all()
+    queryset4 = SelectedEquip.objects.filter(id=3).all()
+    queryset5 = SelectedEquip.objects.filter(id=4).all()
+    queryset6 = SelectedEquip.objects.filter(id=5).all()
+    queryset7 = SelectedEquip.objects.filter(id=6).all()
+    queryset8 = SelectedEquip.objects.filter(id=7).all()
+    queryset9 = EquipSelection.objects.filter(bidid=bidid).all()
+    queryset10 = Contract.objects.filter(bidid=bidid).all()
+    b = TotalJobCost.objects.filter(bidid=bidid).aggregate(total_price=Sum('jobcost'))
+    c = b['total_price']
+    d = EquipSelection.objects.filter(bidid=bidid).values_list('totalrebate', flat=True)
+    e = d.first()
+    f = c - e
+    g = Contract.objects.filter(bidid=bidid).update(costbeforrebate=c, totalrebate=e, totaljobcost=f)
+    grandtotalcost = num2words(f, to='currency', currency='USD')
+
+    h = CurrentJobInfo.objects.filter(bidid=bidid).update(locationcost=c, rebatetotal=e, loccostafterrebate=f)
+
+    aa = EquipSelection.objects.filter(bidid=bidid).values_list('custid', flat=True)
+    bb = EquipSelection.objects.filter(bidid=bidid).values_list('jobid', flat=True)
+    cc = EquipSelection.objects.filter(bidid=bidid).values_list('bidid', flat=True)
+    dd1 = EquipSelection.objects.filter(bidid=bidid).values_list('optionid', flat=True)
+    dd = EquipSelection.objects.filter(bidid=bidid).values_list('options', flat=True)
+
+    e1 = Bidding.objects.filter(bidid=bidid).values_list('quanity1', flat=True)
+    f1 = Bidding.objects.filter(bidid=bidid).values_list('jobtype1', flat=True)
+    g1 = Bidding.objects.filter(bidid=bidid).values_list('descript1', flat=True)
+    gg1 = g1.first()
+    i1 = Equipment2.objects.filter(modelnum=gg1).values_list('mfg', flat=True).first()
+    j1 = Equipment2.objects.filter(modelnum=gg1).values_list('mfgmodeldescrip', flat=True)
+    k1 = Equipment2.objects.filter(modelnum=gg1).values_list('eff', flat=True)
+    l1 = Equipment2.objects.filter(modelnum=gg1).values_list('btu', flat=True)
+    m1 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n1 = multiformD.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e1, type=f1, mfg=i1, modelnum=g1,
+                                  description=j1, eff=k1, btu=l1, cost=m1)
+
+    e2 = Bidding.objects.filter(bidid=bidid).values_list('quanity2', flat=True)
+    f2 = Bidding.objects.filter(bidid=bidid).values_list('jobtype2', flat=True)
+    g2 = Bidding.objects.filter(bidid=bidid).values_list('descript2', flat=True)
+    gg2 = g2.first()
+    i2 = Equipment2.objects.filter(modelnum=gg2).values_list('mfg', flat=True).first()
+    j2 = Equipment2.objects.filter(modelnum=gg2).values_list('mfgmodeldescrip', flat=True)
+    k2 = Equipment2.objects.filter(modelnum=gg2).values_list('eff', flat=True)
+    l2 = Equipment2.objects.filter(modelnum=gg2).values_list('btu', flat=True)
+    m2 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n2 = multiformD.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e2, type=f2, mfg=i2, modelnum=g2,
+                                  description=j2, eff=k2, btu=l2, cost=m2)
+
+    e3 = Bidding.objects.filter(bidid=bidid).values_list('quanity3', flat=True)
+    f3 = Bidding.objects.filter(bidid=bidid).values_list('jobtype3', flat=True)
+    g3 = Bidding.objects.filter(bidid=bidid).values_list('descript3', flat=True)
+    gg3 = g3.first()
+    i3 = Equipment2.objects.filter(modelnum=gg3).values_list('mfg', flat=True).first()
+    j3 = Equipment2.objects.filter(modelnum=gg3).values_list('mfgmodeldescrip', flat=True)
+    k3 = Equipment2.objects.filter(modelnum=gg3).values_list('eff', flat=True)
+    l3 = Equipment2.objects.filter(modelnum=gg3).values_list('btu', flat=True)
+    m3 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n3 = multiformD.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e3, type=f3, mfg=i3, modelnum=g3,
+                                  description=j3, eff=k3, btu=l3, cost=m3)
+
+    e4 = Bidding.objects.filter(bidid=bidid).values_list('quanity4', flat=True)
+    f4 = Bidding.objects.filter(bidid=bidid).values_list('jobtype4', flat=True)
+    g4 = Bidding.objects.filter(bidid=bidid).values_list('descript4', flat=True)
+    gg4 = g4.first()
+    i4 = Equipment2.objects.filter(modelnum=gg4).values_list('mfg', flat=True).first()
+    j4 = Equipment2.objects.filter(modelnum=gg4).values_list('mfgmodeldescrip', flat=True)
+    k4 = Equipment2.objects.filter(modelnum=gg4).values_list('eff', flat=True)
+    l4 = Equipment2.objects.filter(modelnum=gg4).values_list('btu', flat=True)
+    m4 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n4 = multiformD.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e4, type=f4, mfg=i4, modelnum=g4,
+                                  description=j4, eff=k4, btu=l4, cost=m4)
+
+    e5 = Bidding.objects.filter(bidid=bidid).values_list('quanity5', flat=True)
+    f5 = Bidding.objects.filter(bidid=bidid).values_list('jobtype5', flat=True)
+    g5 = Bidding.objects.filter(bidid=bidid).values_list('descript5', flat=True)
+    gg5 = g5.first()
+    i5 = Equipment2.objects.filter(modelnum=gg5).values_list('mfg', flat=True).first()
+    j5 = Equipment2.objects.filter(modelnum=gg5).values_list('mfgmodeldescrip', flat=True)
+    k5 = Equipment2.objects.filter(modelnum=gg5).values_list('eff', flat=True)
+    l5 = Equipment2.objects.filter(modelnum=gg5).values_list('btu', flat=True)
+    m5 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n5 = multiformD.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e5, type=f5, mfg=i5, modelnum=g5,
+                                  description=j5, eff=k5, btu=l5, cost=m5)
+
+    e6 = Bidding.objects.filter(bidid=bidid).values_list('quanity6', flat=True)
+    f6 = Bidding.objects.filter(bidid=bidid).values_list('jobtype6', flat=True)
+    g6 = Bidding.objects.filter(bidid=bidid).values_list('descript6', flat=True)
+    gg6 = g6.first()
+    i6 = Equipment2.objects.filter(modelnum=gg6).values_list('mfg', flat=True).first()
+    j6 = Equipment2.objects.filter(modelnum=gg6).values_list('mfgmodeldescrip', flat=True)
+    k6 = Equipment2.objects.filter(modelnum=gg6).values_list('eff', flat=True)
+    l6 = Equipment2.objects.filter(modelnum=gg6).values_list('btu', flat=True)
+    m6 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n6 = multiformD.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e6, type=f6, mfg=i6, modelnum=g6,
+                                  description=j6, eff=k6, btu=l6, cost=m6)
+
+    e7 = Bidding.objects.filter(bidid=bidid).values_list('quanity7', flat=True)
+    f7 = Bidding.objects.filter(bidid=bidid).values_list('jobtype7', flat=True)
+    g7 = Bidding.objects.filter(bidid=bidid).values_list('descript7', flat=True)
+    gg7 = g7.first()
+    i7 = Equipment2.objects.filter(modelnum=gg7).values_list('mfg', flat=True).first()
+    j7 = Equipment2.objects.filter(modelnum=gg7).values_list('mfgmodeldescrip', flat=True)
+    k7 = Equipment2.objects.filter(modelnum=gg7).values_list('eff', flat=True)
+    l7 = Equipment2.objects.filter(modelnum=gg7).values_list('btu', flat=True)
+    m7 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n7 = multiformD.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e7, type=f7, mfg=i7, modelnum=g7,
+                                  description=j7, eff=k7, btu=l7, cost=m7)
+
+
+    context = {
+        "instance": instance,
+        "form": form,
+        "object_list": queryset,
+        "object_list2": queryset2,
+        "object_list3": queryset3,
+        "object_list4": queryset4,
+        "object_list5": queryset5,
+        "object_list6": queryset6,
+        "object_list7": queryset7,
+        "object_list8": queryset8,
+        "object_list9": queryset9,
+        "object_list10": queryset10,
+        "g": g,
+        "h": h,
+        "n1": n1,
+        "n2": n2,
+        "n3": n3,
+        "n4": n4,
+        "n5": n5,
+        "n6": n6,
+        "n7": n7,
+        "grandtotalcost": grandtotalcost,
+    }
+    return render(request, 'mha/contractmulti.html', context)
+
+
+def contractE(request, bidid=None):
+    multiformC.objects.filter(bidid=bidid).delete()
+    instance = get_object_or_404(Contract, bidid=bidid)
+    form = ContractForm(request.POST or None, instance=instance)
+    a = Contract.objects.filter(bidid=bidid).values_list('custid', flat=True).last()
+    queryset = CustomerInfo.objects.filter(id=a).all()
+    queryset2 = SelectedEquip.objects.filter(id=1).all()
+    queryset3 = SelectedEquip.objects.filter(id=2).all()
+    queryset4 = SelectedEquip.objects.filter(id=3).all()
+    queryset5 = SelectedEquip.objects.filter(id=4).all()
+    queryset6 = SelectedEquip.objects.filter(id=5).all()
+    queryset7 = SelectedEquip.objects.filter(id=6).all()
+    queryset8 = SelectedEquip.objects.filter(id=7).all()
+    queryset9 = EquipSelection.objects.filter(bidid=bidid).all()
+    queryset10 = Contract.objects.filter(bidid=bidid).all()
+    b = TotalJobCost.objects.filter(bidid=bidid).aggregate(total_price=Sum('jobcost'))
+    c = b['total_price']
+    d = EquipSelection.objects.filter(bidid=bidid).values_list('totalrebate', flat=True)
+    e = d.first()
+    f = c - e
+    g = Contract.objects.filter(bidid=bidid).update(costbeforrebate=c, totalrebate=e, totaljobcost=f)
+    grandtotalcost = num2words(f, to='currency', currency='USD')
+
+    h = CurrentJobInfo.objects.filter(bidid=bidid).update(locationcost=c, rebatetotal=e, loccostafterrebate=f)
+
+    aa = EquipSelection.objects.filter(bidid=bidid).values_list('custid', flat=True)
+    bb = EquipSelection.objects.filter(bidid=bidid).values_list('jobid', flat=True)
+    cc = EquipSelection.objects.filter(bidid=bidid).values_list('bidid', flat=True)
+    dd1 = EquipSelection.objects.filter(bidid=bidid).values_list('optionid', flat=True)
+    dd = EquipSelection.objects.filter(bidid=bidid).values_list('options', flat=True)
+
+    e1 = Bidding.objects.filter(bidid=bidid).values_list('quanity1', flat=True)
+    f1 = Bidding.objects.filter(bidid=bidid).values_list('jobtype1', flat=True)
+    g1 = Bidding.objects.filter(bidid=bidid).values_list('descript1', flat=True)
+    gg1 = g1.first()
+    i1 = Equipment2.objects.filter(modelnum=gg1).values_list('mfg', flat=True).first()
+    j1 = Equipment2.objects.filter(modelnum=gg1).values_list('mfgmodeldescrip', flat=True)
+    k1 = Equipment2.objects.filter(modelnum=gg1).values_list('eff', flat=True)
+    l1 = Equipment2.objects.filter(modelnum=gg1).values_list('btu', flat=True)
+    m1 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n1 = multiformE.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e1, type=f1, mfg=i1, modelnum=g1,
+                                  description=j1, eff=k1, btu=l1, cost=m1)
+
+    e2 = Bidding.objects.filter(bidid=bidid).values_list('quanity2', flat=True)
+    f2 = Bidding.objects.filter(bidid=bidid).values_list('jobtype2', flat=True)
+    g2 = Bidding.objects.filter(bidid=bidid).values_list('descript2', flat=True)
+    gg2 = g2.first()
+    i2 = Equipment2.objects.filter(modelnum=gg2).values_list('mfg', flat=True).first()
+    j2 = Equipment2.objects.filter(modelnum=gg2).values_list('mfgmodeldescrip', flat=True)
+    k2 = Equipment2.objects.filter(modelnum=gg2).values_list('eff', flat=True)
+    l2 = Equipment2.objects.filter(modelnum=gg2).values_list('btu', flat=True)
+    m2 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n2 = multiformE.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e2, type=f2, mfg=i2, modelnum=g2,
+                                  description=j2, eff=k2, btu=l2, cost=m2)
+
+    e3 = Bidding.objects.filter(bidid=bidid).values_list('quanity3', flat=True)
+    f3 = Bidding.objects.filter(bidid=bidid).values_list('jobtype3', flat=True)
+    g3 = Bidding.objects.filter(bidid=bidid).values_list('descript3', flat=True)
+    gg3 = g3.first()
+    i3 = Equipment2.objects.filter(modelnum=gg3).values_list('mfg', flat=True).first()
+    j3 = Equipment2.objects.filter(modelnum=gg3).values_list('mfgmodeldescrip', flat=True)
+    k3 = Equipment2.objects.filter(modelnum=gg3).values_list('eff', flat=True)
+    l3 = Equipment2.objects.filter(modelnum=gg3).values_list('btu', flat=True)
+    m3 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n3 = multiformE.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e3, type=f3, mfg=i3, modelnum=g3,
+                                  description=j3, eff=k3, btu=l3, cost=m3)
+
+    e4 = Bidding.objects.filter(bidid=bidid).values_list('quanity4', flat=True)
+    f4 = Bidding.objects.filter(bidid=bidid).values_list('jobtype4', flat=True)
+    g4 = Bidding.objects.filter(bidid=bidid).values_list('descript4', flat=True)
+    gg4 = g4.first()
+    i4 = Equipment2.objects.filter(modelnum=gg4).values_list('mfg', flat=True).first()
+    j4 = Equipment2.objects.filter(modelnum=gg4).values_list('mfgmodeldescrip', flat=True)
+    k4 = Equipment2.objects.filter(modelnum=gg4).values_list('eff', flat=True)
+    l4 = Equipment2.objects.filter(modelnum=gg4).values_list('btu', flat=True)
+    m4 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n4 = multiformE.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e4, type=f4, mfg=i4, modelnum=g4,
+                                  description=j4, eff=k4, btu=l4, cost=m4)
+
+    e5 = Bidding.objects.filter(bidid=bidid).values_list('quanity5', flat=True)
+    f5 = Bidding.objects.filter(bidid=bidid).values_list('jobtype5', flat=True)
+    g5 = Bidding.objects.filter(bidid=bidid).values_list('descript5', flat=True)
+    gg5 = g5.first()
+    i5 = Equipment2.objects.filter(modelnum=gg5).values_list('mfg', flat=True).first()
+    j5 = Equipment2.objects.filter(modelnum=gg5).values_list('mfgmodeldescrip', flat=True)
+    k5 = Equipment2.objects.filter(modelnum=gg5).values_list('eff', flat=True)
+    l5 = Equipment2.objects.filter(modelnum=gg5).values_list('btu', flat=True)
+    m5 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n5 = multiformE.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e5, type=f5, mfg=i5, modelnum=g5,
+                                  description=j5, eff=k5, btu=l5, cost=m5)
+
+    e6 = Bidding.objects.filter(bidid=bidid).values_list('quanity6', flat=True)
+    f6 = Bidding.objects.filter(bidid=bidid).values_list('jobtype6', flat=True)
+    g6 = Bidding.objects.filter(bidid=bidid).values_list('descript6', flat=True)
+    gg6 = g6.first()
+    i6 = Equipment2.objects.filter(modelnum=gg6).values_list('mfg', flat=True).first()
+    j6 = Equipment2.objects.filter(modelnum=gg6).values_list('mfgmodeldescrip', flat=True)
+    k6 = Equipment2.objects.filter(modelnum=gg6).values_list('eff', flat=True)
+    l6 = Equipment2.objects.filter(modelnum=gg6).values_list('btu', flat=True)
+    m6 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n6 = multiformE.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e6, type=f6, mfg=i6, modelnum=g6,
+                                  description=j6, eff=k6, btu=l6, cost=m6)
+
+    e7 = Bidding.objects.filter(bidid=bidid).values_list('quanity7', flat=True)
+    f7 = Bidding.objects.filter(bidid=bidid).values_list('jobtype7', flat=True)
+    g7 = Bidding.objects.filter(bidid=bidid).values_list('descript7', flat=True)
+    gg7 = g7.first()
+    i7 = Equipment2.objects.filter(modelnum=gg7).values_list('mfg', flat=True).first()
+    j7 = Equipment2.objects.filter(modelnum=gg7).values_list('mfgmodeldescrip', flat=True)
+    k7 = Equipment2.objects.filter(modelnum=gg7).values_list('eff', flat=True)
+    l7 = Equipment2.objects.filter(modelnum=gg7).values_list('btu', flat=True)
+    m7 = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n7 = multiformE.objects.create(custid=aa, jobid=bb, bidid=cc, optionid=dd1, options=dd, quanity=e7, type=f7, mfg=i7, modelnum=g7,
+                                  description=j7, eff=k7, btu=l7, cost=m7)
+
+
+    context = {
+        "instance": instance,
+        "form": form,
+        "object_list": queryset,
+        "object_list2": queryset2,
+        "object_list3": queryset3,
+        "object_list4": queryset4,
+        "object_list5": queryset5,
+        "object_list6": queryset6,
+        "object_list7": queryset7,
+        "object_list8": queryset8,
+        "object_list9": queryset9,
+        "object_list10": queryset10,
+        "g": g,
+        "h": h,
+        "n1": n1,
+        "n2": n2,
+        "n3": n3,
+        "n4": n4,
+        "n5": n5,
+        "n6": n6,
+        "n7": n7,
+        "grandtotalcost": grandtotalcost,
+    }
+    return render(request, 'mha/contractmulti.html', context)
+
+
+def contractmulti(request, jobid=None):
+    instance = Contract.objects.filter(jobid=jobid).first()
+    form = ContractForm(request.POST or None, instance=instance)
+    a = Contract.objects.filter(jobid=jobid).values_list('custid', flat=True).last()
+    aa = CustomerInfo.objects.filter(custid=a).values_list('conid', flat=True).last()
+    aaa = Contract.objects.filter(jobid=jobid).values_list('bidid', flat=True).last()
+    queryset = CustomerInfo.objects.filter(id=a).all()
+    queryset2 = SelectedEquip.objects.filter(equipid=1, bidid=aaa).all()
+    queryset3 = SelectedEquip.objects.filter(equipid=2, bidid=aaa).all()
+    queryset4 = SelectedEquip.objects.filter(equipid=3, bidid=aaa).all()
+    queryset5 = SelectedEquip.objects.filter(equipid=4, bidid=aaa).all()
+    queryset6 = SelectedEquip.objects.filter(equipid=5, bidid=aaa).all()
+    queryset7 = SelectedEquip.objects.filter(equipid=6, bidid=aaa).all()
+    queryset8 = SelectedEquip.objects.filter(equipid=7, bidid=aaa).all()
+    queryset9 = EquipSelection.objects.filter(jobid=jobid).all()
+    queryset10 = Contract.objects.filter(jobid=jobid).all()
+ #   queryset11A = multiformA.objects.filter(jobid=jobid).all()
+    queryset11 = multiformB.objects.filter(jobid=jobid).all()
+    queryset11C = multiformC.objects.filter(jobid=jobid).all()
+    queryset11D = multiformD.objects.filter(jobid=jobid).all()
+    queryset11E = multiformD.objects.filter(jobid=jobid).all()
+
+    ba = CurrentJobInfo.objects.filter(jobid=jobid, options='Option A').values_list('loccostafterrebate', flat=True)
+    ca = ba[0]
+    queryset12 = float(ca)
+
+
+    bb = multiformB.objects.filter(jobid=jobid, options='Option B').values_list('cost', flat=True)
+    cb = bb[0]
+    queryset13 = float(cb)
+
+    bc = multiformC.objects.filter(jobid=jobid, options='Option C').values_list('cost', flat=True)
+    cc = bc[0]
+    queryset14 = float(cc)
+
+    bd = multiformD.objects.filter(jobid=jobid, options='Option D').values_list('cost', flat=True)
+    cd = bd[0]
+    queryset15 = float(cd)
+
+    be = multiformE.objects.filter(jobid=jobid, options='Option E').values_list('cost', flat=True)
+    ce = be[0]
+    queryset16 = float(ce)
+
+
+
+    #b = TotalJobCost.objects.filter(jobid=jobid).aggregate(total_price=Sum('jobcost'))
+    #c = b['total_price']
+    #d = EquipSelection.objects.filter(jobid=jobid).values_list('totalrebate', flat=True)
+    #e = d.first()
+    #f = c - e
+    #g = Contract.objects.filter(jobid=jobid).update(costbeforrebate=c, totalrebate=e, totaljobcost=f)
+    #grandtotalcost = num2words(f, to='currency', currency='USD')
+    #
+    #h = CurrentJobInfo.objects.filter(jobid=jobid).update(locationcost=c, rebatetotal=e, loccostafterrebate=f)
+
+
+
+    context = {
+        "instance": instance,
+        "form": form,
+        "object_list": queryset,
+        "object_list2": queryset2,
+        "object_list3": queryset3,
+        "object_list4": queryset4,
+        "object_list5": queryset5,
+        "object_list6": queryset6,
+        "object_list7": queryset7,
+        "object_list8": queryset8,
+        "object_list9": queryset9,
+        "object_list10": queryset10,
+#        "queryset11A": queryset11A,
+        "object_list11": queryset11,
+        "object_list11C": queryset11C,
+        "object_list11D": queryset11D,
+        "object_list11E": queryset11E,
+        "object_list12": queryset12,
+        "object_list13": queryset13,
+        "object_list14": queryset14,
+        "object_list15": queryset15,
+        "object_list16": queryset16,
+    #    "grandtotalcost": grandtotalcost,
+    }
+    return render(request, 'mha/contractmulti.html', context)
+
 
 
 def memo31(request, jobid=None):
@@ -15558,3 +17455,170 @@ def memo18(request, jobid=None):
 
     }
     return render(request, 'mha/contract.html', context)
+
+
+def custpageloc(request):
+    a = EquipSelection.objects.values_list('jobid', flat=True).last()
+    form = EquipmentSelect1(request.POST or None)
+    b = EquipSelection.objects.filter(jobid=a).values_list('custid', flat=True)
+    c = EquipSelection.objects.filter(jobid=a).values_list('joblocation', flat=True)
+    d = EquipSelection.objects.filter(jobid=a).values_list('created_at', flat=True)
+    e = Custpagelocation.objects.create(jobid=a, custid=b, joblocation=c, created_at=d)
+    context = {
+        "form": form,
+        "e": e,
+    }
+    return render(request, 'mha/equipselection1.html', context)
+
+def multiformb(request, bidid=None):
+    multiformB.objects.filter(bidid=bidid).delete()
+    a = EquipSelection.objects.filter(bidid=bidid).values_list('custid', flat=True)
+    b = EquipSelection.objects.filter(bidid=bidid).values_list('jobid', flat=True)
+    c = EquipSelection.objects.filter(bidid=bidid).values_list('bidid', flat=True)
+    d = EquipSelection.objects.filter(bidid=bidid).values_list('options', flat=True)
+    e = Bidding.objects.filter(bidid=bidid).values_list('quanity1', flat=True)
+    f = Bidding.objects.filter(bidid=bidid).values_list('jobtype1', flat=True)
+    g = Bidding.objects.filter(bidid=bidid).values_list('descript1', flat=True)
+    i = Equipment2.objects.filter(modelnum=g).values_list('mfg', flat=True)
+    j = Equipment2.objects.filter(modelnum=g).values_list('mfgmodeldescrip', flat=True)
+    k = Equipment2.objects.filter(modelnum=g).values_list('eff', flat=True)
+    l = Equipment2.objects.filter(modelnum=g).values_list('btu', flat=True)
+    m = Contract.objects.filter(bidid=bidid).values_list('totaljobcost', flat=True)
+    n = multiformB.objects.create(custid=a, jobid=b, bidid=c, options=d, quanity=e, type=f, mfg=i, modelnum=g,
+                                  description=j, eff=k, btu=l, cost=m)
+    context = {
+
+        'n': n,
+
+    }
+    return render(request, 'mha/contractmulti.html', context)
+
+
+def jobcost(request, bidid=None):
+    instance = JobCost.objects.get(bidid=bidid)
+    form = Costjob(request.POST or None, instance=instance)
+    a = JobCost.objects.filter(bidid=bidid).values_list('conid', flat=True).last()
+    b = JobCost.objects.filter(bidid=bidid).values_list('custid', flat=True).last()
+    queryset = ContractorInfo.objects.filter(conid=a).all()
+    queryset2 = CustomerInfo.objects.filter(custid=b).all()
+    queryset3 = Bidding.objects.filter(bidid=bidid).all()
+    queryset4 = JobCost.objects.filter(bidid=bidid).all()
+
+    context = {
+        "instance": instance,
+        "form": form,
+        "a":a,
+        "b": b,
+        "object_list": queryset,
+        "object_list2": queryset2,
+        "object_list3": queryset3,
+        "object_list4": queryset4,
+
+
+    }
+    return render(request, 'mha/jobcost.html', context)
+
+
+def targetnetprofit(request, bidid=None):
+    instance = JobCost.objects.get(bidid=bidid)
+    form = Costjob(request.POST or None, instance=instance)
+    d = request.POST['id_netprofit']
+    a = JobCost.objects.filter(bidid=bidid).update(netprofit=d)
+    a1 = JobCost.objects.values_list('netprofit', flat=True).last()
+    a2 = decimal.Decimal('0.01')
+    a3 = a1 * a2
+    b = JobCost.objects.values_list('netjobcost', flat=True).last()
+    c = b * a3
+    d = JobCost.objects.filter(bidid=bidid).update(netprofitcost=c)
+    e = JobCost.objects.values_list('netprofitcost', flat=True).last()
+    f = b + e
+    g = JobCost.objects.filter(bidid=bidid).update(netjobcost2=f)
+    h = JobCost.objects.values_list('netjobcost2', flat=True).last()
+    i = JobCost.objects.values_list('OSRcost', flat=True).last()
+    j = h + i
+    k = JobCost.objects.filter(bidid=bidid).update(netjobcost3=j)
+    l = JobCost.objects.values_list('netjobcost3', flat=True).last()
+    m = JobCost.objects.values_list('rebateamouint', flat=True).last()
+    n = l - m
+    o = JobCost.objects.filter(bidid=bidid).update(finaljobcost=n)
+
+    context = {
+        "instance": instance,
+        "form": form,
+        "a": a,
+        "d": d,
+        "g": g,
+        "k": k,
+        "o": o,
+
+    }
+    return render(request, 'mha/jobcost.html', context)
+
+
+def netprofit(request, bidid=None):
+    instance = JobCost.objects.get(bidid=bidid)
+    form = Costjob(request.POST or None, instance=instance)
+    a = JobCost.objects.values_list('netprofit', flat=True).last()
+    b = JobCost.objects.values_list('netjobcost', flat=True).last()
+    c = b * a
+    d = JobCost.objects.filter(bidid=bidid).update(netprofitcost=c)
+    context = {
+        "instance": instance,
+        "form": form,
+        "a": a,
+
+    }
+    return render(request, 'mha/jobcost.html', context)
+
+
+def load_netprofit(request, bidid=None):
+    instance = JobCost.objects.get(bidid=bidid)
+    form = Costjob(request.POST or None, instance=instance)
+    netprofitcost = JobCost.objects.values('netprofitcost').get(bidid=bidid)
+    context = {
+        "instance": instance,
+        "form": form,
+        "netprofitcost": netprofitcost,
+
+    }
+    return render(request, 'mha/netprofitcost_1.html', context)
+
+def load_costplusprofit(request, bidid=None):
+    instance = JobCost.objects.get(bidid=bidid)
+    form = Costjob(request.POST or None, instance=instance)
+    netjobcost2 = JobCost.objects.values('netjobcost2').get(bidid=bidid)
+    context = {
+        "instance": instance,
+        "form": form,
+        "netjobcost2": netjobcost2,
+
+    }
+    return render(request, 'mha/costplusprofit_1.html', context)
+
+
+def load_totalsubcost(request, bidid=None):
+    instance = JobCost.objects.get(bidid=bidid)
+    form = Costjob(request.POST or None, instance=instance)
+    netjobcost3 = JobCost.objects.values('netjobcost3').get(bidid=bidid)
+    context = {
+        "instance": instance,
+        "form": form,
+        "netjobcost3": netjobcost3,
+
+    }
+    return render(request, 'mha/totalsubcost_1.html', context)
+
+
+def load_finaljobcost(request, bidid=None):
+    instance = JobCost.objects.get(bidid=bidid)
+    form = Costjob(request.POST or None, instance=instance)
+    finaljobcost = JobCost.objects.values('finaljobcost').get(bidid=bidid)
+    context = {
+        "instance": instance,
+        "form": form,
+        "finaljobcost": finaljobcost,
+
+    }
+    return render(request, 'mha/finaljobcost_1.html', context)
+
+

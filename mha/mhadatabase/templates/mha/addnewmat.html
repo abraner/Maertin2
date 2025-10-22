@@ -390,6 +390,27 @@ $(function(){
     });
 });
 
+
+////////////////// Vendor Number //////////////////////////////////////
+
+function vendorNum() {
+var userInput = document.getElementById("id_vendornum").value;
+                    console.log(userInput);
+                    var url = $(".form2").attr("vendornum-url");
+                     $.ajax({
+                        type:'POST',
+                       url: url,
+                       data:{
+                            id_vendornum: $("#id_vendornum").val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                         },
+                    });
+}
+
+
+
+
+
 ////////////////// Material Type //////////////////////////////////////
 
 $(function(){

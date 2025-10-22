@@ -127,89 +127,75 @@
             </div>
             <div class="section4">
                 <div id="header4">Equipment Specifications A</div>
-                <div id="equipheader">
+                 <div class="equipheader">
                     <div class="quant">Quant.</div>
                     <div class="type">Equip. Type</div>
-                    <div class="man">Man. Type</div>
+                    <div class="man">Manufacturer</div>
                     <div class="partnum">Part #</div>
                     <div class="descrip">Description</div>
                     <div class="seer">Seer</div>
                     <div class="btu">BTU's</div>
                 </div>
+                {% for obj in object_list2 %}
                 <div class="equiprow1">
-                    {% for obj in object_list2 %}
-                    <div class="quant1">{{ obj.quanity|default_if_none:"" }}</div>
                     <div class="type1">{{ obj.type|default_if_none:"" }}</div>
                     <div class="man1">{{ obj.mfg|default_if_none:"" }}</div>
                     <div class="partnum1">{{ obj.modelnum|default_if_none:"" }}</div>
                     <div class="descrip1">{{ obj.mfgmodeldescrip|default_if_none:"" }}</div>
-                    <div class="seer1">{{ obj.eff|default_if_none:"" }}</div>
                     <div class="btu1">{{ obj.btu|default_if_none:"" }}</div>
                 </div>
                 {% endfor %}
                 {% for obj in object_list3 %}
                 <div class="equiprow1">
-                    <div class="quant1">{{ obj.quanity|default_if_none:"" }}</div>
                     <div class="type1">{{ obj.type|default_if_none:"" }}</div>
                     <div class="man1">{{ obj.mfg|default_if_none:"" }}</div>
                     <div class="partnum1">{{ obj.modelnum|default_if_none:"" }}</div>
                     <div class="descrip1">{{ obj.mfgmodeldescrip|default_if_none:"" }}</div>
-                    <div class="seer1">{{ obj.eff|default_if_none:"" }}</div>
                     <div class="btu1">{{ obj.btu|default_if_none:"" }}</div>
                 </div>
                 {% endfor %}
                  {% for obj in object_list4 %}
                 <div class="equiprow1">
-                    <div class="quant1">{{ obj.quanity|default_if_none:"" }}</div>
                     <div class="type1">{{ obj.type|default_if_none:"" }}</div>
                     <div class="man1">{{ obj.mfg|default_if_none:"" }}</div>
                     <div class="partnum1">{{ obj.modelnum|default_if_none:"" }}</div>
                     <div class="descrip1">{{ obj.mfgmodeldescrip|default_if_none:"" }}</div>
-                    <div class="seer1">{{ obj.eff|default_if_none:"" }}</div>
                     <div class="btu1">{{ obj.btu|default_if_none:"" }}</div>
                 </div>
                 {% endfor %}
                  {% for obj in object_list5 %}
                 <div class="equiprow1">
-                    <div class="quant1">{{ obj.quanity|default_if_none:"" }}</div>
                     <div class="type1">{{ obj.type|default_if_none:"" }}</div>
                     <div class="man1">{{ obj.mfg|default_if_none:"" }}</div>
                     <div class="partnum1">{{ obj.modelnum|default_if_none:"" }}</div>
                     <div class="descrip1">{{ obj.mfgmodeldescrip|default_if_none:"" }}</div>
-                    <div class="seer1">{{ obj.eff|default_if_none:"" }}</div>
                     <div class="btu1">{{ obj.btu|default_if_none:"" }}</div>
                 </div>
                 {% endfor %}
                  {% for obj in object_list6 %}
                 <div class="equiprow1">
-                    <div class="quant1">{{ obj.quanity|default_if_none:"" }}</div>
                     <div class="type1">{{ obj.type|default_if_none:"" }}</div>
                     <div class="man1">{{ obj.mfg|default_if_none:"" }}</div>
                     <div class="partnum1">{{ obj.modelnum|default_if_none:"" }}</div>
                     <div class="descrip1">{{ obj.mfgmodeldescrip|default_if_none:"" }}</div>
-                    <div class="seer1">{{ obj.eff|default_if_none:"" }}</div>
                     <div class="btu1">{{ obj.btu|default_if_none:"" }}</div>
                 </div>
                 {% endfor %}
                  {% for obj in object_list7 %}
                 <div class="equiprow1">
-                    <div class="quant1">{{ obj.quanity|default_if_none:"" }}</div>
                     <div class="type1">{{ obj.type|default_if_none:"" }}</div>
                     <div class="man1">{{ obj.mfg|default_if_none:"" }}</div>
                     <div class="partnum1">{{ obj.modelnum|default_if_none:"" }}</div>
                     <div class="descrip1">{{ obj.mfgmodeldescrip|default_if_none:"" }}</div>
-                    <div class="seer1">{{ obj.eff|default_if_none:"" }}</div>
                     <div class="btu1">{{ obj.btu|default_if_none:"" }}</div>
                 </div>
                 {% endfor %}
                  {% for obj in object_list8 %}
                 <div class="equiprow1">
-                    <div class="quant1">{{ obj.quanity|default_if_none:"" }}</div>
                     <div class="type1">{{ obj.type|default_if_none:"" }}</div>
                     <div class="man1">{{ obj.mfg|default_if_none:"" }}</div>
                     <div class="partnum1">{{ obj.modelnum|default_if_none:"" }}</div>
                     <div class="descrip1">{{ obj.mfgmodeldescrip|default_if_none:"" }}</div>
-                    <div class="seer1">{{ obj.eff|default_if_none:"" }}</div>
                     <div class="btu1">{{ obj.btu|default_if_none:"" }}</div>
                 </div>
                 {% endfor %}
@@ -298,7 +284,7 @@
             </div>
             <br>
             <div class="section6">
-                <div class="header6">Equipment Warranty</div>
+                <div class="header4">Equipment Warranty</div>
                 <div class="equipheader">
                     <div class="type2">Equip. Type</div>
                     <div class="partnum2">Part #</div>
@@ -355,7 +341,7 @@
                 {% endfor %}
             </div>
             <div class="section7">
-                <div class="header6">Instance Rebate</div>
+                <div class="header4">Instance Rebate</div>
                 {% for obj in object_list9 %}
                 <div class="rebaterow1">
                     <div id="commed">

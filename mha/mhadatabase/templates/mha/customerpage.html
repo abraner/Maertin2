@@ -122,14 +122,16 @@
                 <form class="form3" method="post">
                     {% csrf_token %}
                     {{ form.name_of_field }}
-                    <div class="rowcust">
-                        {% for obj in object_list2 %}
-                        <a id="custid"  href="{{ obj.get_absolute18_url }}">{{ obj.jobid }}</a>
-                        <div id="custfirstname">{{ obj.joblocation|default_if_none:""  }}</div>
+                    <div class="table">
+                        <div class="rowcust">
+                            {% for obj in object_list2 %}
+                            <div id="custid"  href="{{ obj.get_absolute18_url }}">{{ obj.jobid }}</div><!--
+                            --><a id="custfirstname"  href="{{ obj.get_absolute21_url }}">{{ obj.joblocation|default_if_none:""  }}</a><!--
 
-                        <div id="custlastname">{{ obj.datetime|default_if_none:""  }}</div>
-                       {% endfor %}
-                    </div>
+                            --><div id="custlastname">{{ obj.created_at|date:"D d M y" }}</div>
+                           {% endfor %}
+                        </div>
+                    </div>    
                 </form>
 
             </div>

@@ -1,30 +1,147 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="9a6b4041-3f65-4ce0-851c-2fc67d7b60b6" name="Changes" comment="" />
+    <list default="true" id="9a6b4041-3f65-4ce0-851c-2fc67d7b60b6" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/fields.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/static/login/custinfo.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/static/login/jobcost.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/static/login/jobselection2.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/contractbackup.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/contractmulti.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/costplusprofit_1.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/customerinfo.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/finaljobcost_1.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/jobcost.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/jobselection2.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/jobselection3.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/jobselection4.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/jobselection5.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/netprofitcost_1.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/totalsubcost_1.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/templatetags/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mha/mhadatabase/templatetags/my_filters.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Maertin2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Maertin2.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.venv/Scripts/_testclinic.pyd" beforeDir="false" afterPath="$PROJECT_DIR$/.venv/Scripts/_testclinic.pyd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mha/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mha/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/static/login/bidpage.css" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/static/login/bidpage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/static/login/con_existing.css" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/static/login/con_existing.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/static/login/contract.css" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/static/login/contract.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/static/login/contractorpage.css" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/static/login/contractorpage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/static/login/customerpage.css" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/static/login/customerpage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/static/login/equipselection1.css" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/static/login/equipselection1.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/static/login/jobselection.css" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/static/login/jobselection.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/static/login/newcon.css" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/static/login/newcon.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/static/login/print.css" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/static/login/print.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/addnewmat.html" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/addnewmat.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/bidpage.html" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/bidpage.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/con_info_existing.html" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/con_info_existing.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/contract.html" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/contract.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/contractorpage.html" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/contractorpage.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/cust_info_existing.html" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/cust_info_existing.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/customer.html" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/customer.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/customerpage.html" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/customerpage.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/descrip1_1.html" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/descrip1_1.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/descrip2_1.html" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/descrip2_1.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/descrip3_1.html" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/descrip3_1.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/descrip4_1.html" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/descrip4_1.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/equipselection1.html" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/equipselection1.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/mainsettingpage.html" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/mainsettingpage.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/newcust.html" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/templates/mha/newcust.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mha/mhadatabase/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/mha/mhadatabase/views.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 1
-}]]></component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;abraner&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:abraner/Maertin2.git&quot;,
+    &quot;accountId&quot;: &quot;13c0415d-df44-4644-8890-e75a3c0a97ff&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
   <component name="ProjectId" id="2zbp6CAHizjSm6p92SW2mgoGtIX" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.views.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master"
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/Users/Alan Braner/PycharmProjects/Maertin2/mha/mhadatabase/templates/mha",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Alan Braner\PycharmProjects\Maertin2\mha\mhadatabase\templates\mha" />
+      <recent name="C:\Users\Alan Braner\PycharmProjects\Maertin2\mha\mhadatabase\static\login" />
+      <recent name="C:\Users\Alan Braner\PycharmProjects\Maertin2\mha\mhadatabase" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="views" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Maertin2" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/mha/mhadatabase" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mha/mhadatabase/views.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.views" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>

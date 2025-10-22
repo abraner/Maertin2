@@ -30,7 +30,17 @@ div.container3{
     margin-top: 15px;
 }
 
+#gencon{
 
+}
+
+.button2{
+    border: 2px solid black;
+    padding: 3px;
+    color: black;
+    text-decoration: none;
+    background: #e9e9ed;
+}
 
 .section1{
     border: black 4px solid;
@@ -91,6 +101,14 @@ div.container3{
 }
 
 .section9{
+    border-bottom: black 4px solid;
+    border-left: black 4px solid;
+    border-right: black 4px solid;
+    display: flex;
+    flex-direction: column;
+}
+
+.section10{
     border-bottom: black 4px solid;
     border-left: black 4px solid;
     border-right: black 4px solid;
@@ -276,10 +294,13 @@ img.img{
     margin-bottom: 5px;
 }
 
-
 #memo31{
      text-align: center;
      margin-bottom: 10px;
+}
+
+#id_memo31{
+    height: 180px;
 }
 
 #equipheader{
@@ -287,60 +308,116 @@ img.img{
 
 }
 
-.type{
-    width: 112px;
+.headerB{
+    display: flex;
+}
+
+.quant{
+    width: 50px;
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
     text-align: center;
     font-weight:bold;
-    margin-left: 25px;
+}
+
+.type{
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
+    width: 133px;
+    text-align: center;
+    font-weight:bold;
 }
 
 .man{
-    width: 124px;
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
+    width: 113px;
     text-align: center;
     font-weight:bold;
 }
 
 .partnum{
-    width: 250px;
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
+    width: 164px;
     text-align: center;
     font-weight:bold;
 }
 
 .descrip{
-    width: 124px;
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
+    width: 139px;
     text-align: center;
     font-weight:bold;
 }
 
 .btu{
-    width: 124px;
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
+    width: 100px;
     text-align: center;
     font-weight:bold;
 }
 
-.type1{
-    width: 112px;
+.seer{
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
+    width: 77px;
     text-align: center;
-    margin-left: 25px;
+    font-weight:bold;
+}
+
+.cost{
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
+    width: 52px;
+    text-align: center;
+    font-weight:bold;
+    margin-left: 100px;
+    margin-top: 0px;
+}
+
+.cost1{
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
+    width: 52px;
+    text-align: center;
+    font-weight:bold;
+    margin-left: 0px;
+    margin-top: 0px;
+}
+
+.quant1{
+    width: 48px;
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
+    text-align: center;
+}
+
+.type1{
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
+    width: 133px;
+    text-align: center;
 }
 
 .man1{
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
     width: 124px;
     text-align: center;
 }
 
 .partnum1{
-    width: 250px;
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
+    width: 170px;
     text-align: center;
 }
 
 .descrip1{
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
     width: 124px;
     text-align: center;
 }
 
+.seer1{
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
+    width: 67px;
+    text-align: center;
+}
+
 .btu1{
-    width: 124px;
+    font-size: calc(0.4vw + 0.75vh + .25vmin);
+    width: 116px;
     text-align: center;
 }
 
@@ -376,12 +453,23 @@ img.img{
 }
 
 .header4{
-    width: 100%;
+    font-size: calc(0.5vw + 0.75vh + .25vmin);
     text-align: center;
     font-weight:bold;
     text-decoration: underline;
-    margin-top: 4px;
+    margin-top: 0px;
     margin-bottom: 1px;
+    margin-left: 240px;
+}
+
+.header6{
+    font-size: calc(0.5vw + 0.75vh + .25vmin);
+    text-align: center;
+    font-weight:bold;
+    text-decoration: underline;
+    margin-top: 0px;
+    margin-bottom: 1px;
+
 }
 
 .equiprow1top{
@@ -395,8 +483,7 @@ img.img{
 
 .equiprow1{
     display: flex;
-    margin-bottom: 5px;
-    height: 25px;
+    height: 22px;
     border-bottom: black 1px solid;
 }
 
@@ -414,10 +501,7 @@ img.img{
 
 }
 
-.man{
-    width: 120px;
-    text-align: left;
-}
+
 
 .partnum2{
     width: 180px;
@@ -425,15 +509,6 @@ img.img{
     font-weight:bold;
 }
 
-.descrip{
-    width: 170px;
-    text-align: left;
-}
-
-.btu{
-    width: 100px;
-    text-align: left;
-}
 
 .section5a{
     width: 394px;
@@ -698,7 +773,7 @@ div.final7b{
 }
 
 .sig1{
-    margin-top: 70px;
+    margin-top: 38px;
     text-align: center;
 }
 

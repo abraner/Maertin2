@@ -14,8 +14,7 @@ img.img{
 
 div.container{
     width:100%;
-    height: 600px;
-    margin-top:0px;
+    margin-top:30px;
     margin-left:auto;
     margin-right:auto;
     display: flex;
@@ -51,67 +50,202 @@ div.container1{
 }
 
 .column1{
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+    width: 200px;
+    margin-top: 28px;
 }
 .column2{
-    height: 91px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+    width: 300px;
 }
 
-.column2a{
-    margin-top: 0px;
-    margin-left: 10px;
-    width: 95px;
-}
-.butrow{
-    margin-top: 23px;
-    display: flex;
-    flex-direction: column;
-    margin-left: 5px;
-}
 
-#id_options{
-    width: 75px;
+.header1{
     text-align: center;
-    background: #a3c1da;
+    font-weight: bold;
 }
 
 
-
-.bidnote, .closeform,.cancelbid{
-    margin-bottom: 10px;
-    margin-top: 10px;
-    width: 94px;
+.form-rowfirst{
+    width: 244px;
+    font-size: calc(.5vw + .65vh + .25vmin);
+    margin-top: 5px;
+    margin-left: 30px;
+    padding-right: 5px;
+    text-align: center;
+    background: #a3c0d9;
 }
-.addoption{
-    margin-bottom: 0px;
-    margin-top: 10px;
-    width: 94px;
-}
-
-.addoptionC, .addoptionD, .addoptionE{
-    width: 94px;
-    margin-top: -22px;
-}
-
-.button-stack button {
-    display: block; /* Makes each button occupy its own line */
-    width: 100%; /* Optional: Makes buttons take full width of container */
+.form-rowaddress{
+    width: 244px;
+    font-size: calc(.5vw + .65vh + .25vmin);
+    margin-top: 5px;
+    margin-left: 30px;
+    padding-right: 5px;
+    text-align: center;
+    background: #a3c0d9;
 }
 
-a#C{
-    margin-top: 10px;
+.form-rowtown{
+    width: 244px;
+    font-size: calc(.5vw + .65vh + .25vmin);
+    margin-top: 5px;
+    margin-left: 30px;
+    padding-right: 5px;
+    text-align: center;
+    background: #a3c0d9;
+    display: flex;
 }
+
+.form-rowcity{
+    width: 137px;
+    font-size: calc(.5vw + .65vh + .25vmin);
+    margin-left: 0px;
+    padding-right: 5px;
+    text-align: right;
+    background: #a3c0d9;
+}
+
+.form-rowst{
+    width: 30px;
+    font-size: calc(.5vw + .65vh + .25vmin);
+    margin-left: 0px;
+    padding-right: 5px;
+    text-align: center;
+    background: #a3c0d9;
+}
+
+
+.form-rowzipcode{
+    width: 60px;
+    font-size: calc(.5vw + .65vh + .25vmin);
+    margin-left: 0px;
+    padding-right: 5px;
+    text-align: center;
+    background: #a3c0d9;
+}
+
 
 .column3{
-    width: 194px;
-    margin-left: 23px;
+    width: 300px;
+}
+
+.column4{
+    width: 400px;
+}
+
+.form-rowoption{
+    font-size: calc(1vw + .65vh + .25vmin);
+    text-align: center;
+    font-weight: bold;
+    width: 100%;
+}
+
+.header2{
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 15px;
+    margin-top: 15px;
+    text-decoration: underline;
+}
+
+
+.colunm1{
+    width: 510px;
+}
+
+.form-rowsource{
     display: flex;
-    flex-direction: column;
+
+}
+
+.form-rowsource1{
+    display: flex;
+    margin-top:60px;
+
+}
+
+.label{
+    width: 200px;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.labelT{
+    width: 135px;
+    text-align: center;
+    padding-right: 10px;
+}
+
+.label2{
+    width: 256px;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.label3{
+    width: 293px;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.matcost{
+    width: 122px;
+    text-align: right;
+    padding-right: 10px;
+    background: #a3c0d9;
+    margin-bottom: 10px;
+}
+
+#netprofitcost_id{
+    width: 119px;
+    font-size: calc(.75vw + .65vh + .25vmin);
+    text-align: right;
+    padding-right: 10px;
+    background: #a3c0d9;
+    margin-bottom: 10px;
+    border: none;
+}
+
+#netjobcost2_id, .netjobcost3_id, .finaljobcost_id{
+    width: 119px;
+    font-size: calc(.75vw + .65vh + .25vmin);
+    text-align: right;
+    padding-right: 10px;
+    background: #a3c0d9;
+    margin-bottom: 10px;
+    border: none;
+}
+
+
+#id_netprofit{
+    width: 131px;
+    font-size: calc(.75vw + .65vh + .25vmin);
+    text-align: center;
+    padding-right: 10px;
+    margin-bottom: 10px;
+    border: none;
+}
+
+.taxrate{
+    width: 75px;
+    text-align: center;
+    padding-right: 10px;
+    background: #a3c0d9;
+     margin-bottom: 10px;
+     margin-left:24px;
+}
+.totalmatcost{
+    width: 123px;
+    text-align: right;
+    padding-right: 10px;
+    background: #a3c0d9;
+     margin-bottom: 10px;
+}
+
+.colunm2{
+    width: 440px;
+}
+
+.colunm3{
+    width: 432px;
 }
 
 .row21{
@@ -283,9 +417,7 @@ div.container2{
     background:#4682B4;
     position: relative;
     border: 2px solid black;
-    flex-direction: row;
-    display: flex;
-    height: fit-content;
+
 }
 
 
@@ -480,14 +612,6 @@ div.container3{
     margin-right: auto;
 }
 
-.form-rowoption{
-    font-size: calc(.5vw + .65vh + .25vmin);
-    text-align: center;
-
-
-    margin-left: auto;
-    margin-right: auto;
-}
 
 input#id_custid, #id_jobid, #id_bidid{
     width: 4.5vw;
@@ -497,6 +621,8 @@ input#id_custid, #id_jobid, #id_bidid{
     padding: 0px;
     text-align:center;
     -moz-appearance: textfield;
+    background: #a3c0d9;
+    border: none;
 }
 
 #id_count{
@@ -511,25 +637,9 @@ input#id_custid, #id_jobid, #id_bidid{
     border: none;
 }
 
-.form-rowfirst{
-    width: 68px;
-    height: 29px;
-    font-size: calc(.5vw + .65vh + .25vmin);
-    margin-top: 5px;
-    margin-left: 30px;
-    padding-right: 5px;
-    text-align: right;
-    background: #a3c0d9;
-}
 
-.form-rowlast{
-    width: 70px;
-    height: 29px;
-    font-size: calc(.5vw + .65vh + .25vmin);
-    margin-top: 5px;
-    text-align: left;
-    background: #a3c0d9;
-}
+
+
 
 .form-rowequiptype{
     height: 30px;
@@ -927,12 +1037,7 @@ a#back:hover{
 
 
 
-.header1{
-    background: #009ed1;
-    align-items: center;
-    display: flex;
-     border-radius: 25px;
-}
+
 .headername{
 
 }

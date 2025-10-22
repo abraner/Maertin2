@@ -13,7 +13,7 @@ FilterFurnEff, FilterFurnDescrip, FilterFurnModelnum, FilterCoilbtu, FilterCoilC
 MatTypeBid, FilterTypeDescrip, MaterialType, TechLevel, TechHours, InstallPackage1, InstallPackage2, InstallPackage3, \
 InstallPackage4, InstallPackage5, InstallPackage6, InstallPackage7, InstallPackage8, InstallPackage9, InstallPackage10, \
 InstallPackage11, InstallPackage12, InstallPackage13, InstallPackage14, InstallPackage15, InstallPackage16, PackageInfo, \
-Contract, DetailTable, Terms
+Contract, DetailTable, Terms, CurrentJobInfo, JobCost, Profit
 from django.forms import modelformset_factory
 
 
@@ -444,6 +444,14 @@ class UpdateEquipInfo(forms.ModelForm):
 
 
 
+class JobInfoCurrent(forms.ModelForm):
+
+    class Meta:
+        model = CurrentJobInfo
+        fields = '__all__'
+
+
+
 
 
 
@@ -592,9 +600,10 @@ class EquipmentSelect1(forms.ModelForm):
                   'furnunitrebateamount',
                   'commedfurnthermbonus',
                   'commedbonus',
+                  'optionid',
+                  'options',
 
-
-                  ]
+        ]
 
 
 
@@ -900,6 +909,7 @@ class BidSelect(forms.ModelForm):
             'osrdescripb',
             'osrunitpriceb',
             'osrvendorb',
+            'count',
 
         ]
 
@@ -1312,3 +1322,41 @@ class ContractForm(forms.ModelForm):
             'memo31': forms.Textarea(attrs={'cols': 80, 'rows': 5}),
 
         }
+
+
+
+
+
+
+
+
+
+class Costjob(forms.ModelForm):
+    netprofit = forms.ModelChoiceField(queryset=Profit.objects.all().order_by('netprofit'), empty_label="0")
+
+    class Meta:
+        model = JobCost
+        fields = [
+            'conid',
+            'custid',
+            'jobid',
+            'bidid',
+            'matcost',
+            'taxrate',
+            'salestax',
+            'totalmatcost',
+            'directlaborcost',
+            'ohlabor',
+            'totallaborcost',
+            'netjobcost',
+            'netprofit',
+            'subtotal',
+            'percenatage',
+            'costplusprofit',
+            'subcontractors',
+            'instantrebate1',
+            'instantrebate2',
+            'jobcostprice',
+            'rebateamouint',
+            'finaljobcost',
+            ]

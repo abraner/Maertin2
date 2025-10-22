@@ -64,10 +64,14 @@ div.form-rowcustinfo{
     flex-direction: row;
 }
 .column3{
-    flex: 1;
+    flex: 0;
     display: flex;
     flex-direction: row;
 }
+.column3a{
+
+}
+
 .column4{
     flex: 1;
 
@@ -129,12 +133,11 @@ input#id_custid{
     text-align:center;
 }
 
-input#id_custid, #id_jobid, #id_bidid{
+input#id_custid, #id_jobid, #id_bidid, #id_optionid, #id_options{
     width: 4.5vw;
     margin-right:2%;
     margin-top:0px;
     font-size: calc(.65vw + .65vh + .25vmin);
-    font-family: "Times New Roman";
     padding-left:5px;
     text-align:center;
     -moz-appearance: textfield;
@@ -236,8 +239,23 @@ input#vendor1rebate_id, input#vendor2rebate_id, input#totalrebate_id{
     padding-right: 5px;
 }
 
+label{
+    width: 200px;
+    display: block;
+    text-align: right;
+    padding-right: 5px;
+}
+
 .label_condcol, .label_furnheight, .label_furnwidth,
 .label_coilheight, .label_coilwidth{
+    width: 163px;
+    display: block;
+    text-align: right;
+    padding-right: 5px;
+}
+
+
+.label_option{
     width: 163px;
     display: block;
     text-align: right;
@@ -293,7 +311,7 @@ button.btn.btn2{
     border: 2px solid black;
     border-radius: 2px;
     background: #C0C0C0;
-    width: 206px;
+    width: 240px;
     font-size: calc( .75vw + 0.75vh + .25vmin);
     color: black;
     cursor: pointer;
@@ -311,7 +329,7 @@ button.btn.btn3{
     border: 2px solid black;
     border-radius: 2px;
     background: #C0C0C0;
-    width: 206px;
+    width: 240px;
     font-size: calc( .75vw + 0.75vh + .25vmin);
     color: black;
     cursor: pointer;

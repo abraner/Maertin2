@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="../../../img/img.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../../static/login/custinfo.css">
+    <title>Maertin Heating & Cooling Bidding Program</title>
+</head>
+<body style="background-image: url('../../../../img/A.jpg');
+             background-repeat: no-repeat;
+             background-attachment: fixed;
+             background-size: cover;" >
+<div class="img"><img class="img" src='../../../../img/img.png'></div>
+<div class="container">
+    <div class="container1">
+
+    </div>
+    <div class="container2">
+        <div class="container2A">
+            <form class="form2" method="post">
+                {% csrf_token %}
+                {{ form.name_of_field }}
+                {% for obj in object_list %}
+                <div class="form-rowcom">
+                    <label id="label_custcompanytname">Company:</label>
+                    <div class="info">
+                        {{ obj.custcompanytname }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label id="label_custfirstname">First Name:</label>
+                    <div class="info">
+                        {{ obj.custfirstname }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label id="label_custlastname">Last Name:</label>
+                    <div class="info">
+                        {{ obj.custlastname }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label id="label_custadd1">Address #1:</label>
+                    <div class="info">
+                        {{ obj.custadd1 }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label id="label_custadd2">Address #2:</label>
+                    <div class="info">
+                        {{ obj.custadd2 }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label id="label_custcity">City:</label>
+                    <div class="info">
+                        {{ obj.custcity }}
+                    </div>
+                </div>
+                <div class="form-rowst">
+                    <label class="label_custst">State:</label>
+                    <div class="info">
+                        {{ obj.custst }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label class="label_custzipcode">Zip Code:</label>
+                    <div class="info">
+                        {{ obj.custzipcode }}
+                    </div>
+                </div>
+                {% endfor %}
+            </form>
+            <div class="form-rowbutton">
+                <a href="/mhadatabase/mattoupdate">
+                    <button type="button" class="btn btn1">Delete Project</button>
+                </a>
+            </div>
+
+        </div>
+        <div class="container2B">
+            <div class="rowmulti">
+                <a class="multiproposal" href="{% url 'mhadatabase:contractmulti' instance2.jobid %}">View Multi Proposal</a>
+
+            {% for obj in object_list2 %}
+                <div class="count">{{ obj.count }}</div>
+                </div>
+            {% endfor %}
+            <div class="form-rowcust">
+                <div class="header1">
+                    <div id="A1">Bid ID</div>
+                    <div id="A">Location</div>
+                    <div id="B">Options</div>
+                    <div id="C">Cost Before Rebate</div>
+                    <div id="D">Rebate Total</div>
+                    <div id="E">Cost After Rebate</div>
+                    <div id="F"></div>
+                    <div id="G">Contract Accepted</div>
+                </div>
+                <form class="form3" method="post">
+                    {% csrf_token %}
+                    {{ form.name_of_field }}
+                    <div class="colcust1">
+                        {% for obj in object_list2 %}
+                        {% load my_filters %}
+                        <a class="custid">{{ obj.bidid }}</a>
+                        <a class="curloc" href="{% url 'mhadatabase:bidpage' instance2.bidid %}">{{ obj.currentlocrm|default_if_none:""  }}</a>
+                        <div class="options">{{ obj.options|default_if_none:""  }}</div>
+                        <div class="loccost">{{ obj.locationcost|currency }}</div>
+                        <div class="rebate">{{ obj.rebatetotal|currency }}</div>
+                        <div class="costafterrebate">{{ obj.loccostafterrebate|currency  }}</div>
+                        <a class="jobcost" href="{% url 'mhadatabase:jobcost' instance1.bidid %}">View Job Cost</a>
+                        <a class="proposal" href="{% url 'mhadatabase:contract' instance2.bidid %}">View Proposal</a>
+                        <a class="material" href="{{ obj.get_absolute11_url }}">Materials</a>
+                        <div class="checkbox">
+                            <input type="checkbox" class="myCheckbox" name="my_checkbox" value="true">
+                        </div>
+                       {% endfor %}
+                    </div>
+                    <div class="colcust1">
+                        {% for obj in object_list3 %}
+                        {% load my_filters %}
+                        <a class="custid">{{ obj.bidid }}</a>
+                        <a class="curloc" href="{% url 'mhadatabase:bidpage' instance3.bidid %}">{{ obj.currentlocrm|default_if_none:""  }}</a>
+                        <div class="options">{{ obj.options|default_if_none:""  }}</div>
+                        <div class="loccost">{{ obj.locationcost|currency }}</div>
+                        <div class="rebate">{{ obj.rebatetotal|currency }}</div>
+                        <div class="costafterrebate">{{ obj.loccostafterrebate|currency  }}</div>
+
+                        <a class="jobcost" href="{{ obj.get_absolute11_url }}">View Job Cost</a>
+
+                        <a class="proposal" href="{% url 'mhadatabase:contract' instance3.bidid %}">View Proposal</a>
+
+                        <a class="material" href="{{ obj.get_absolute11_url }}">Materials</a>
+                        <div class="checkbox">
+                            <input type="checkbox" class="myCheckbox" name="my_checkbox" value="true">
+                        </div>
+                       {% endfor %}
+                    </div>
+                    <div class="colcust1">
+                        {% for obj in object_list4 %}
+                        {% load my_filters %}
+                        <a class="custid">{{ obj.bidid }}</a>
+                        <a class="curloc" href="{% url 'mhadatabase:bidpage' instance4.bidid %}">{{ obj.currentlocrm|default_if_none:""  }}</a>
+                        <div class="options">{{ obj.options|default_if_none:""  }}</div>
+                        <div class="loccost">{{ obj.locationcost|currency }}</div>
+                        <div class="rebate">{{ obj.rebatetotal|currency }}</div>
+                        <div class="costafterrebate">{{ obj.loccostafterrebate|currency  }}</div>
+                        <a class="jobcost" href="{{ obj.get_absolute11_url }}">View Job Cost</a>
+                        <a class="proposal" href="{% url 'mhadatabase:contract' instance4.bidid %}">View Proposal</a>
+                        <a class="material" href="{{ obj.get_absolute11_url }}">Materials</a>
+                        <div class="checkbox">
+                            <input type="checkbox" class="myCheckbox" name="my_checkbox" value="true">
+                        </div>
+                       {% endfor %}
+                    </div>
+                    <div class="colcust1">
+                        {% for obj in object_list5 %}
+                        {% load my_filters %}
+                        <a class="custid">{{ obj.bidid }}</a>
+                        <a class="curloc" href="{% url 'mhadatabase:bidpage' instance5.bidid %}">{{ obj.currentlocrm|default_if_none:""  }}</a>
+                        <div class="options">{{ obj.options|default_if_none:""  }}</div>
+                        <div class="loccost">{{ obj.locationcost|currency }}</div>
+                        <div class="rebate">{{ obj.rebatetotal|currency }}</div>
+                        <div class="costafterrebate">{{ obj.loccostafterrebate|currency  }}</div>
+                        <a class="jobcost" href="{{ obj.get_absolute11_url }}">View Job Cost</a>
+                        <a class="proposal" href="{% url 'mhadatabase:contract' instance5.bidid %}">View Proposal</a>
+                        <a class="material" href="{{ obj.get_absolute11_url }}">Materials</a>
+                        <div class="checkbox">
+                            <input type="checkbox" class="myCheckbox" name="my_checkbox" value="true">
+                        </div>
+                       {% endfor %}
+                    </div>
+                    <div class="colcust1">
+                        {% for obj in object_list6 %}
+                        {% load my_filters %}
+                        <a class="custid">{{ obj.bidid }}</a>
+                        <a class="curloc" href="{% url 'mhadatabase:bidpage' instance6.bidid %}">{{ obj.currentlocrm|default_if_none:""  }}</a>
+                        <div class="options">{{ obj.options|default_if_none:""  }}</div>
+                        <div class="loccost">{{ obj.locationcost|currency }}</div>
+                        <div class="rebate">{{ obj.rebatetotal|currency }}</div>
+                        <div class="costafterrebate">{{ obj.loccostafterrebate|currency  }}</div>
+                        <a class="jobcost" href="{{ obj.get_absolute11_url }}">View Job Cost</a>
+                        <a class="proposal" href="{% url 'mhadatabase:contract' instance6.bidid %}">View Proposal</a>
+                        <a class="material" href="{{ obj.get_absolute11_url }}">Materials</a>
+                        <div class="checkbox">
+                            <input type="checkbox" class="myCheckbox" name="my_checkbox" value="true">
+                        </div>
+                       {% endfor %}
+                    </div>
+                </form>
+
+            </div>
+        </div>
+        <div class="butclose">
+            <span class="close-btn" onclick="closeFormAndRedirect()">&times;</span>
+        </div>
+    </div>
+    <div class="container3">
+
+    </div>
+<div class="mfg-modal"  style="display:none">
+        <div class="modal-content">
+            <h3 class="modaltitle">Do you wish to add a new Project to this Customer?</h3>
+            <div class="butrow">
+
+                    <a class="btn button1"  href="{{ instance.get_absolute14_url }}">Yes</a>
+
+
+                <button type="button" class="button2">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+
+$(document).ready(function() {
+$("#id_custcompanytname").attr("disabled", true)
+$("#id_custfirstname").attr("disabled", true)
+$("#id_custlastname").attr("disabled", true)
+$("#id_custadd1").attr("disabled", true)
+$("#id_custadd2").attr("disabled", true)
+$("#id_custcity").attr("disabled", true)
+$("#id_custst").attr("disabled", true)
+$("#id_custzipcode").attr("disabled", true)
+$("#id_custwork1_0").attr("disabled", true)
+$("#id_custwork2_0").attr("disabled", true)
+$("#id_custcell1_0").attr("disabled", true)
+$("#id_custcell2_0").attr("disabled", true)
+$("#id_custhome_0").attr("disabled", true)
+$("#id_custemail1").attr("disabled", true)
+$("#id_custemail2").attr("disabled", true)
+
+
+//if ($('#id_options').val() === 'Option A') $("#bidcal2").hide()
+//if ($('#id_options').first().val() === 'Option A') $(".header1").css("background-color", "red")
+
+//if ($('#id_options').first().val() === 'Option A') $(".header1").css("background-color", "red")
+
+//if ($('.count').val() > 1) $(".header1").css("background-color", "red")
+// var valueToUse = $('.count').text();
+
+if ($('.count').text() === '1') $('.multiproposal').hide()
+if ($('.count').text() === '2') $('.multiproposal').show()
+if ($('.count').text() === '3') $('.multiproposal').show()
+if ($('.count').text() === '4') $('.multiproposal').show()
+if ($('.count').text() === '5') $('.multiproposal').show()
+
+});
+
+$(function(){
+    $('button.btn.btn2').click(function(){
+        $(".mfg-modal").show()
+    });
+});
+
+
+
+
+$(function(){
+    $('.button2').click(function(){
+        $(".mfg-modal").hide()
+    });
+});
+
+function closeFormAndRedirect() {
+    window.location.href = '{% url 'mhadatabase:customerpage' instance.custid %}'; // Redirect
+}
+
+</script>

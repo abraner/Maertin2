@@ -24,6 +24,8 @@ div.container1{
 
 div.container2{
     flex: 6;
+    border: 2px solid black;
+    margin-top: 25px;
 }
 
 div.container3{
@@ -456,3 +458,25 @@ div#pag.pagination{
     font-style: italic;
     font-family: "Times New Roman";
 }
+
+.close-btn{
+    color: #dddddd;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    background-color: red; /* Make it red */
+    padding: 2px 5px; /* Adjust padding as needed */
+    padding-top: 1px;
+    padding-bottom: 3px;
+    padding-left: 3px;
+    padding-right: 3px;
+    border-bottom: black 2px solid;
+    border-left: black 2px solid;
+
+}
+
+.close-btn:hover{
+    color: grey; /* Optional: Change color on hover */

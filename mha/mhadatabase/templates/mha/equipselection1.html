@@ -68,7 +68,7 @@
               vendor2load-url="{% url 'mhadatabase:load_vendor2' %}"
               totalrebateload-url="{% url 'mhadatabase:load_totalrebate' %}"
 
-
+              custpageloc-url="{% url 'mhadatabase:custpageloc' %}"
         >
             {% csrf_token %}
             {{ form.name_of_field }}
@@ -76,17 +76,17 @@
                 <div class="column1">
                     <div class="form-rowcustid">
                         {{ form.custid.errors }}
-                        <label id="label_custid">Cust ID:</label>
+                        <label class="custid">Cust ID:</label>
                         {{ form.custid }}
                     </div>
                     <div class="form-rowjobid">
                         {{ form.jobid.errors }}
-                        <label id="label_jobid">Job ID:</label>
+                        <label class="jobid">Job ID:</label>
                         {{ form.jobid }}
                     </div>
                     <div class="form-rowbidid">
                         {{ form.bidid.errors }}
-                        <label id="label_bidid">Bid ID:</label>
+                        <label class="bidid">Bid ID:</label>
                         {{ form.bidid }}
                     </div>
                 </div>
@@ -98,37 +98,52 @@
                     <div class="form-rowlast">
                         {{ obj.custlastname }}
                     </div>
+                    {% endfor %}
                 </div>
                 <div class="column3">
-                    <a href="{% url 'mhadatabase:deleteequipselection' instance.custid %}">
+
+                    <a href="{% url 'mhadatabase:deleteequipselection' %}">
                         <button type="button" class="btn btn4">Cancel</button>
                     </a>
                 </div>
+                <div class="column3a">
+                     <div class="form-condcol">
+                        {{ form.optionid.errors }}
+                        <label class="label_option">Option ID:</label>
+                        {{ form.optionid }}
+                    </div>
+                    <div class="form-condcol">
+                        {{ form.options.errors }}
+                        <label class="label_option">Option:</label>
+                        {{ form.options }}
+                    </div>
+
+                </div>
                 <div class="column4">
-                    <a href="{% url 'mhadatabase:bidpage' instance.jobid %}">
+                    <a href="{{ instance2.get_absolute19_url }}">
                         <button type="button" class="btn btn3" style="display:none">Accept Equipment and Start Bid</button>
                     </a>
-                    <a href="/mhadatabase/customer">
+                    <a href="{{ instance2.get_absolute19_url }}">
                         <button type="button" class="btn btn2" style="display:none">Accept Equipment and Start Option Bid</button>
                     </a>
                 </div>
             </div>
-                {% endfor %}
+
             <div class="row2">
                 <div class="row2col1">
                     <div class="form-rowjoblocation">
                         {{ form.joblocation.errors }}
-                        <label class="label_joblocation">Job Location:</label>
+                        <label class="joblocation">Job Location:</label>
                         {{ form.joblocation }}
                     </div>
                     <div class="form-rowfurntype">
                         {{ form.furntype.errors }}
-                        <label class="label_furntype">Air Handler Type:</label>
+                        <label class="furntype">Air Handler Type:</label>
                         {{ form.furntype }}
                     </div>
                     <div class="form-rowcondtype">
+                        <label class="outsideunittype">Outside Unit Type:</label>
                         {{ form.outsideunittype.errors }}
-                        <label class="label_condtype">Outside Unit Type:</label>
                         {{ form.outsideunittype }}
                     </div>
                 </div>
@@ -315,6 +330,9 @@ $(document).ready(function() {
    $("#id_vendor1rebate").attr("disabled", true)
    $("#id_vendor2rebate").attr("disabled", true)
    $("#id_totalrebate").attr("disabled", true)
+   $("#id_optionid").attr("disabled", true)
+   $("#id_options").attr("disabled", true)
+
 
 
 
@@ -331,7 +349,7 @@ $(document).ready(function() {
         }, 0);
 
 
-    
+
         setTimeout(function(){
             var urlC = $(".form2").attr("furnwidthload-url");
             req = $.ajax({
@@ -343,8 +361,8 @@ $(document).ready(function() {
                      }
                 });
         }, 0);
-    
-    
+
+
     setTimeout(function(){
             var urlC = $(".form2").attr("coilheightload-url");
             req = $.ajax({
@@ -356,7 +374,7 @@ $(document).ready(function() {
                      }
                 });
         }, 0);
-    
+
         setTimeout(function(){
             var urlC = $(".form2").attr("coilwidthload-url");
             req = $.ajax({
@@ -368,7 +386,7 @@ $(document).ready(function() {
                      }
                 });
         }, 0);
-    
+
                 setTimeout(function(){
             var urlC = $(".form2").attr("furncoilload-url");
             req = $.ajax({
@@ -494,21 +512,21 @@ $(function(){
     });
 });
 
-$(function(){
-   $('#id_outsideunittype').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("condeffload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_condeff").html(data);
-                     }
-                });
-        },400);
-    });
-});
+//$(function(){
+//   $('#id_outsideunittype').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("condeffload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_condeff").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
 
 ///////////////////////////////////////   Condenser Eff.  ////////////////////////////////////
 
@@ -537,261 +555,261 @@ $(function(){
     });
 });
 
-$(function(){
-   $('#id_condeff').change(function(){
-      // $("#id_condbtu").attr("disabled", false).css('background-color', '#66d09a')
-
-        setTimeout(function(){
-            var urlC = $(".form2").attr("condbtuload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_condbtu").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condeff').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("conddescriptload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_conddescript").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condeff').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("condmodelnumload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_condmodnum").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condeff').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furnbtuload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_furnbtu").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condeff').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furnconfigload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_furnconfig").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condeff').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furneffload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_furneff").html(data);
-                     }
-                });
-        },400);
-    });
-});
-$(function(){
-   $('#id_condeff').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furndecriptload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_furndescript").html(data);
-                     }
-                });
-        },400);
-    });
-});
-$(function(){
-   $('#id_condeff').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furnmodnumload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_furnmodnum").html(data);
-                     }
-                });
-        },400);
-    });
-});
-$(function(){
-   $('#id_condeff').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furnheightload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_furnheight").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condeff').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furnwidthload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_furnwidth").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condeff').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("coilconfigload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_coilconfig").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condeff').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("coilmodnumload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_coilmodnum").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condeff').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("coilbtuload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_coilbtu").html(data);
-                     }
-                });
-        },600);
-    });
-});
-
-$(function(){
-   $('#id_condeff').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("coilheightload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_coilheight").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-
-$(function(){
-   $('#id_condeff').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("coilwidthload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_coilwidth").html(data);
-                     }
-                });
-        },600);
-    });
-});
-
-$(function(){
-   $('#id_condeff').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furncoilload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#furncoilheight").html(data);
-                     }
-                });
-        },600);
-    });
-});
+//$(function(){
+//   $('#id_condeff').change(function(){
+//      // $("#id_condbtu").attr("disabled", false).css('background-color', '#66d09a')
+//
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("condbtuload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_condbtu").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condeff').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("conddescriptload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_conddescript").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condeff').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("condmodelnumload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_condmodnum").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condeff').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furnbtuload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_furnbtu").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condeff').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furnconfigload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_furnconfig").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condeff').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furneffload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_furneff").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//$(function(){
+//   $('#id_condeff').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furndecriptload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_furndescript").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//$(function(){
+//   $('#id_condeff').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furnmodnumload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_furnmodnum").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//$(function(){
+//   $('#id_condeff').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furnheightload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_furnheight").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condeff').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furnwidthload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_furnwidth").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condeff').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("coilconfigload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_coilconfig").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condeff').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("coilmodnumload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_coilmodnum").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condeff').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("coilbtuload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_coilbtu").html(data);
+//                     }
+//                });
+//        },600);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condeff').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("coilheightload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_coilheight").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//
+//$(function(){
+//   $('#id_condeff').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("coilwidthload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_coilwidth").html(data);
+//                     }
+//                });
+//        },600);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condeff').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furncoilload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#furncoilheight").html(data);
+//                     }
+//                });
+//        },600);
+//    });
+//});
 
 
 ///////////////////////////////////////   Condenser BTU  ////////////////////////////////////
@@ -817,243 +835,243 @@ $(function(){
     });
 });
 
-$(function(){
-   $('#id_condbtu').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("conddescriptload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_conddescript").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condbtu').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("condmodelnumload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_condmodnum").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condbtu').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furnbtuload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_furnbtu").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condbtu').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furnconfigload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_furnconfig").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condbtu').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furneffload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_furneff").html(data);
-                     }
-                });
-        },400);
-    });
-});
-$(function(){
-   $('#id_condbtu').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furndecriptload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_furndescript").html(data);
-                     }
-                });
-        },400);
-    });
-});
-$(function(){
-   $('#id_condbtu').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furnmodnumload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_furnmodnum").html(data);
-                     }
-                });
-        },400);
-    });
-});
-$(function(){
-   $('#id_condbtu').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furnheightload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_furnheight").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condbtu').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furnwidthload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_furnwidth").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condbtu').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("coilconfigload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_coilconfig").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condbtu').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("coilmodnumload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_coilmodnum").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-$(function(){
-   $('#id_condbtu').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("coilbtuload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_coilbtu").html(data);
-                     }
-                });
-        },600);
-    });
-});
-
-$(function(){
-   $('#id_condbtu').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("coilheightload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_coilheight").html(data);
-                     }
-                });
-        },400);
-    });
-});
-
-
-$(function(){
-   $('#id_condbtu').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("coilwidthload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#id_coilwidth").html(data);
-                     }
-                });
-        },600);
-    });
-});
-
-$(function(){
-   $('#id_condbtu').change(function(){
-        setTimeout(function(){
-            var urlC = $(".form2").attr("furncoilload-url");
-            req = $.ajax({
-                   url: urlC,
-                   data:{
-                     },
-                     success: function (data) {
-                       $("#furncoilheight").html(data);
-                     }
-                });
-        },600);
-    });
-});
+//$(function(){
+//   $('#id_condbtu').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("conddescriptload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_conddescript").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condbtu').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("condmodelnumload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_condmodnum").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condbtu').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furnbtuload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_furnbtu").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condbtu').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furnconfigload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_furnconfig").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condbtu').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furneffload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_furneff").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//$(function(){
+//   $('#id_condbtu').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furndecriptload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_furndescript").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//$(function(){
+//   $('#id_condbtu').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furnmodnumload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_furnmodnum").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//$(function(){
+//   $('#id_condbtu').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furnheightload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_furnheight").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condbtu').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furnwidthload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_furnwidth").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condbtu').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("coilconfigload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_coilconfig").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condbtu').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("coilmodnumload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_coilmodnum").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condbtu').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("coilbtuload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_coilbtu").html(data);
+//                     }
+//                });
+//        },600);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condbtu').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("coilheightload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_coilheight").html(data);
+//                     }
+//                });
+//        },400);
+//    });
+//});
+//
+//
+//$(function(){
+//   $('#id_condbtu').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("coilwidthload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#id_coilwidth").html(data);
+//                     }
+//                });
+//        },600);
+//    });
+//});
+//
+//$(function(){
+//   $('#id_condbtu').change(function(){
+//        setTimeout(function(){
+//            var urlC = $(".form2").attr("furncoilload-url");
+//            req = $.ajax({
+//                   url: urlC,
+//                   data:{
+//                     },
+//                     success: function (data) {
+//                       $("#furncoilheight").html(data);
+//                     }
+//                });
+//        },600);
+//    });
+//});
 
 ///////////////////////////////////////   Condenser Description  ////////////////////////////////////
 
@@ -2068,7 +2086,10 @@ $(function(){
    $('#id_thermostatmodnum').change(function(){
        $("#id_thermostat").attr("disabled", true).css('background-color', '#98b5d0')
        $("#id_thermostatmodnum").attr("disabled", true).css('background-color', '#98b5d0')
-       $("button.btn.btn3").show()
+       if ($('#id_optionid').val() == 1) $(".btn.btn2").hide()
+       if ($('#id_optionid').val() == 1) $(".btn.btn3").show()
+       if ($('#id_optionid').val() > 1) $(".btn.btn2").show()
+       if ($('#id_optionid').val() > 1) $(".btn.btn3").hide()
 
 //      $('#id_thermostat').css('background-color', '#ffd700')
 //      $("#id_thermostatmodnum").attr("disabled", false).css('background-color', '#66d09a')
@@ -2123,7 +2144,6 @@ $(function(){
 
 $(function(){
    $('#id_thermostatmodnum').change(function(){
-
         setTimeout(function(){
             var urlC = $(".form2").attr("totalrebateload-url");
             req = $.ajax({
@@ -2137,6 +2157,23 @@ $(function(){
         },400);
     });
 });
+
+
+$(function(){
+   $('#id_thermostatmodnum').change(function(){
+        setTimeout(function(){
+            if ($("#id_optionid").val() === '1') {
+            console.log("Input field value is 1!");
+            var urlC = $(".form2").attr("custpageloc-url");
+            req = $.ajax({
+                   url: urlC,
+                   });
+    }
+
+        },500);
+    });
+});
+
 
 
 

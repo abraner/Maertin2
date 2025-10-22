@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'import_export',
     'phone_field',
     'bootstrap_datepicker_plus',
+
 ]
 
 MIDDLEWARE = [

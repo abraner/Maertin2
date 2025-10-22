@@ -12,7 +12,7 @@ class ContractorInfo(models.Model):
     conadd1 = models.CharField(max_length=45, verbose_name="Address #1:")
     conadd2 = models.CharField(max_length=45, blank=True, verbose_name="Address #2:")
     concity = models.CharField(max_length=45, verbose_name="City:")
-    const = models.CharField(max_length=2, verbose_name="St:")
+    const = models.CharField(max_length=15, verbose_name="St:")
     conzipcode = models.CharField(max_length=15, verbose_name="Zip Code:")
     conwork1 = PhoneField(blank=True, verbose_name="Work Phone #1:")
     conwork2 = PhoneField(blank=True, verbose_name="Work Phone #2:")
@@ -42,6 +42,7 @@ class ContractorInfo(models.Model):
         return f"/mhadatabase/{self.id}/jobselection"
 
 
+
 class ContractorSearch(models.Model):
     id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
     concompanytname = models.CharField(null=True,max_length=50, blank=True, verbose_name="Company Name:")
@@ -68,7 +69,7 @@ class CustomerInfo(models.Model):
     custadd1 = models.CharField(null=True, max_length=45, verbose_name="Address #1:")
     custadd2 = models.CharField(null=True, max_length=45, blank=True, verbose_name="Address #2:")
     custcity = models.CharField(null=True, max_length=45, verbose_name="City:")
-    custst = models.CharField(null=True, max_length=2, verbose_name="St:")
+    custst = models.CharField(null=True, max_length=15, verbose_name="St:")
     custzipcode = models.CharField(null=True, max_length=15, verbose_name="Zip Code:")
     custwork1 = PhoneField(null=True, blank=True, verbose_name="Work Phone #1:")
     custwork2 = PhoneField(null=True, blank=True, verbose_name="Work Phone #2:")
@@ -1026,7 +1027,7 @@ class EquipSelection(models.Model):
     lock = models.CharField(max_length=45, verbose_name="")
     thermostatgroup = models.CharField(null=True, blank=True, max_length=45, verbose_name="")
     airhandlertype = models.CharField(null=True, blank=True, max_length=45, verbose_name="")
-    outsideunittype = models.CharField(null=True, blank=True, max_length=45, verbose_name="")
+    outsideunittype = models.CharField(null=True, blank=True, max_length=45, verbose_name="Outside Unit Type")
     thermostatb = models.CharField(null=True, blank=True, max_length=45, verbose_name="")
     thermostat = models.CharField(null=True, blank=True, max_length=45, verbose_name="")
     thermostatmodnum = models.CharField(null=True, blank=True, max_length=45, verbose_name="")
@@ -1040,6 +1041,9 @@ class EquipSelection(models.Model):
     furnunitrebateamount = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
     commedfurnthermbonus = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
     commedbonus = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    optionid = models.IntegerField(null=True, default=None, verbose_name="")
+    options = models.CharField(null=True, blank=True, max_length=45, verbose_name="")
 
     def get_absolute11_url(self):
         return f"/mhadatabase/{self.custid}/jobselection"
@@ -1054,7 +1058,16 @@ class EquipSelection(models.Model):
         return f"/mhadatabase/{self.custid}/customerpage/"
 
     def get_absolute18_url(self):
-        return f"/mhadatabase/{self.jobid}/bidpage"
+        return f"/mhadatabase/{self.jobid}/customerinfo"
+
+    def get_absolute19_url(self):
+        return f"/mhadatabase/{self.bidid}/bidpage/"
+
+    def get_absolute20_url(self):
+        return f"/mhadatabase/{self.id}/equipselection2"
+
+
+
 
 
 class FilterEquipType(models.Model):
@@ -1084,7 +1097,8 @@ class Bidding(models.Model):
     jobid = models.IntegerField(null=True,default=None, verbose_name="JobID.")
     bididA = models.IntegerField(null=True,default=None, verbose_name="BidIDA.")
     joblocation = models.CharField(max_length=45, verbose_name="Job Location:")
-    options = models.IntegerField(blank=True, null=True, default=None, verbose_name="")
+    optionsid = models.IntegerField(blank=True, null=True, default=None, verbose_name="")
+    options = models.CharField(max_length=45, null=True, blank=True, verbose_name="")
     jobtype1 = models.CharField(max_length=45, null=True, blank=True, verbose_name="")
     descript1 = models.CharField(null=True, blank=True, max_length=45, verbose_name="")
     cost1total = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
@@ -1316,9 +1330,10 @@ class Bidding(models.Model):
     osrdescripb = models.CharField(null=True, blank=True, max_length=45, verbose_name="")
     osrunitpriceb = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
     osrvendorb = models.CharField(null=True, blank=True, max_length=45, verbose_name="")
+    count = models.IntegerField(blank=True, null=True, default=None, verbose_name="")
 
     def get_absolute27_url(self):
-        return f"/mhadatabase/{self.jobid}/bidpage"
+        return f"/mhadatabase/{self.bidid}/bidpage"
 
     def get_absolute28_url(self):
         return f"/mhadatabase/main"
@@ -1846,6 +1861,11 @@ class CurrentJobInfo(models.Model):
     sd = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
     sdtotal = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
     sdrate = models.IntegerField(null=True, default=None, verbose_name="")
+    count = models.IntegerField(null=True, default=None, verbose_name="JobID.")
+
+
+    def get_absolute18_url(self):
+        return f"/mhadatabase/{self.jobid}/bidpage"
 
 
 class PackageInfo(models.Model):
@@ -1967,18 +1987,25 @@ class PackageInfo(models.Model):
 class TotalJobCost(models.Model):
     id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
     jobid = models.IntegerField(null=True, default=None, verbose_name="")
+    bidid = models.IntegerField(null=True, default=None, verbose_name="")
     descripid = models.CharField(max_length=60, blank=True, default=None, verbose_name="")
     jobcost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
 
 
 class SelectedEquip(models.Model):
     id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
+    equipid = models.IntegerField(null=True, default=None, verbose_name="")
+    bidid = models.IntegerField(null=True, default=None, verbose_name="")
+    quanity = models.IntegerField(blank=True, null=True, default=None, verbose_name="")
     type = models.CharField(max_length=50, blank=True, null=True, verbose_name="Type:")
     mfg = models.CharField(max_length=50, blank=True, null=True, verbose_name="Mfg:")
     modelnum = models.CharField(max_length=50, blank=True, null=True, verbose_name="Model #:")
     mfgmodeldescrip = models.CharField(max_length=50, blank=True, null=True, verbose_name="Mfg Descrip.")
     btu = models.CharField(max_length=50, blank=True, null=True, verbose_name="BTU's")
+    eff = models.CharField(max_length=50, blank=True, null=True, verbose_name="Efficiency")
     warr = models.CharField(max_length=70, blank=True, null=True, verbose_name="BTU's")
+    cost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+
 
 
 class DetailTable(models.Model):
@@ -1995,3 +2022,195 @@ class Terms(models.Model):
 
     def __str__(self):
         return str(self.term)
+
+
+class Option(models.Model):
+    id = models.AutoField(primary_key=True, default=None, verbose_name="")
+    option = models.CharField(max_length=50, blank=True, null=True, verbose_name="")
+
+
+class Custpagelocation(models.Model):
+    id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
+    jobid = models.IntegerField(null=True, default=None, verbose_name="")
+    custid = models.IntegerField(null=True, default=None, verbose_name="")
+    joblocation = models.CharField(null=True, blank=True, max_length=45, verbose_name="Job Location:")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def get_absolute21_url(self):
+        return f"/mhadatabase/{self.custid}/customerinfo"
+
+
+class multiformA(models.Model):
+    id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
+    custid = models.IntegerField(null=True, default=None, verbose_name="")
+    jobid = models.IntegerField(null=True, default=None, verbose_name="")
+    bidid = models.IntegerField(null=True, default=None, verbose_name="")
+    optionid = models.IntegerField(null=True, default=None, verbose_name="")
+    options = models.CharField(null=True, blank=True, max_length=45, verbose_name="")
+    quanity = models.IntegerField(blank=True, null=True, default=None, verbose_name="")
+    type = models.CharField(max_length=45, null=True, blank=True, default=None, verbose_name="")
+    mfg = models.CharField(max_length=45, null=True, blank=True, default=None, verbose_name="")
+    modelnum = models.CharField(max_length=50, blank=True, null=True, verbose_name="Model #:")
+    description = models.CharField(max_length=225, blank=True, null=True, verbose_name="Description")
+    eff = models.CharField(max_length=50, blank=True, null=True, verbose_name="Efficiency")
+    btu = models.CharField(max_length=50, blank=True, null=True, verbose_name="BTU's")
+    cost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+
+
+class multiformB(models.Model):
+    id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
+    custid = models.IntegerField(null=True, default=None, verbose_name="")
+    jobid = models.IntegerField(null=True, default=None, verbose_name="")
+    bidid = models.IntegerField(null=True, default=None, verbose_name="")
+    optionid = models.IntegerField(null=True, default=None, verbose_name="")
+    options = models.CharField(null=True, blank=True, max_length=45, verbose_name="")
+    quanity = models.IntegerField(blank=True, null=True, default=None, verbose_name="")
+    type = models.CharField(max_length=45, null=True, blank=True, default=None, verbose_name="")
+    mfg = models.CharField(max_length=45, null=True, blank=True, default=None, verbose_name="")
+    modelnum = models.CharField(max_length=50, blank=True, null=True, verbose_name="Model #:")
+    description = models.CharField(max_length=225, blank=True, null=True, verbose_name="Description")
+    eff = models.CharField(max_length=50, blank=True, null=True, verbose_name="Efficiency")
+    btu = models.CharField(max_length=50, blank=True, null=True, verbose_name="BTU's")
+    cost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+
+
+class multiformC(models.Model):
+    id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
+    custid = models.IntegerField(null=True, default=None, verbose_name="")
+    jobid = models.IntegerField(null=True, default=None, verbose_name="")
+    bidid = models.IntegerField(null=True, default=None, verbose_name="")
+    optionid = models.IntegerField(null=True, default=None, verbose_name="")
+    options = models.CharField(null=True, blank=True, max_length=45, verbose_name="")
+    quanity = models.IntegerField(blank=True, null=True, default=None, verbose_name="")
+    type = models.CharField(max_length=45, null=True, blank=True, default=None, verbose_name="")
+    mfg = models.CharField(max_length=45, null=True, blank=True, default=None, verbose_name="")
+    modelnum = models.CharField(max_length=50, blank=True, null=True, verbose_name="Model #:")
+    description = models.CharField(max_length=225, blank=True, null=True, verbose_name="Description")
+    eff = models.CharField(max_length=50, blank=True, null=True, verbose_name="Efficiency")
+    btu = models.CharField(max_length=50, blank=True, null=True, verbose_name="BTU's")
+    cost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+
+
+class multiformD(models.Model):
+    id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
+    custid = models.IntegerField(null=True, default=None, verbose_name="")
+    jobid = models.IntegerField(null=True, default=None, verbose_name="")
+    bidid = models.IntegerField(null=True, default=None, verbose_name="")
+    optionid = models.IntegerField(null=True, default=None, verbose_name="")
+    options = models.CharField(null=True, blank=True, max_length=45, verbose_name="")
+    quanity = models.IntegerField(blank=True, null=True, default=None, verbose_name="")
+    type = models.CharField(max_length=45, null=True, blank=True, default=None, verbose_name="")
+    mfg = models.CharField(max_length=45, null=True, blank=True, default=None, verbose_name="")
+    modelnum = models.CharField(max_length=50, blank=True, null=True, verbose_name="Model #:")
+    description = models.CharField(max_length=225, blank=True, null=True, verbose_name="Description")
+    eff = models.CharField(max_length=50, blank=True, null=True, verbose_name="Efficiency")
+    btu = models.CharField(max_length=50, blank=True, null=True, verbose_name="BTU's")
+    cost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+
+
+class multiformE(models.Model):
+    id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
+    custid = models.IntegerField(null=True, default=None, verbose_name="")
+    jobid = models.IntegerField(null=True, default=None, verbose_name="")
+    bidid = models.IntegerField(null=True, default=None, verbose_name="")
+    optionid = models.IntegerField(null=True, default=None, verbose_name="")
+    options = models.CharField(null=True, blank=True, max_length=45, verbose_name="")
+    quanity = models.IntegerField(blank=True, null=True, default=None, verbose_name="")
+    type = models.CharField(max_length=45, null=True, blank=True, default=None, verbose_name="")
+    mfg = models.CharField(max_length=45, null=True, blank=True, default=None, verbose_name="")
+    modelnum = models.CharField(max_length=50, blank=True, null=True, verbose_name="Model #:")
+    description = models.CharField(max_length=225, blank=True, null=True, verbose_name="Description")
+    eff = models.CharField(max_length=50, blank=True, null=True, verbose_name="Efficiency")
+    btu = models.CharField(max_length=50, blank=True, null=True, verbose_name="BTU's")
+    cost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+
+
+class Tax(models.Model):
+    id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
+    taxrate = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+
+
+class JobCost(models.Model):
+    id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
+    conid = models.IntegerField(null=True, default=None, verbose_name="")
+    custid = models.IntegerField(null=True, default=None, verbose_name="")
+    jobid = models.IntegerField(null=True, default=None, verbose_name="")
+    bidid = models.IntegerField(null=True, default=None, verbose_name="")
+    matcost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    taxrate = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    salestax = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    totalmatcost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    directlaborcost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    ohlabor = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    totallaborcost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    netjobcost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    netprofit = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    netprofitcost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    netjobcost2 = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    netjobcost3 = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    subtotal = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    percenatage = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    targetnetprofit = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    Seasonaldiscount = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    costplusprofit = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    subcontractors = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    instantrebate1 = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    instantrebate2 = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    jobcostprice = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    rebateamouint = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    finaljobcost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    OSRcost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+
+
+class MatCost(models.Model):
+    id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
+    conid = models.IntegerField(null=True, default=None, verbose_name="")
+    custid = models.IntegerField(null=True, default=None, verbose_name="")
+    jobid = models.IntegerField(null=True, default=None, verbose_name="")
+    bidid = models.IntegerField(null=True, default=None, verbose_name="")
+    descript = models.IntegerField(null=True, default=None, verbose_name="")
+    matcost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+
+
+class OSRCost(models.Model):
+    id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
+    conid = models.IntegerField(null=True, default=None, verbose_name="")
+    custid = models.IntegerField(null=True, default=None, verbose_name="")
+    jobid = models.IntegerField(null=True, default=None, verbose_name="")
+    bidid = models.IntegerField(null=True, default=None, verbose_name="")
+    descript = models.IntegerField(null=True, default=None, verbose_name="")
+    OSRcost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+
+
+class laborCost(models.Model):
+    id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
+    conid = models.IntegerField(null=True, default=None, verbose_name="")
+    custid = models.IntegerField(null=True, default=None, verbose_name="")
+    jobid = models.IntegerField(null=True, default=None, verbose_name="")
+    bidid = models.IntegerField(null=True, default=None, verbose_name="")
+    descript = models.CharField(max_length=45, null=True, blank=True, default=None, verbose_name="")
+    laborcost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+
+
+class EquipmentCost(models.Model):
+    id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
+    conid = models.IntegerField(null=True, default=None, verbose_name="")
+    custid = models.IntegerField(null=True, default=None, verbose_name="")
+    jobid = models.IntegerField(null=True, default=None, verbose_name="")
+    bidid = models.IntegerField(null=True, default=None, verbose_name="")
+    descript = models.IntegerField(null=True, default=None, verbose_name="")
+    equipcost = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+
+
+class Calculation(models.Model):
+    id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
+    netprofit = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    ohlabor = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+    salestax = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+
+class Profit(models.Model):
+    id = models.AutoField(primary_key=True, default=None, verbose_name="ID.")
+    netprofit = models.DecimalField(decimal_places=2, max_digits=7, default=0.00, verbose_name="")
+
+    def __str__(self):
+        return str(self.netprofit)
